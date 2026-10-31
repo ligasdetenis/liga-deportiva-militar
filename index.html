@@ -1,10 +1,82 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#321e31"><title>Liga Deportiva Militar · Panel</title>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#6E1F32"><title>Liga Deportiva Militar · Panel</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f9f6f9;background:#101018;--bg:#101018;--surface:#1b1b27;--surface2:#232331;--line:#ffffff1a;--muted:#b6b2c3;--burg:#8d3455;--burg2:#bd6382;--mint:#a8e8c8;--yellow:#ffdf92}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top left,#55253e65,transparent 42%),radial-gradient(ellipse at top right,#314b4c33,transparent 38%),var(--bg)}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:wait;opacity:.5}a{color:var(--mint)}header{border-bottom:1px solid var(--line);background:#12121cd9;backdrop-filter:blur(15px);position:sticky;top:0;z-index:3}.top,.app{max-width:1200px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:14px}.logo{border-radius:17px;background:linear-gradient(145deg,#9c375b,#422438);width:52px;height:52px;display:grid;place-items:center;font-size:30px;border:1px solid #e1a6ba65}.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#e7aac0;font-weight:800}.brand h1{font-size:20px;letter-spacing:-.025em;margin:4px 0}.topRight{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#ffffff0d;padding:8px 12px;border-radius:99px;font-size:12px;color:var(--muted)}main.app{padding-bottom:80px}.hero{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;margin:12px 0 25px}.hero h2{font-size:clamp(28px,4vw,48px);letter-spacing:-.05em;margin:8px 0}.hero p{color:var(--muted);margin:0;line-height:1.6}.hero .icon{font-size:70px;filter:drop-shadow(0 12px 19px #0006)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{background:linear-gradient(140deg,#22202eeb,#191a26);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 15px 35px #0002;min-width:0}.card.wide{grid-column:1/-1}.card h3{font-size:20px;margin:0 0 7px}.desc{font-size:13px;color:var(--muted);margin:0 0 18px;line-height:1.55}label{display:block;font-size:12px;font-weight:700;color:#d1cbd8;margin:12px 0 7px}input,select{width:100%;min-height:44px;border:1px solid #ffffff29;background:#10121d;color:#fff;border-radius:11px;padding:10px 12px;outline:none}input:focus,select:focus{border-color:#d57a9e;box-shadow:0 0 0 3px #bc628333}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}.btn{border:0;border-radius:12px;background:linear-gradient(130deg,#a34268,#6f2847);color:#fff;padding:12px 17px;font-weight:800;margin-top:17px}.btn.alt{background:#ffffff15;border:1px solid #ffffff24}.btn.tiny{padding:8px 12px;margin:0;font-size:12px}.hidden{display:none!important}.banner{border-radius:13px;padding:12px 14px;margin:0 0 18px;font-size:13px;background:#5a49301f;border:1px solid #ffda9160;color:#ffdf92;line-height:1.5}.banner.ok{color:#bbf4d7;border-color:#6bd9a66e;background:#21513e32}.banner.error{color:#ffd0d7;border-color:#fd859760;background:#6729383b}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}.stat{border:1px solid var(--line);background:#ffffff0a;padding:17px;border-radius:17px}.stat strong{display:block;font-size:29px;letter-spacing:-.045em}.stat span{font-size:12px;color:var(--muted)}.nav{display:flex;gap:8px;overflow:auto;padding-bottom:12px;margin-bottom:10px}.nav button{flex:0 0 auto;border:1px solid var(--line);border-radius:11px;background:#ffffff0d;color:#ddd8e1;font-weight:750;padding:11px 16px}.nav button.active{background:#913b5d;color:#fff;border-color:#c06b8b}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:13px}table{width:100%;border-collapse:collapse;white-space:nowrap;text-align:left;font-size:13px}th{background:#ffffff0e;color:#d7cbd4;font-size:11px;text-transform:uppercase;letter-spacing:.06em}td,th{padding:13px 12px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}#standingTable table th:nth-child(2),#standingTable table td:nth-child(2){position:sticky;left:36px;background:#232331;z-index:1}#standingTable table th:first-child,#standingTable table td:first-child{position:sticky;left:0;background:#232331;z-index:2}td small{color:var(--muted)}.empty{color:var(--muted);padding:17px;border:1px dashed var(--line);border-radius:13px;font-size:13px}.footer{margin-top:30px;color:#9993a6;font-size:12px;text-align:center}#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);border:1px solid #ffffff44;background:#2d2637;padding:14px 19px;border-radius:14px;z-index:8;box-shadow:0 10px 40px #0009;max-width:90vw}.score{font-weight:900;color:#c6ffdd}.warning{color:#ffdd9e}section[aria-label]{scroll-margin-top:110px}@media(max-width:730px){.top{padding:13px}.topRight .pill{display:none}.hero .icon{display:none}.grid,.fields,.fields.three{grid-template-columns:1fr}.card{padding:17px;border-radius:17px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.brand h1{font-size:16px}.app{padding:15px}.hero h2{font-size:32px}}
+
+/* LDM V0.4 · Renovación visual exclusivamente; conserva el motor V0.3 */
+:root{color-scheme:light;--bg:#F6F4F1;--surface:#FFFFFF;--surface2:#F2F0ED;--line:#E0E2E5;--muted:#666F7A;--burg:#6E1F32;--burg2:#521624;--mint:#B7D431;--yellow:#D9A441;--color-primary:#6E1F32;--color-primary-dark:#521624;--color-secondary:#2F343C;--color-secondary-soft:#5D6672;--color-accent:#B7D431;--color-accent-dark:#8EA51F;--color-bg:#F6F4F1;--color-surface:#FFFFFF;--color-border:#C7CDD4;--color-text:#1F2328;--color-text-soft:#6B7280;--color-success:#2E9F62;--color-warning:#D9A441;--color-danger:#C94A4A;color:#1F2328;background:#F6F4F1}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse 60% 320px at 0 -40px,#E8DADE 0%,transparent 75%),#F6F4F1;color:#1F2328}
+a{color:#6E1F32}
+header{background:#fffefaec;border-bottom:1px solid #dcdfe2;box-shadow:0 4px 22px #28232b0a;z-index:10}
+.top{padding:15px 20px}
+.logo{width:56px;height:56px;border:0;border-radius:15px;background:#6E1F32;box-shadow:0 7px 17px #6e1f3233;position:relative;display:flex;align-items:center;justify-content:center;isolation:isolate;overflow:hidden}
+.logo:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff49;border-radius:11px}
+.logo-mark{position:relative;z-index:1;color:#fff;font-size:17px;letter-spacing:-.07em;font-weight:950}
+.logo-ball{width:12px;height:12px;border-radius:50%;position:absolute;top:6px;right:5px;background:#B7D431;box-shadow:inset -2px -2px 0 #8ea51f}
+.eyebrow{color:#6E1F32;letter-spacing:.17em;font-size:11px}
+.brand h1{color:#252730;line-height:1.15}
+.pill{background:#F4F0F1;color:#6A4751;border:1px solid #EADDE1}
+.topRight .pill:first-child{background:#E9F1CD;border-color:#D5E3A9;color:#465819;font-weight:800}
+main.app{padding-bottom:88px}
+.hero{background:linear-gradient(112deg,#521624,#6E1F32 65%,#863148);border-radius:24px;padding:28px 32px;margin:18px 0 23px;min-height:168px;position:relative;overflow:hidden;box-shadow:0 14px 30px #6e1f3226;isolation:isolate}
+.hero:before{content:'';position:absolute;width:430px;height:430px;border-radius:50%;border:1px solid #ffffff2c;right:-170px;top:-225px;box-shadow:0 0 0 45px #ffffff08,0 0 0 95px #ffffff08;z-index:-1}
+.hero .eyebrow{color:#D1E59A}
+.hero h2{color:#fff;font-size:clamp(28px,3.7vw,44px);margin:8px 0}
+.hero p{color:#EFDDE3;max-width:690px;font-size:14px}
+.hero-art{display:flex;align-items:center;gap:14px;color:#fff;opacity:.96}
+.hero-ball{width:86px;height:86px;border:1px solid #ffffff52;border-radius:50%;background:#ffffff1b;display:grid;place-items:center;font-size:44px;transform:rotate(-20deg)}
+.hero-art-title{font-size:14px;font-weight:850;letter-spacing:.10em;line-height:1.38;text-align:right}
+.hero-art-title b{color:#D1E59A}
+.card{background:#fff;border:1px solid #E1E4E7;box-shadow:0 6px 22px #1721290b;border-radius:20px;padding:22px}
+.card h3{color:#222630;font-size:19px;letter-spacing:-.025em}
+.desc{color:#64707A}
+label{color:#4A5059}
+input,select{background:#FAFAFB;border:1px solid #D5D9DE;color:#1F2328;min-height:46px}
+input::placeholder{color:#939AA2}
+input:focus,select:focus{border-color:#6E1F32;box-shadow:0 0 0 3px #6E1F3220}
+.btn{background:#6E1F32;color:#fff;box-shadow:0 5px 10px #6e1f3221;transition:background .2s,transform .2s}
+.btn:hover:not(:disabled){background:#521624;transform:translateY(-1px)}
+.btn.alt{background:#F5F2F3;color:#65273A;border:1px solid #DFD3D7;box-shadow:none}
+.btn.alt:hover:not(:disabled){background:#EFE5E9}
+.banner{background:#FFF8E8;color:#795B20;border:1px solid #E9D7A8}
+.banner.ok{background:#ECF7F0;color:#24643E;border-color:#B5DEC4}
+.banner.error{background:#FFF0F0;color:#9B2837;border-color:#F0C5CB}
+.stat{background:#fff;border:1px solid #E1E4E7;border-radius:17px;box-shadow:0 3px 12px #17212908;border-top:3px solid #6E1F32}
+.stat:nth-child(2){border-top-color:#9E5268}
+.stat:nth-child(3){border-top-color:#8EA51F}
+.stat:nth-child(4){border-top-color:#D9A441}
+.stat strong{color:#2B2F36}
+.stat span{color:#67717B}
+.nav{position:sticky;top:87px;z-index:8;background:#F6F4F1f5;backdrop-filter:blur(12px);padding:10px 0 13px;margin-bottom:9px;scrollbar-width:thin;scrollbar-color:#C7CDD4 transparent}
+.nav button{border:1px solid #DBDFE3;background:#fff;color:#535A64;border-radius:12px;padding:11px 15px;white-space:nowrap;transition:all .15s}
+.nav button:hover{border-color:#A56F7E;color:#6E1F32}
+.nav button.active{background:#6E1F32;color:#fff;border-color:#6E1F32;box-shadow:0 5px 13px #6e1f3224}
+.tablewrap{border:1px solid #DEE2E7;border-radius:13px;background:#fff;max-width:100%}
+table{color:#272C33}
+th{background:#F1F2F4;color:#565E67}
+td,th{border-bottom:1px solid #ECEEF0}
+tbody tr:nth-child(even){background:#FDFBFA}
+tbody tr:hover{background:#FAF5F6}
+#standingTable table th:nth-child(2),#standingTable table td:nth-child(2){background:#fff;box-shadow:2px 0 6px #0000000b}
+#standingTable table th:first-child,#standingTable table td:first-child{background:#F1F2F4}
+#standingTable table tbody tr:nth-child(even) td:nth-child(2){background:#FDFBFA}
+td small,.empty{color:#67717B}
+.empty{border-color:#D7DCE0;background:#FCFCFD}
+.score{color:#2E9F62}
+.warning{color:#98721F}
+.footer{color:#797F86}
+#toast{background:#2F343C;border:1px solid #4C535C;color:#fff;box-shadow:0 15px 45px #18202B4A}
+#proposalList article{border-bottom-color:#E0E3E7!important}
+#proposalList article strong{color:#6E1F32}
+#proposalList article p{color:#565E67;line-height:1.45}
+#proposalList article small{color:#69717D}
+@media(max-width:850px){.hero-art-title{display:none}.hero-ball{width:65px;height:65px;font-size:36px}}
+@media(max-width:730px){.top{padding:12px 14px}.logo{width:46px;height:46px}.logo-mark{font-size:15px}.hero{padding:24px 21px;min-height:142px;grid-template-columns:1fr}.hero-art{display:none}.hero h2{font-size:29px}.hero p{font-size:13px}.nav{top:71px;margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}.app{padding:14px}.card{padding:17px}.stats{gap:9px}.stat{padding:13px}.stat strong{font-size:24px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body>
-<header><div class="top"><div class="brand"><div class="logo">🎾</div><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><span class="pill">V0.3 · Reprogramaciones</span><span id="who" class="pill">Sin sesión</span><button id="logout" class="btn alt tiny hidden" type="button">Salir</button></div></div></header>
-<main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
+<header><div class="top"><div class="brand"><div class="logo" aria-label="Identidad gráfica provisional CDM"><span class="logo-mark">CDM</span><span class="logo-ball" aria-hidden="true"></span></div><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><span class="pill">V0.4 · Diseño CDM</span><span id="who" class="pill">Sin sesión</span><button id="logout" class="btn alt tiny hidden" type="button">Salir</button></div></div></header>
+<main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>El tenis, en tu terreno.</h2><p>Tu competición, tus partidos y tus resultados. Una experiencia deportiva más clara y personal.</p></div><div class="hero-art" aria-hidden="true"><span class="hero-ball">🎾</span><span class="hero-art-title">LIGA<br>DEPORTIVA<br><b>MILITAR</b></span></div></div><div id="notice" class="banner">Conectando con la API...</div>
 <div id="authArea" class="grid"><section id="setupCard" class="card hidden"><h3>🔐 Primer administrador</h3><p class="desc">Este formulario solo se utiliza una vez. Necesitas la clave ADMIN_SETUP_KEY que guardaste en Cloudflare. No se almacena en el navegador.</p><form id="setupForm"><label>Nombre de usuario administrador</label><input name="name" maxlength="80" minlength="2" required autocomplete="username" placeholder="Administrador LDM"><label>PIN (entre 6 y 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" required autocomplete="new-password"><label>ADMIN_SETUP_KEY</label><input name="setupKey" type="password" required autocomplete="off"><button class="btn" type="submit">Crear administrador</button></form></section><section class="card"><h3>👋 Acceder</h3><p class="desc">Introduce el nombre de usuario y el PIN configurados para esta liga.</p><form id="loginForm"><label>Nombre de usuario</label><input name="name" required autocomplete="username" maxlength="80"><label>PIN</label><input name="pin" type="password" required inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="current-password"><button class="btn" type="submit">Entrar al panel</button></form></section></div>
 <div id="dashboard" class="hidden"><div class="stats"><div class="stat"><strong id="kPlayers">0</strong><span>Jugadores</span></div><div class="stat"><strong id="kMatches">0</strong><span>Partidos</span></div><div class="stat"><strong id="kPlayed">0</strong><span>Con resultado</span></div><div class="stat"><strong id="kPending">0</strong><span>Pendientes</span></div></div><nav class="nav" aria-label="Secciones del panel"><button type="button" class="active" data-tab="players">👥 Jugadores</button><button type="button" data-tab="matches">📅 Partidos</button><button type="button" data-tab="results">📝 Resultados</button><button type="button" data-tab="proposals">🔄 Cambios de fecha</button><button type="button" data-tab="standings">🏆 Clasificación</button><button type="button" data-tab="users">🔐 Usuarios</button></nav>
 <section id="tab-players" aria-label="Jugadores"><div class="grid"><div class="card" id="createPlayerBox"><h3>➕ Nuevo jugador</h3><p class="desc">Los datos reales se incorporarán cuando recibamos el PDF definitivo.</p><form id="playerForm"><label>Nombre y apellidos</label><input name="name" maxlength="90" required minlength="2"><label>División / categoría</label><input name="division" maxlength="60" value="Sub-18" required><button class="btn" type="submit">Guardar jugador</button></form></div><div class="card"><h3>👥 Participantes</h3><p class="desc">Lista almacenada en el KV exclusivo de esta liga.</p><div id="playerList" class="empty">Todavía no hay jugadores.</div></div></div></section>
