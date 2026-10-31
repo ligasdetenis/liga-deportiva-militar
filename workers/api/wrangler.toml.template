@@ -1,0 +1,9 @@
+name = "ldm-api"
+main = "worker.js"
+compatibility_date = "2026-10-31"
+workers_dev = true
+keep_vars = true
+
+[[kv_namespaces]]
+binding = "DATA"
+id = "__LDM_KV_ID__"
