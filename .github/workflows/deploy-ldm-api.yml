@@ -1,0 +1,77 @@
+name: LDM - Desplegar API Cloudflare
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'workers/api/**'
+      - '.github/workflows/deploy-ldm-api.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ldm-api-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Primer despliegue manual. Automático solo después de habilitar la variable del repositorio.
+    if: github.event_name == 'workflow_dispatch' || vars.LDM_AUTO_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Validar JavaScript
+        run: node --check workers/api/worker.js
+
+      - name: Preparar configuración segura
+        env:
+          KV_ID: ${{ vars.LDM_KV_NAMESPACE_ID }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib, sys
+          root=pathlib.Path('workers/api')
+          kv=os.environ.get('KV_ID','').strip()
+          if not re.fullmatch(r'[a-fA-F0-9]{32}',kv):
+              sys.exit('ERROR: Configura LDM_KV_NAMESPACE_ID con el ID hexadecimal de 32 caracteres del namespace ldm-datos.')
+          if not os.environ.get('CF_ACCOUNT','').strip() or not os.environ.get('CF_TOKEN','').strip():
+              sys.exit('ERROR: Faltan CLOUDFLARE_ACCOUNT_ID o CLOUDFLARE_API_TOKEN en Secrets de GitHub.')
+          source=(root/'worker.js').read_text()
+          if 'ct-campeador' in source.lower() and ('https://ct-campeador' in source.lower() or 'ct-campeador:' in source.lower()):
+              sys.exit('ERROR: Posible dependencia con CT Campeador detectada.')
+          template=(root/'wrangler.toml.template').read_text()
+          (root/'wrangler.toml').write_text(template.replace('__LDM_KV_ID__',kv))
+          print('Comprobación correcta: Worker ldm-api, KV DATA propio y secretos presentes.')
+          PY
+
+      - name: Desplegar exclusivamente ldm-api
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/api
+          command: deploy
+
+      - name: Comprobar respuesta de la API
+        run: |
+          python3 - <<'PY'
+          import urllib.request, json, sys, time
+          url='https://ldm-api.ligasdetenis.workers.dev/health'
+          for attempt in range(5):
+              try:
+                  with urllib.request.urlopen(url,timeout=15) as r:
+                      data=json.load(r)
+                  if data.get('ok') is True and data.get('service')=='ldm-api' and data.get('version')=='0.3.0':
+                      print('OK: /health responde con ldm-api 0.3.0')
+                      break
+                  raise ValueError('Respuesta no esperada (version/service)')
+              except Exception as e:
+                  if attempt == 4:
+                      sys.exit(f'ERROR: Comprobación /health fallida: {e}')
+                  time.sleep(3)
+          PY
