@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1440" viewBox="0 0 720 1440">
+<defs><linearGradient id="clay" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#4d271e"/><stop offset=".42" stop-color="#a4492b"/><stop offset="1" stop-color="#d46a37"/></linearGradient><radialGradient id="ball" cx=".3" cy=".2" r=".8"><stop stop-color="#e9fb58"/><stop offset=".55" stop-color="#a8d219"/><stop offset="1" stop-color="#597d09"/></radialGradient><linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#22090f" stop-opacity=".72"/><stop offset=".5" stop-color="#300f16" stop-opacity=".13"/><stop offset="1" stop-color="#260e13" stop-opacity=".37"/></linearGradient><pattern id="mesh" width="35" height="18" patternUnits="userSpaceOnUse"><path d="M0 0H35 M0 0V18" fill="none" stroke="#e6d4c1" stroke-width="1.5" opacity=".36"/></pattern><filter id="soft"><feGaussianBlur stdDeviation="3"/></filter><filter id="grain"><feTurbulence baseFrequency=".28" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".11"/></feComponentTransfer></filter></defs>
+<rect width="720" height="1440" fill="url(#clay)"/>
+<path d="M-40 745 L800 415 M-40 925 L800 580" stroke="#f6e7d7" stroke-width="10" opacity=".53"/>
+<path d="M125 1440L288 710 M660 1440 L484 710" stroke="#ffdebd" stroke-width="12" opacity=".4"/>
+<path d="M0 390 L720 280 L720 615 L0 730Z" fill="#2e241c" opacity=".6"/>
+<path d="M0 460 L720 355 L720 680 L0 810Z" fill="url(#mesh)" opacity=".55"/>
+<path d="M0 455 L720 347 M0 810 L720 677" stroke="#ddd4c3" stroke-width="9" opacity=".5"/>
+<ellipse cx="570" cy="1312" rx="200" ry="55" fill="#290c0a" opacity=".45" filter="url(#soft)"/>
+<g transform="translate(578 1255) rotate(-21)"><circle r="174" fill="url(#ball)" stroke="#729115" stroke-width="7"/><path d="M-145 -94 C-29 -65 27 47 -35 164 M12 -170 C-44 -51 52 55 160 54" stroke="#f9ffce" stroke-width="13" fill="none"/><circle r="173" fill="none" stroke="#304a10" stroke-width="8" opacity=".4"/></g>
+<rect width="720" height="1440" filter="url(#grain)"/><rect width="720" height="1440" fill="url(#shade)"/>
+</svg>
