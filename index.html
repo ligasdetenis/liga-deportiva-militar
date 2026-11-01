@@ -41,9 +41,9 @@ body:has(#authBackdrop:not(.hidden)) #notice{position:fixed;left:50%;bottom:55px
 :root{font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif}
 .ldmIcon{width:23px;height:23px;display:inline-block;flex:none;vertical-align:middle}
 #tab-home{max-width:560px;margin:0 auto}
-#tab-home .homeTop{margin:-22px -20px 0;border-radius:0;padding:24px 20px 80px;background:linear-gradient(107deg,#6b0525ef,#9b0b32d9),radial-gradient(circle at 92% 55%,#c3df23 0 13%,transparent 14%),linear-gradient(130deg,#58091f,#941331);position:relative}
-#tab-home .homeTop:after{content:'';position:absolute;right:-35px;bottom:0;width:155px;height:155px;border-radius:50%;background:radial-gradient(circle at 32% 27%,#e3f967,#b7d226 66%,#7eaa12);opacity:.83;box-shadow:inset 0 0 30px #6e8a1488;pointer-events:none}
-#tab-home .homeWelcome{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
+#tab-home .homeTop{margin:-22px -20px 0;border-radius:0;padding:24px 20px 80px;background-image:linear-gradient(107deg,rgba(98,7,38,.80),rgba(148,12,50,.70)),url('home-vintage.png');background-size:cover;background-position:center center;background-repeat:no-repeat;position:relative}
+#tab-home .homeTop:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(31,0,10,.10));pointer-events:none}
+#tab-home .homeWelcome{display:flex;align-items:center;gap:15px;position:relative;z-index:1;text-shadow:0 2px 10px rgba(0,0,0,.18)}
 #tab-home .avatarPick{width:66px;height:66px;border:3px solid white;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#cddaa5;color:#651128;font-weight:900;font-size:25px;position:relative;flex:none;box-shadow:0 3px 10px #20040955;cursor:pointer;padding:0}
 #tab-home .avatarPick img{width:100%;height:100%;object-fit:cover;display:block}
 #tab-home .avatarPick .avatarHint{position:absolute;bottom:0;right:0;left:0;height:18px;background:#26020ab0;color:white;font-size:10px;line-height:18px;text-align:center}
