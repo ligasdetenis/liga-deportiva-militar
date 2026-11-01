@@ -1,0 +1,24 @@
+name: LDM - Configurar claves Push (una vez)
+on:
+  workflow_dispatch:
+jobs:
+  configurar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configurar secretos VAPID en el Worker existente
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PUBLIC_X: ${{ secrets.VAPID_PUBLIC_X }}
+          VAPID_PUBLIC_Y: ${{ secrets.VAPID_PUBLIC_Y }}
+          VAPID_CONTACT_EMAIL: ${{ secrets.VAPID_CONTACT_EMAIL }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" && test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$VAPID_PRIVATE_KEY" && test -n "$VAPID_PUBLIC_KEY"
+          test -n "$VAPID_PUBLIC_X" && test -n "$VAPID_PUBLIC_Y"
+          test -n "$VAPID_CONTACT_EMAIL"
+          node -e 'const fs=require("fs"); const k=["VAPID_PRIVATE_KEY","VAPID_PUBLIC_KEY","VAPID_PUBLIC_X","VAPID_PUBLIC_Y","VAPID_CONTACT_EMAIL"];fs.writeFileSync("/tmp/ldm-vapid.json",JSON.stringify(Object.fromEntries(k.map(x=>[x,process.env[x]]))));'
+          npx --yes wrangler@4 secret bulk /tmp/ldm-vapid.json --name ldm-api
+          rm -f /tmp/ldm-vapid.json
