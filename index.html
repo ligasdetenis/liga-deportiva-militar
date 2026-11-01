@@ -580,6 +580,8 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <div class="moreList" role="navigation" aria-label="Mi cuenta">
 <button type="button" class="moreItem" id="ldmMorePushGo"><span class="moreItemIcon">🔔</span><span class="moreItemLabel">Notificaciones <small id="ldmMorePushLabel">Comprobando estado…</small></span><span class="moreChevron">›</span></button>
 </div>
+<div class="ldmMoreGroupTitle">LIGA ACTIVA</div>
+<div class="ldmLeagueCard"><label for="ldmLeagueSelect">Seleccionar competición</label><select id="ldmLeagueSelect" aria-label="Liga activa"><option value="original">Liga original</option></select><p>Cada liga mantiene sus propios jugadores, partidos, resultados y mensajes.</p></div>
 <div class="ldmMoreGroupTitle">MI COMPETICIÓN</div>
 <div class="moreList" role="navigation" aria-label="Mi competición">
 <button type="button" class="moreItem" data-goto="pending"><span class="moreItemIcon">☷</span><span class="moreItemLabel">Asuntos pendientes <small id="ldmMorePending"></small></span><span class="moreChevron">›</span></button>
@@ -587,8 +589,18 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <button type="button" class="moreItem" data-goto="proposals"><span class="moreItemIcon">↔</span><span class="moreItemLabel">Cambios de fecha</span><span class="moreChevron">›</span></button>
 <button type="button" class="moreItem" data-goto="players"><span class="moreItemIcon">♙</span><span class="moreItemLabel">Jugadores</span><span class="moreChevron">›</span></button>
 </div>
-<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
-<div class="ldmPushPanel" id="ldmPushPanel"><div class="ldmPushPanelTop"><strong>🔔 Notificaciones del móvil</strong><button id="ldmPushClose" type="button" aria-label="Cerrar configuración">✕</button></div><p id="ldmPushStatus">Comprobando el estado de los avisos…</p><div class="ldmPushActions"><button type="button" id="ldmPushActivate">Activar avisos</button><button type="button" id="ldmPushTest">Enviar prueba</button><button type="button" id="ldmPushDisable">Desactivar</button></div><p class="ldmPushHelp">En iPhone, instala primero la app desde Safari → Compartir → Añadir a pantalla de inicio.</p></div>
+<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" id="ldmImportGo"><span class="moreItemIcon">⇧</span><span class="moreItemLabel">Nueva liga e importar CSV<small>Crear temporada y cargar enfrentamientos desde PDF convertido</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
+<div id="ldmImportPanel" class="ldmImportPanel hidden adminOnly">
+<h3>Importar enfrentamientos CSV</h3><p>Primero convierte el PDF de enfrentamientos a CSV con las columnas: <code>categoria,jugador_a,jugador_b,fecha,hora,pista</code>.</p>
+<div class="ldmImportFields"><label>Nombre de la nueva liga<input id="ldmNewLeagueName" type="text" maxlength="90" placeholder="Ej.: Liga Otoño 2026"></label>
+<button type="button" id="ldmCreateLeague" class="btn">Crear liga vacía</button></div>
+<p>Selecciona la liga recién creada arriba y carga su CSV. <strong>No se permite importar sobre ligas que ya tienen datos.</strong></p>
+<input type="file" accept=".csv,text/csv" id="ldmCsvFile" aria-label="Seleccionar archivo CSV">
+<div id="ldmCsvPreview" class="ldmCsvPreview">Todavía no has seleccionado ningún CSV.</div>
+<button type="button" class="btn" id="ldmDoImport" disabled>Importar enfrentamientos</button>
+<p class="desc">Las cuentas existentes se mantienen. Vincula cada usuario con su jugador en la nueva liga usando el panel inferior.</p>
+<div id="ldmLeagueLinks"></div>
+</div><div class="ldmPushPanel" id="ldmPushPanel"><div class="ldmPushPanelTop"><strong>🔔 Notificaciones del móvil</strong><button id="ldmPushClose" type="button" aria-label="Cerrar configuración">✕</button></div><p id="ldmPushStatus">Comprobando el estado de los avisos…</p><div class="ldmPushActions"><button type="button" id="ldmPushActivate">Activar avisos</button><button type="button" id="ldmPushTest">Enviar prueba</button><button type="button" id="ldmPushDisable">Desactivar</button></div><p class="ldmPushHelp">En iPhone, instala primero la app desde Safari → Compartir → Añadir a pantalla de inicio.</p></div>
 <div class="ldmMoreGroupTitle">SESIÓN</div><div class="moreList ldmLogoutList"><button id="logout" class="moreItem ldmLogoutBtn hidden" type="button"><span class="moreItemIcon"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="moreItemLabel">Cerrar sesión<small>Salir de tu cuenta en este dispositivo</small></span><span class="moreChevron">›</span></button></div>
 <div class="moreFooter">LIGA DEPORTIVA MILITAR · V1.3.13</div></section><div id="ldmLatestTicker" class="ldmTicker" role="region" aria-label="Últimos resultados"><span class="ldmTickerLabel"><span class="ldmTickerLive" aria-hidden="true"></span> ÚLTIMOS RESULTADOS</span><div class="ldmTickerViewport"><div class="ldmTickerEmpty">Sin resultados todavía</div></div></div><nav class="bottomNav hidden" id="bottomNav" aria-label="Navegación principal"><button type="button" class="active" data-goto="home"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Inicio</button><button type="button" data-goto="matches"><span class="ic"><img class="tennisIcon tennisIconOutline" src="icons/tenis-contorno.png" alt="" aria-hidden="true"><img class="tennisIcon tennisIconSolid" src="icons/tenis-solida.png" alt="" aria-hidden="true"></span>Partidos</button><button type="button" data-goto="standings"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="3" height="8"/><rect x="10" y="9" width="3" height="12"/><rect x="16" y="4" width="3" height="17"/></svg></span>Clasificación</button><button type="button" data-goto="more"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Más</button></nav><div class="footer">Liga Deportiva Militar · Entorno V1.0.9 · Liga Deportiva Militar</div></main><div id="toast" class="hidden" role="status"></div>
 <script>
@@ -596,7 +608,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 const API='https://ldm-api.ligasdetenis.workers.dev';
 const STORE='ldm:v02:session';
 const $=id=>document.getElementById(id);
-const S={photos:{},token:(()=>{try{return localStorage.getItem(STORE)||sessionStorage.getItem(STORE)||'';}catch{return sessionStorage.getItem(STORE)||'';}})(),user:null,players:[],matches:[],users:[],proposals:[]};
+const S={leagueId:(()=>{try{return localStorage.getItem('ldm:active-league')||'original'}catch{return 'original'}})(),photos:{},token:(()=>{try{return localStorage.getItem(STORE)||sessionStorage.getItem(STORE)||'';}catch{return sessionStorage.getItem(STORE)||'';}})(),user:null,players:[],matches:[],users:[],proposals:[]};
 function keepSession(token){try{localStorage.setItem(STORE,token);sessionStorage.removeItem(STORE);}catch{sessionStorage.setItem(STORE,token);}}
 function clearSession(){S.token='';S.user=null;try{localStorage.removeItem(STORE);sessionStorage.removeItem(STORE);}catch{}}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -623,7 +635,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
 window.addEventListener('pageshow',updateInstallButton);
 updateInstallButton();
 let toastTimer;function toast(text){const x=$('toast');x.textContent=text;x.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.add('hidden'),4500);}
-async function request(path,{method='GET',payload=null,setupKey=''}={}){const h={'Accept':'application/json'};if(payload!==null)h['Content-Type']='application/json';if(S.token)h.Authorization='Bearer '+S.token;if(setupKey)h['X-Setup-Key']=setupKey;let r;try{r=await fetch(API+path,{method,headers:h,body:payload===null?undefined:JSON.stringify(payload),cache:'no-store'});}catch{throw Error('No se pudo conectar con la API. Comprueba tu conexión y la dirección del Worker.');}const v=await r.json().catch(()=>({}));if(!r.ok||v.ok===false){const err=Error(v.error||'Error HTTP '+r.status);err.status=r.status;throw err;}return v;}
+async function request(path,{method='GET',payload=null,setupKey=''}={}){const h={'Accept':'application/json'};if(payload!==null)h['Content-Type']='application/json';if(S.token)h.Authorization='Bearer '+S.token;if(setupKey)h['X-Setup-Key']=setupKey;if(!['/api/login','/api/setup','/api/setup-status','/health'].includes(path))h['X-LDM-League']=S.leagueId||'original';let r;try{r=await fetch(API+path,{method,headers:h,body:payload===null?undefined:JSON.stringify(payload),cache:'no-store'});}catch{throw Error('No se pudo conectar con la API. Comprueba tu conexión y la dirección del Worker.');}const v=await r.json().catch(()=>({}));if(!r.ok||v.ok===false){const err=Error(v.error||'Error HTTP '+r.status);err.status=r.status;throw err;}return v;}
 function formVals(form){return Object.fromEntries(new FormData(form).entries());}
 function setOptions(node,rows,placeholder='Selecciona una opción'){node.innerHTML='<option value="">'+escapeHtml(placeholder)+'</option>'+rows.map(p=>'<option value="'+escapeHtml(p.id)+'">'+escapeHtml(p.name)+'</option>').join('');}
 function userName(id){return S.players.find(p=>p.id===id)?.name||'Jugador no encontrado';}
@@ -659,8 +671,8 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
-async function refresh(){const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function refresh(){await ldmLoadLeagueOptions();const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
 const pencilIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 20 4-.8L20 7a2 2 0 0 0-3-3L5 16z"/></svg>';
@@ -1150,4 +1162,108 @@ td{font-weight:500;letter-spacing:-.006em}
 input,select,textarea{font-weight:500;letter-spacing:0}
 /* Mejor ajuste en pantallas pequeñas */
 @media(max-width:420px){.screenTitle{font-size:22px!important}.brand h1{font-size:15px!important}.bottomNav button{letter-spacing:-.02em}}
-</style></body></html>
+</style><style id="ldm-leagues-v140">
+.ldmLeagueCard,.ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:15px;padding:14px;margin:10px 0 16px;box-shadow:0 4px 16px #240a1010}
+.ldmLeagueCard label,.ldmImportFields label{display:block;color:#25222a;font-weight:750;font-size:12px;margin-bottom:7px}
+.ldmLeagueCard select,.ldmImportPanel input,.ldmImportPanel select{width:100%;max-width:100%;background:#fff;color:#1f1e23;border:1px solid #d6d7db;border-radius:10px;min-height:43px;padding:9px;margin:5px 0}
+.ldmLeagueCard p,.ldmImportPanel p{color:#6c6870;font-size:12px;line-height:1.5}
+.ldmImportPanel h3{margin-top:0;color:#241c23;font-size:18px}
+.ldmImportPanel code{font-size:11px;overflow-wrap:anywhere}
+.ldmImportPanel .btn{width:100%;margin:8px 0;min-height:44px}
+.ldmCsvPreview{max-height:290px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8fa;border:1px solid #e2e3e7;border-radius:10px;padding:12px;margin:12px 0;color:#2b2c30;font-size:12px;line-height:1.5}
+.ldmLeagueLinkRow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;border-top:1px solid #eee;padding:10px 0}
+.ldmLeagueLinkRow label{font-size:11px;color:#5d5e65}
+.ldmLeagueLinkRow button{padding:10px;border-radius:9px;border:0;background:#680e2b;color:white}
+@media(max-width:540px){.ldmLeagueLinkRow{grid-template-columns:1fr 1fr}.ldmLeagueLinkRow button{grid-column:1/-1}}
+</style>
+<script>
+/* LDM v1.4.0 — ligas múltiples y carga segura de partidos desde CSV. */
+let ldmLeagues=[],ldmImportRows=null,ldmLeagueRequestBusy=false;
+async function ldmLoadLeagueOptions(){
+ if(!S.user||ldmLeagueRequestBusy)return;
+ ldmLeagueRequestBusy=true;
+ try{
+   const data=await request('/api/leagues');ldmLeagues=data.leagues||[];
+   const select=document.getElementById('ldmLeagueSelect');if(!select)return;
+   const existing=select.value;
+   select.innerHTML=ldmLeagues.map(x=>'<option value="'+escapeHtml(x.id)+'">'+escapeHtml(x.name)+'</option>').join('');
+   const chosen=ldmLeagues.some(x=>x.id===S.leagueId)?S.leagueId:'original';
+   select.value=chosen;
+   if(chosen!==S.leagueId){S.leagueId=chosen;localStorage.setItem('ldm:active-league',chosen);}
+ }catch(e){console.warn('No se pudo cargar la lista de ligas',e.message)}finally{ldmLeagueRequestBusy=false;}
+}
+document.getElementById('ldmLeagueSelect')?.addEventListener('change',async e=>{
+ const chosen=e.target.value;if(chosen===S.leagueId)return;
+ S.leagueId=chosen;try{localStorage.setItem('ldm:active-league',chosen)}catch{}
+ S.players=[];S.matches=[];S.photos={};S.messages=[];S.proposals=[];
+ ldmAutoShown=false;ldmAutoDismiss();
+ try{S.user=(await request('/api/me')).user;view(true);await refresh();ldmRenderLeagueLinks();toast('Liga activa: '+ldmLeagues.find(l=>l.id===chosen)?.name);}
+ catch(err){toast(err.message)}
+});
+document.getElementById('ldmImportGo')?.addEventListener('click',()=>{
+ const el=document.getElementById('ldmImportPanel');el.classList.toggle('hidden');if(!el.classList.contains('hidden')){el.scrollIntoView({behavior:'smooth',block:'start'});ldmRenderLeagueLinks();}
+});
+document.getElementById('ldmCreateLeague')?.addEventListener('click',async()=>{
+ const name=document.getElementById('ldmNewLeagueName').value.trim();if(!name){toast('Escribe el nombre de la liga');return;}
+ if(!confirm('¿Crear una nueva liga independiente llamada «'+name+'»?'))return;
+ try{const data=await request('/api/leagues',{method:'POST',payload:{name}});S.leagueId=data.league.id;localStorage.setItem('ldm:active-league',S.leagueId);await ldmLoadLeagueOptions();S.user=(await request('/api/me')).user;await refresh();ldmRenderLeagueLinks();toast('Liga creada. Ahora selecciona el CSV.');}
+ catch(e){toast(e.message)}
+});
+function ldmParseCsv(text){
+ text=text.replace(/^\uFEFF/,'');const cells=[];let row=[],field='',quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;continue;}
+ if(!quoted&&(c===','||c===';'||c==='\n'||c==='\r')){if(c===','||c===';'){row.push(field.trim());field='';continue;}
+ row.push(field.trim());field='';if(row.some(Boolean))cells.push(row);row=[];if(c==='\r'&&text[i+1]==='\n')i++;continue;}field+=c;
+ }
+ if(quoted)throw Error('CSV: comillas sin cerrar');row.push(field.trim());if(row.some(Boolean))cells.push(row);
+ if(cells.length<2)throw Error('CSV vacío o sin datos');
+ const headers=cells.shift().map(x=>x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\s-]+/g,'_'));
+ const required=['categoria','jugador_a','jugador_b','fecha','hora','pista'];
+ if(required.some(k=>!headers.includes(k)))throw Error('Columnas necesarias: '+required.join(', '));
+ const rows=cells.map((items,i)=>{
+ if(items.length!==headers.length)throw Error('Fila '+(i+2)+': número de columnas incorrecto');
+ const r=Object.fromEntries(headers.map((k,j)=>[k,items[j]]));
+ const d=r.fecha.trim();if(/^\d{2}\/\d{2}\/\d{4}$/.test(d)){const [day,month,year]=d.split('/');r.fecha=year+'-'+month+'-'+day;}
+ if(/^\d{1}:\d{2}$/.test(r.hora))r.hora='0'+r.hora;
+ return r;
+ });
+ if(rows.length>1000)throw Error('Máximo 1000 encuentros por importación');return rows;
+}
+document.getElementById('ldmCsvFile')?.addEventListener('change',async e=>{
+ ldmImportRows=null;document.getElementById('ldmDoImport').disabled=true;
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  const rows=ldmParseCsv(await file.text());ldmImportRows=rows;
+  const players=new Set(rows.flatMap(r=>[r.categoria+' · '+r.jugador_a,r.categoria+' · '+r.jugador_b]));
+  const body=rows.slice(0,8).map((r,i)=>(i+2)+'. '+r.categoria+' | '+r.jugador_a+' vs '+r.jugador_b+' | '+r.fecha+' '+r.hora+' | '+r.pista).join('\n');
+  document.getElementById('ldmCsvPreview').textContent='VISTA PREVIA · '+rows.length+' partidos, '+players.size+' participantes\n\n'+body+(rows.length>8?'\n… y '+(rows.length-8)+' más':'');
+  document.getElementById('ldmDoImport').disabled=false;
+ }catch(err){document.getElementById('ldmCsvPreview').textContent='ERROR: '+err.message;}
+});
+document.getElementById('ldmDoImport')?.addEventListener('click',async()=>{
+ if(!ldmImportRows?.length)return;
+ if(S.leagueId==='original'){toast('Crea y selecciona una liga nueva antes de importar.');return;}
+ if(!confirm('¿Importar '+ldmImportRows.length+' partidos a «'+(ldmLeagues.find(x=>x.id===S.leagueId)?.name||S.leagueId)+'»? La operación solo se permite en ligas vacías.'))return;
+ const b=document.getElementById('ldmDoImport');b.disabled=true;
+ try{const result=await request('/api/leagues/import',{method:'POST',payload:{rows:ldmImportRows}});
+ ldmImportRows=null;document.getElementById('ldmCsvFile').value='';
+ document.getElementById('ldmCsvPreview').textContent='Importación correcta: '+result.matches+' enfrentamientos y '+result.players+' jugadores.';
+ await refresh();ldmRenderLeagueLinks();toast('Calendario importado correctamente');
+ }catch(e){toast(e.message);b.disabled=false;}
+});
+function ldmRenderLeagueLinks(){
+ const box=document.getElementById('ldmLeagueLinks');if(!box||!isAdmin())return;
+ if(S.leagueId==='original'){box.innerHTML='<p>La liga original mantiene las vinculaciones existentes.</p>';return;}
+ if(!S.users.length){box.innerHTML='<p>No hay usuarios creados todavía.</p>';return;}
+ box.innerHTML='<h3>Vincular usuarios con jugadores de esta liga</h3>'+S.users.filter(u=>u.role!=='admin').map(u=>
+  '<div class="ldmLeagueLinkRow"><label>'+escapeHtml(u.name)+'</label><select data-ldm-link-user="'+escapeHtml(u.id)+'"><option value="">Sin vincular</option>'+S.players.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(u.playerId===p.id?'selected':'')+'>'+escapeHtml(p.division+' · '+p.name)+'</option>').join('')+'</select><button type="button" data-ldm-link-save="'+escapeHtml(u.id)+'">Guardar</button></div>'
+ ).join('');
+}
+document.addEventListener('click',async e=>{
+ const button=e.target.closest('[data-ldm-link-save]');if(!button)return;
+ const userId=button.dataset.ldmLinkSave,playerId=document.querySelector('[data-ldm-link-user="'+userId+'"]')?.value||'';
+ button.disabled=true;try{await request('/api/users/league-player',{method:'POST',payload:{userId,playerId}});await refresh();ldmRenderLeagueLinks();toast('Usuario vinculado a esta liga');}catch(err){toast(err.message)}finally{button.disabled=false;}
+});
+const ldmRenderPrev=render;
+render=function(...args){const r=ldmRenderPrev(...args);if(!document.getElementById('ldmImportPanel')?.classList.contains('hidden'))ldmRenderLeagueLinks();return r;};
+</script></body></html>
