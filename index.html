@@ -557,7 +557,7 @@ function setOptions(node,rows,placeholder='Selecciona una opción'){node.innerHT
 function userName(id){return S.players.find(p=>p.id===id)?.name||'Jugador no encontrado';}
 function isAdmin(){return S.user?.role==='admin';}
 function view(logged){$('authBackdrop').classList.toggle('hidden',logged);$('bottomNav').classList.toggle('hidden',!logged);$('authArea').classList.toggle('hidden',logged);$('dashboard').classList.toggle('hidden',!logged);$('logout').classList.toggle('hidden',!logged);$('who').textContent=logged?(S.user.name+' · '+(isAdmin()?'Administrador':'Jugador')):'Sin sesión';for(const name of ['createPlayerBox','createMatchBox','createUserBox'])$(name).classList.toggle('hidden',!isAdmin());$('createResultBox').classList.toggle('hidden',!isAdmin()&&!S.user?.playerId);if(logged){document.querySelectorAll('.adminOnly').forEach(el=>el.classList.toggle('hidden',!isAdmin()));switchScreen(getRememberedTab());}}
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -760,7 +760,62 @@ function renderMobileHome(){
 }
 
 start();
-</script><script>
+</script>
+<style id="ldmCounterStyle">
+#ldmCounterOverlay{position:fixed;inset:0;z-index:11000;background:#17060bc9;display:none;align-items:flex-end;justify-content:center;padding:12px}
+#ldmCounterOverlay.open{display:flex}
+#ldmCounterBox{width:min(500px,100%);max-height:calc(100dvh - 24px);overflow-y:auto;background:#fff;color:#202127;border-radius:20px;padding:20px 17px;box-shadow:0 18px 65px #0005}
+#ldmCounterBox h2{font-size:20px;margin:0 0 8px;color:#710016}
+#ldmCounterBox p{font-size:12px;line-height:1.5;color:#656873}
+.ldmCounterGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.ldmCounterGrid label{font-size:11px;font-weight:800;color:#5d626b;display:block}
+.ldmCounterGrid input{display:block;width:100%;height:46px;box-sizing:border-box;margin-top:4px;border:1px solid #d9dce2;border-radius:10px;background:#fff;color:#202127;font-weight:850;text-align:center}
+#ldmCounterBox textarea{width:100%;box-sizing:border-box;min-height:68px;background:#fff;color:#202127;border:1px solid #d9dce2;border-radius:10px;padding:10px}
+.ldmCounterActions{display:grid;gap:8px;margin-top:12px}
+.ldmCounterActions button{width:100%;min-height:48px;border:0;border-radius:11px;font-weight:900;cursor:pointer}
+#ldmCounterSend{background:#83001e;color:#fff}
+#ldmCounterCancel{background:#f0f0f3;color:#343841}
+</style>
+<div id="ldmCounterOverlay" role="dialog" aria-modal="true" aria-label="Proponer otro resultado">
+<form id="ldmCounterBox">
+<h2>🎾 Proponer otro resultado</h2>
+<p id="ldmCounterAgainst"></p>
+<p>Escribe tu marcador. Los valores corresponden a <b>Jugador A</b> y <b>Jugador B</b> tal como aparecen en el partido. Tu rival recibirá una solicitud para confirmarlo.</p>
+<div class="ldmCounterGrid">
+<label>Set 1 · Jugador A<input name="s1a" type="number" min="0" max="7" required></label>
+<label>Set 1 · Jugador B<input name="s1b" type="number" min="0" max="7" required></label>
+<label>Set 2 · Jugador A<input name="s2a" type="number" min="0" max="7" required></label>
+<label>Set 2 · Jugador B<input name="s2b" type="number" min="0" max="7" required></label>
+</div>
+<label style="font-weight:800;font-size:12px">Motivo (opcional)<textarea name="reason" maxlength="300" placeholder="Por ejemplo: el segundo set fue 6-3"></textarea></label>
+<div class="ldmCounterActions"><button id="ldmCounterSend" type="submit">Enviar mi propuesta</button><button id="ldmCounterCancel" type="button">Cancelar</button></div>
+</form></div>
+<script>
+let ldmCounterMatchId=null;
+function ldmCloseCounterResult(){document.getElementById('ldmCounterOverlay')?.classList.remove('open');ldmCounterMatchId=null;}
+function ldmOpenCounterResult(matchId){
+ const m=S.matches.find(x=>x.id===matchId);if(!m?.pendingResult)return;
+ ldmCounterMatchId=matchId;
+ const box=document.getElementById('ldmCounterBox');
+ const current=m.pendingResult.sets||[];
+ document.getElementById('ldmCounterAgainst').textContent=userName(m.playerAId)+' vs '+userName(m.playerBId)+' · Resultado recibido: '+current.map(x=>x.join('-')).join(' / ');
+ const names=['s1a','s1b','s2a','s2b'];const vals=[current[0]?.[0],current[0]?.[1],current[1]?.[0],current[1]?.[1]];
+ names.forEach((name,i)=>{box.elements[name].value=vals[i]??'';});box.elements.reason.value='';
+ document.getElementById('ldmCounterOverlay').classList.add('open');box.elements.s1a.focus();
+}
+document.getElementById('ldmCounterCancel').addEventListener('click',ldmCloseCounterResult);
+document.getElementById('ldmCounterOverlay').addEventListener('click',e=>{if(e.target.id==='ldmCounterOverlay')ldmCloseCounterResult()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')ldmCloseCounterResult()});
+document.getElementById('ldmCounterBox').addEventListener('submit',async e=>{
+ e.preventDefault();if(!ldmCounterMatchId)return;
+ const f=e.currentTarget,sets=[['s1a','s1b'],['s2a','s2b']].map(a=>a.map(n=>Number(f.elements[n].value)));
+ if(sets.some(s=>s[0]===s[1]||s.some(n=>!Number.isInteger(n)||n<0||n>7))){toast('Cada set debe tener un ganador. Comprueba los juegos.');return;}
+ const send=document.getElementById('ldmCounterSend');send.disabled=true;
+ try{await request('/api/results/respond',{method:'POST',payload:{matchId:ldmCounterMatchId,action:'counter',sets,reason:f.elements.reason.value.trim()}});ldmCloseCounterResult();await refresh();toast('Contrapropuesta enviada al rival');}
+ catch(err){toast(err.message||'No se pudo enviar tu resultado');}finally{send.disabled=false;}
+});
+</script>
+<script>
 /* LDM V1.2: bandeja de revisión de resultados. */
 function ldmDrawPendingResults(){
  const box=document.getElementById('ldmPendingResults');
@@ -779,7 +834,7 @@ document.addEventListener('click',async e=>{
  const action=e.target.closest('[data-ldm-result-confirm],[data-ldm-result-dispute],[data-ldm-result-reopen]');
  if(!action)return;
  let matchId=action.dataset.ldmResultConfirm,kind='confirm',payload={};
- if(action.dataset.ldmResultDispute){matchId=action.dataset.ldmResultDispute;kind='dispute';const reason=prompt('¿Qué no coincide en el resultado?');if(reason===null)return;payload.reason=reason;}
+ if(action.dataset.ldmResultDispute){matchId=action.dataset.ldmResultDispute;ldmOpenCounterResult(matchId);return;}
  if(action.dataset.ldmResultReopen){matchId=action.dataset.ldmResultReopen;kind='reopen';if(!confirm('¿Permitir que los jugadores vuelvan a introducir el resultado?'))return;}
  if(kind==='confirm'&&!confirm('¿Confirmas este resultado como definitivo?'))return;
  action.disabled=true;
