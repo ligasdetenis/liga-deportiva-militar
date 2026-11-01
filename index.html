@@ -718,7 +718,7 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4','1.4.8','1.5.0','1.5.1'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4','1.4.8','1.5.0','1.5.1','1.5.2'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){await ldmLoadLeagueOptions();if(!S.leagueId){S.players=[];S.matches=[];S.proposals=[];S.messages=[];S.photos={};render();msg('Tu usuario todavía no está vinculado a ninguna liga. Pide al administrador que lo inscriba.','error');return;}S.user=(await request('/api/me')).user;const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -747,14 +747,18 @@ $('playerList').addEventListener('click',async e=>{
  if(!button||button.disabled||!isAdmin())return;
  const player=S.players.find(p=>p.id===button.dataset.ldmRemovePlayer);if(!player)return;
  const games=S.matches.filter(m=>m.playerAId===player.id||m.playerBId===player.id);
- if(games.some(m=>m.result||m.pendingResult)){
-   toast('No se puede quitar: tiene partidos con resultados o marcadores pendientes.');return;
- }
- const text=prompt('QUITAR JUGADOR DE ESTA LIGA\n\nJugador: '+player.name+'\nLiga: '+(ldmLeagues.find(l=>l.id===S.leagueId)?.name||S.leagueId)+'\n\nSe eliminará su inscripción y '+games.length+' partido(s) aún sin resultado, además de sus propuestas de fecha.\nSu cuenta, PIN, teléfono y otras ligas se conservarán.\n\nEscribe exactamente su nombre:', '');
+ const confirmed=games.filter(m=>!!m.result).length;
+ const pending=games.filter(m=>!m.result&&!!m.pendingResult).length;
+ const forced=confirmed>0||pending>0;
+ const leagueName=ldmLeagues.find(l=>l.id===S.leagueId)?.name||S.leagueId;
+ const detail='Jugador: '+player.name+'\nLiga: '+leagueName+'\n\nPartidos afectados: '+games.length+'\n• Con resultado confirmado: '+confirmed+'\n• Con marcador pendiente: '+pending+'\n• Sin resultado: '+(games.length-confirmed-pending)+'\n\n';
+ const warning=forced?'ATENCIÓN: se retirarán también los resultados y marcadores anteriores; cambiarán las clasificaciones de esta liga. Se guardará una copia de seguridad técnica en Cloudflare.\n\n':'Se quitarán su inscripción, sus partidos sin resultado y las solicitudes de cambio de fecha.\n\n';
+ const text=prompt('QUITAR JUGADOR DE LA LIGA\n\n'+detail+warning+'Su cuenta, PIN, teléfono y otras ligas se conservarán.\n\nEscribe exactamente su nombre para continuar:', '');
  if(text===null)return;
  if(text!==player.name){toast('Nombre incorrecto: no se ha quitado al jugador.');return;}
+ if(forced){const verification=prompt('CONFIRMACIÓN FINAL — BORRADO DE RESULTADOS\n\nSe retirarán '+confirmed+' resultado(s) y '+pending+' marcador(es) pendiente(s) de esta liga.\n\nEscribe ELIMINAR para confirmar:', '');if(verification!=='ELIMINAR'){toast('Operación cancelada.');return;}}
  button.disabled=true;
- try{const r=await request('/api/players/delete',{method:'POST',payload:{playerId:player.id,confirmName:text}});await refresh();toast('Jugador quitado de la liga. '+r.removedScheduledMatches+' partidos sin resultado retirados.');}
+ try{const r=await request('/api/players/delete',{method:'POST',payload:{playerId:player.id,confirmName:text,force:forced,forceConfirmation:forced?'ELIMINAR':undefined}});await refresh();toast('Jugador quitado. '+r.removedMatches+' partidos retirados'+(r.backupCreated?' (copia de seguridad creada).':'.'));}
  catch(err){toast(err.message);button.disabled=false;}
 });
 
