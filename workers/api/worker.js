@@ -243,7 +243,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.6", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.13", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -342,6 +342,27 @@ async function handler(req, env, ctx) {
   if (path === "/api/me" && req.method === "GET") return response({ ok: true, user }, 200, origin);
 
   if (path === "/api/players" && req.method === "GET") return response({ ok: true, players: await read(env, "players", []) }, 200, origin);
+
+  // Fotografías sincronizadas, con permisos por jugador y administrador.
+  if (path === "/api/photos" && req.method === "GET") {
+    const photos = await read(env, "photos", {});
+    return response({ ok: true, photos }, 200, origin);
+  }
+
+  if (path === "/api/photos" && req.method === "POST") {
+    const playerId = str(body.playerId, 80);
+    const photoDataUrl = String(body.photoDataUrl || "");
+    if (!playerId || !(allowAdmin(user) || user.playerId === playerId))
+      return response({ ok: false, error: "No puedes editar esta fotografía" }, 403, origin);
+    const players = await read(env, "players", []);
+    if (!players.some(p => p.id === playerId)) return response({ ok:false, error:"Jugador no encontrado" },404,origin);
+    if (!/^data:image\/jpeg;base64,[a-zA-Z0-9+/=]+$/.test(photoDataUrl) || photoDataUrl.length > 180000 || photoDataUrl.length < 100)
+      return response({ ok:false, error:"La foto debe ser JPEG y ocupar menos de 180 KB codificados" },400,origin);
+    const photos = await read(env, "photos", {});
+    photos[playerId] = photoDataUrl;
+    await put(env, "photos", photos);
+    return response({ ok:true, playerId },200,origin);
+  }
 
   if (path === "/api/matches" && req.method === "GET") return response({ ok: true, matches: await read(env, "matches", []) }, 200, origin);
 
