@@ -17,6 +17,15 @@ var td = new TextDecoder();
 var now =  __name(() => ( new Date()).toISOString(), "now");
 
 var key =  __name((k) => PREFIX + k, "key");
+const LDM_GLOBAL_KEYS = new Set(['users','leagues']);
+function ldmKey(env,name){
+ const league=env.__ldmLeague||'original';
+ return key(league==='original'||LDM_GLOBAL_KEYS.has(name)||name.startsWith('push:')?name:'league:'+league+':'+name);
+}
+const LDM_DEFAULT_LEAGUE={id:'original',name:'Liga original',createdAt:'2026-01-01T00:00:00Z',legacy:true};
+function ldmSlug(v){return /^[a-z0-9][a-z0-9-]{2,55}$/.test(String(v||''));}
+function ldmNorm(v){return String(v||'').trim().normalize('NFKC').replace(/\s+/g,' ').toLocaleLowerCase('es');}
+
 
 var str =  __name((v, max = 140) => String(v ?? "").trim().slice(0, max), "str");
 
@@ -60,7 +69,7 @@ __name(hashPin, "hashPin");
 
 function cors(origin) {
 
-  return origin === ORIGIN ? { "Access-Control-Allow-Origin": ORIGIN, "Vary": "Origin", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Setup-Key", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" } : {};
+  return origin === ORIGIN ? { "Access-Control-Allow-Origin": ORIGIN, "Vary": "Origin", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Setup-Key, X-LDM-League", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" } : {};
 
 }
 
@@ -76,7 +85,7 @@ __name(response, "response");
 
 async function read(env, name, fallback) {
 
-  const v = await env.DATA.get(key(name), "json");
+  const v = await env.DATA.get(ldmKey(env,name), "json");
 
   return v ?? fallback;
 
@@ -86,7 +95,7 @@ __name(read, "read");
 
 async function put(env, name, val) {
 
-  await env.DATA.put(key(name), JSON.stringify(val));
+  await env.DATA.put(ldmKey(env,name), JSON.stringify(val));
 
 }
 
@@ -142,7 +151,7 @@ async function identity(request, env) {
 
   const user = users.find((x) => x.id === data.id && x.rev === data.rev && x.active);
 
-  return user ? { id: user.id, name: user.name, role: user.role, playerId: user.playerId || null } : null;
+  return user ? { id: user.id, name: user.name, role: user.role, playerId: (env.__ldmLeague && env.__ldmLeague!=='original' ? (user.leaguePlayers?.[env.__ldmLeague] || null) : (user.playerId||null)) } : null;
 
 }
 
@@ -243,7 +252,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.14", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -335,9 +344,61 @@ async function handler(req, env, ctx) {
 
   }
 
+  // Aislamiento por competición. Solo las claves de la liga original conservan el prefijo anterior.
+  const requestedLeague = str(req.headers.get('X-LDM-League')||'original',60)||'original';
+  const leagues = [LDM_DEFAULT_LEAGUE,...await read(env,'leagues',[])];
+  if(!ldmSlug(requestedLeague) && requestedLeague!=='original') return response({ok:false,error:'Liga inválida'},400,origin);
+  if(!leagues.some(l=>l.id===requestedLeague)) return response({ok:false,error:'La liga seleccionada no existe'},404,origin);
+  env = Object.assign(Object.create(env),{__ldmLeague:requestedLeague});
   const user = await identity(req, env);
 
   if (!user) return response({ ok: false, error: "Inicia sesi\xF3n" }, 401, origin);
+
+  if(path==='/api/leagues' && req.method==='GET') return response({ok:true,leagues,selected:requestedLeague},200,origin);
+  if(path==='/api/leagues' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const name=str(body.name,90),slug=str(body.slug||name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),60);
+    if(name.length<3||!ldmSlug(slug)||slug==='original')return response({ok:false,error:'Nombre de liga inválido'},400,origin);
+    if(leagues.some(l=>l.id===slug))return response({ok:false,error:'Ya existe una liga con ese identificador'},409,origin);
+    const existing=await read(env,'leagues',[]);existing.push({id:slug,name,createdAt:now(),legacy:false});
+    await put(env,'leagues',existing);
+    return response({ok:true,league:existing.at(-1)},201,origin);
+  }
+  if(path==='/api/leagues/import' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    if(requestedLeague==='original')return response({ok:false,error:'Por seguridad, la liga original no admite importaciones masivas. Crea una liga nueva.'},409,origin);
+    const rows=body.rows;
+    if(!Array.isArray(rows)||!rows.length||rows.length>1000)return response({ok:false,error:'CSV vacío o demasiado grande (máximo 1000 partidos)'},400,origin);
+    const existingPlayers=await read(env,'players',[]),existingMatches=await read(env,'matches',[]);
+    if(existingPlayers.length||existingMatches.length)return response({ok:false,error:'Solo se puede importar en una liga vacía. Crea otra liga para evitar sobrescribir datos.'},409,origin);
+    const players=[],matches=[],playerMap=new Map(),slots=new Set(),fixtures=new Set();
+    for(let i=0;i<rows.length;i++){
+      const r=rows[i]||{},category=str(r.categoria||r.division||'General',60),a=str(r.jugador_a,90),b=str(r.jugador_b,90),date=str(r.fecha,10),time=str(r.hora,5),court=str(r.pista||'',60);
+      if(!a||!b||ldmNorm(a)===ldmNorm(b)||!category||!validDate(date)||!validTime(time))return response({ok:false,error:'Fila '+(i+2)+': revisa los nombres, categoría, fecha (AAAA-MM-DD) y hora (HH:MM).'},400,origin);
+      for(const name of [a,b]){const pk=ldmNorm(category)+'|'+ldmNorm(name);if(!playerMap.has(pk)){const p={id:id(),name,division:category,createdAt:now()};players.push(p);playerMap.set(pk,p.id);}}
+      const aId=playerMap.get(ldmNorm(category)+'|'+ldmNorm(a)),bId=playerMap.get(ldmNorm(category)+'|'+ldmNorm(b));
+      const fixture=[aId,bId].sort().join('|');if(fixtures.has(fixture))return response({ok:false,error:'Fila '+(i+2)+': enfrentamiento duplicado en la misma liga.'},409,origin);fixtures.add(fixture);
+      for(const playerId of [aId,bId]){const slot=playerId+'|'+date+'|'+time;if(slots.has(slot))return response({ok:false,error:'Fila '+(i+2)+': un jugador tiene dos partidos a la misma fecha y hora.'},409,origin);slots.add(slot);}
+      matches.push({id:id(),playerAId:aId,playerBId:bId,date,time,court,status:'scheduled',result:null,history:[],createdAt:now()});
+    }
+    if(players.length>400)return response({ok:false,error:'Máximo 400 jugadores por importación'},400,origin);
+    // KV no soporta transacciones entre dos claves: primero guardamos los jugadores y después partidos.
+    await put(env,'players',players);
+    await put(env,'matches',matches);
+    return response({ok:true,players:players.length,matches:matches.length,leagueId:requestedLeague},201,origin);
+  }
+  if(path==='/api/users/league-player' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const uid=str(body.userId,80),pid=str(body.playerId||'',80);
+    if(requestedLeague==='original')return response({ok:false,error:'Para la liga original usa la vinculación existente.'},400,origin);
+    if(pid&&!(await read(env,'players',[])).some(p=>p.id===pid))return response({ok:false,error:'Jugador no encontrado en esta liga'},400,origin);
+    const users=await read(env,'users',[]),target=users.find(u=>u.id===uid);
+    if(!target)return response({ok:false,error:'Usuario no encontrado'},404,origin);
+    target.leaguePlayers=target.leaguePlayers||{};
+    if(pid)target.leaguePlayers[requestedLeague]=pid;else delete target.leaguePlayers[requestedLeague];
+    await put(env,'users',users);
+    return response({ok:true,userId:uid,playerId:pid||null},200,origin);
+  }
 
   if (path === "/api/me" && req.method === "GET") return response({ ok: true, user }, 200, origin);
 
@@ -370,7 +431,7 @@ async function handler(req, env, ctx) {
 
     if (!allowAdmin(user)) return response({ ok: false, error: "Solo administraci\xF3n" }, 403, origin);
 
-    return response({ ok: true, users: (await read(env, "users", [])).map(({ salt, hash, ...safe }) => safe) }, 200, origin);
+    return response({ ok: true, users: (await read(env, 'users', [])).map(({salt,hash,...safe})=>({...safe,playerId:requestedLeague==='original'?safe.playerId||null:safe.leaguePlayers?.[requestedLeague]||null})) }, 200, origin);
 
   }
 
@@ -390,7 +451,7 @@ async function handler(req, env, ctx) {
 
     if (playerId && !(await read(env, "players", [])).some((x) => x.id === playerId)) return response({ ok: false, error: "Jugador no encontrado" }, 400, origin);
 
-    const nu = { id: id(), name, role, playerId, active: true, rev: 1, createdAt: now(), ...await hashPin(pin) };
+    const nu = { id: id(), name, role, playerId:requestedLeague==='original'?playerId:null, leaguePlayers:requestedLeague!=='original'&&playerId?{[requestedLeague]:playerId}:{}, active: true, rev: 1, createdAt: now(), ...await hashPin(pin) };
 
     users.push(nu);
 
