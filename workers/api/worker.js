@@ -243,7 +243,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -331,7 +331,7 @@ async function handler(req, env, ctx) {
 
     if (!u || !safeEq(hash, u.hash)) return response({ ok: false, error: "Credenciales incorrectas" }, 401, origin);
 
-    return response({ ok: true, token: await token(env.AUTH_SECRET, { app: "ldm:v1", id: u.id, rev: u.rev, exp: Date.now() + 12 * 36e5 }), user: { id: u.id, name: u.name, role: u.role, playerId: u.playerId || null } }, 200, origin);
+    return response({ ok: true, token: await token(env.AUTH_SECRET, { app: "ldm:v1", id: u.id, rev: u.rev, exp: Date.now() + 30 * 24 * 36e5 }), user: { id: u.id, name: u.name, role: u.role, playerId: u.playerId || null } }, 200, origin);
 
   }
 
