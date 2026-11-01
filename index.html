@@ -305,6 +305,38 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#2420
 #tab-proposals .proposalActions button{flex:1 1 95px;min-height:40px;font-size:12px;border-radius:10px}
 #tab-proposals .proposalActions button:first-child{background:#850b2f;color:white}
 @media(max-width:390px){#tab-proposals .proposalRivals .rival{font-size:11px}#tab-proposals .proposalRivals .avatar{width:30px;height:30px}#standingTable th:nth-child(2),#standingTable td:nth-child(2){min-width:122px!important;width:122px!important;max-width:122px!important}}
+
+/* V1.0.6 — clasificación completa CT Campeador, identidad LDM */
+#tab-standings .card{max-width:100%;min-width:0}
+#standingTable .ldmRankingOverview{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;color:#730b2c;font-weight:850;font-size:13px}
+#standingTable .ldmRankingOverview small{font-size:10px;color:#817985;font-weight:700;text-align:right}
+#standingTable .tablewrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;border:1px solid #e7e2e6;border-radius:12px}
+#standingTable table{min-width:705px;width:max-content;border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums}
+#standingTable th,#standingTable td{white-space:nowrap;text-align:center;padding:12px 7px;min-width:52px;font-size:11px;border-bottom:1px solid #eeebed}
+#standingTable thead th{background:#f3f1f3!important;color:#5d5561;font-size:11px;font-weight:850;position:sticky;top:0;z-index:2}
+#standingTable th:nth-child(1),#standingTable td:nth-child(1){position:sticky;left:0;z-index:6;width:38px;min-width:38px;max-width:38px;background:#fff;padding:9px 3px}
+#standingTable th:nth-child(2),#standingTable td:nth-child(2){position:sticky;left:38px;z-index:5;width:150px;min-width:150px;max-width:150px;background:#fff;text-align:left;white-space:normal;box-shadow:5px 0 8px -7px #39202b88}
+#standingTable thead th:nth-child(-n+2){z-index:8;background:#f3f1f3!important}
+#standingTable th:nth-child(3),#standingTable td:nth-child(3){min-width:55px;width:55px;max-width:55px;background:#fff9f5;font-weight:900}
+#standingTable tbody tr:nth-child(odd) td:nth-child(-n+2){background:#fcfafb}
+#standingTable tbody tr.is-me td,#standingTable tbody tr.is-me td:nth-child(-n+3){background:#fff0f5!important}
+#standingTable .ldmStandingName{font-size:12px;line-height:1.25;font-weight:850}
+#standingTable .ldmForm{gap:4px;min-height:11px;margin-top:6px;flex-wrap:nowrap}
+#standingTable .ldmDot{width:9px;height:9px}
+#standingTable .ldmPoints{font-size:16px;color:#780a2d;font-weight:950}
+#standingTable th:nth-child(7),#standingTable td:nth-child(7),#standingTable th:nth-child(10),#standingTable td:nth-child(10){min-width:64px}
+#standingTable .ldmLegend{gap:12px;justify-content:flex-start}
+@media(max-width:700px){
+ #tab-standings .card{padding:10px}
+ #standingTable table{min-width:625px}
+ #standingTable th,#standingTable td{font-size:10px;padding:11px 5px;min-width:43px}
+ #standingTable th:nth-child(1),#standingTable td:nth-child(1){width:33px;min-width:33px;max-width:33px}
+ #standingTable th:nth-child(2),#standingTable td:nth-child(2){left:33px;width:116px;min-width:116px;max-width:116px;padding:9px 5px}
+ #standingTable th:nth-child(3),#standingTable td:nth-child(3){min-width:44px;width:44px;max-width:44px}
+ #standingTable .ldmStandingName{font-size:11px}
+ #standingTable .ldmPos{width:23px;height:23px;font-size:12px}
+ #standingTable .ldmRankingOverview{font-size:12px}
+}
 </style></head><body>
 <header><div class="top"><div class="brand"><div class="logo" aria-label="CDM"></div><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button id="ldmNotify" type="button" aria-label="Ver propuestas pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><span id="who" class="pill">Sin sesión</span><button id="logout" class="btn alt tiny hidden" type="button">Salir</button></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
@@ -325,7 +357,7 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#2420
 <div class="proposalHelp">ⓘ La pista se reserva mediante la máquina del complejo. La app no realiza reservas.</div><button class="btn proposalPrimary" type="submit">➤ Enviar propuesta</button></form></div>
 <div class="card"><h3>📨 Propuestas y acuerdos</h3><p class="desc">Solo el rival puede resolver una propuesta pendiente. Al aceptar deberá confirmar que ya dispone de pista.</p><div id="proposalList" class="empty">Sin propuestas.</div></div>
 </div></section>
-<section id="tab-standings" class="hidden" aria-label="Clasificación"><div class="sectionHeader"><h2>Clasificación</h2><p>Puntos, sets y juegos por división.</p></div><div class="card"><h3>🏆 Clasificación</h3><p class="desc">Orden provisional: puntos, sets ganados y juegos ganados. Los indicadores muestran los últimos seis resultados.</p><label>Ver división</label><select id="divisionFilter"></select><div id="standingTable" class="empty">Todavía no hay participantes.</div></div></section>
+<section id="tab-standings" class="hidden" aria-label="Clasificación"><div class="sectionHeader"><h2>Clasificación</h2><p>Puntos, sets y juegos por división.</p></div><div class="card"><h3>🏆 Clasificación</h3><p class="desc">Orden: puntos, sets ganados y juegos ganados. Los puntos de color muestran la forma reciente.</p><label>Ver división</label><select id="divisionFilter"></select><div id="standingTable" class="empty">Todavía no hay participantes.</div></div></section>
 <section id="tab-users" class="hidden" aria-label="Usuarios"><div class="sectionHeader"><h2>Usuarios</h2><p>Accesos y permisos de la competición.</p></div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Los PIN nunca se muestran.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
 <section id="tab-more" class="hidden screenPanel moreScreen" aria-label="Más opciones">
 <div class="moreHeader"><h2>Más opciones</h2><p>Tu liga, todo a mano</p></div>
@@ -356,27 +388,43 @@ const arrowIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="cu
 function render(){const played=S.matches.filter(m=>m.result).length;$('kPlayers').textContent=S.players.length;$('kMatches').textContent=S.matches.length;$('kPlayed').textContent=played;$('kPending').textContent=S.matches.length-played;$('playerList').innerHTML=S.players.length?'<div class="tablewrap"><table><thead><tr><th>Nombre</th><th>División</th></tr></thead><tbody>'+S.players.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+escapeHtml(x.division)+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Todavía no hay jugadores.</div>';setOptions($('playerA'),S.players);setOptions($('playerB'),S.players);setOptions($('userPlayer'),S.players,'Sin vincular');setOptions($('resultMatch'),S.matches.map(m=>({id:m.id,name:m.date+' '+m.time+' · '+userName(m.playerAId)+' vs '+userName(m.playerBId)})),'Selecciona un partido');const sorted=[...S.matches].sort((a,b)=>(a.date+' '+a.time).localeCompare(b.date+' '+b.time));$('matchList').innerHTML=sorted.length?'<div class="matchCards v09MatchCards">'+sorted.map(m=>{const done=!!m.result;const canChange=canPropose(m);const isMyMatch=!!S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId);const state=done?'Finalizado':'Programado';return '<article class="matchCard v09MatchCard"><div class="matchCardTop"><span class="matchCardKicker">🎾 LIGA DEPORTIVA MILITAR</span><span class="badge '+(done?'done':'')+'">'+state+'</span></div><button type="button" class="matchCardDetail" data-showmatch="'+escapeHtml(m.id)+'" aria-label="Ver detalles de '+escapeHtml(userName(m.playerAId))+' contra '+escapeHtml(userName(m.playerBId))+'"><div class="matchCardPlayers"><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><strong>'+escapeHtml(userName(m.playerAId))+'</strong></div><span class="matchVs">VS</span><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><strong>'+escapeHtml(userName(m.playerBId))+'</strong></div></div><div class="matchCardWhen">'+calendarIcon+'<span>'+escapeHtml(m.date||'Sin fecha')+' · '+escapeHtml(m.time||'Hora pendiente')+'</span></div><div class="matchCardCourt">'+escapeHtml(m.court||'Pista por confirmar')+'</div>'+(done?'<div class="matchScore">'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</div>':'')+'</button><div class="matchCardActions">'+(isAdmin()&&!done?'<button type="button" class="matchAction matchActionPrimary" data-match-result="'+escapeHtml(m.id)+'">'+pencilIcon+' Registrar resultado</button>':'')+(canChange?'<button type="button" class="matchAction '+(isAdmin()&&!done?'matchActionSecondary':'matchActionPrimary')+'" data-match-propose="'+escapeHtml(m.id)+'">'+calendarIcon+' Proponer cambio de fecha</button>':'')+'<button type="button" class="matchAction matchActionSecondary" data-showmatch="'+escapeHtml(m.id)+'">Ver detalle del partido '+arrowIcon+'</button></div></article>';}).join('')+'</div>':'<div class="empty">No hay enfrentamientos.</div>';const results=sorted.filter(m=>m.result).reverse();$('resultList').innerHTML=results.length?'<div class="tablewrap"><table><thead><tr><th>Partido</th><th>Sets</th><th>Puntos</th></tr></thead><tbody>'+results.map(m=>'<tr><td>'+escapeHtml(userName(m.playerAId))+'<br><small>vs '+escapeHtml(userName(m.playerBId))+'</small></td><td>'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</td><td>'+m.result.pointsA+' - '+m.result.pointsB+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Sin resultados.</div>';$('userList').innerHTML=isAdmin()&&S.users.length?'<div class="tablewrap"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Jugador</th></tr></thead><tbody>'+S.users.map(u=>'<tr><td>'+escapeHtml(u.name)+'</td><td>'+escapeHtml(u.role)+'</td><td>'+escapeHtml(u.playerId?userName(u.playerId):'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">No hay cuentas disponibles para mostrar.</div>';const pick=$('divisionFilter'),old=pick.value,divs=[...new Set(S.players.map(p=>p.division||'Sub-18'))].sort((a,b)=>a.localeCompare(b,'es'));pick.innerHTML=divs.map(d=>'<option value="'+escapeHtml(d)+'">'+escapeHtml(d)+'</option>').join('');if(divs.includes(old))pick.value=old;standings();renderProposals();renderMobileHome();}
 function standings(){
  const div=$('divisionFilter').value;
- const rows=S.players.filter(p=>(p.division||'Sub-18')===div).map(p=>({id:p.id,name:p.name,points:0,sf:0,gf:0,pj:0,forms:[]}));
+ const rows=S.players.filter(p=>(p.division||'Sub-18')===div).map(p=>({id:p.id,name:p.name,points:0,pj:0,sf:0,sa:0,gf:0,ga:0,forms:[]}));
  const byId=Object.fromEntries(rows.map(r=>[r.id,r]));
  const playedMatches=S.matches.filter(m=>m.result).slice().sort((a,b)=>((a.date||'')+' '+(a.time||'')).localeCompare((b.date||'')+' '+(b.time||'')));
  for(const m of playedMatches){
    const a=byId[m.playerAId],b=byId[m.playerBId];if(!a||!b)continue;
    const sets=m.result.sets;if(!Array.isArray(sets)||sets.length!==2)continue;
-   let sa=0,sb=0;
-   for(const [x,y] of sets){const xx=Number(x),yy=Number(y);if(!Number.isFinite(xx)||!Number.isFinite(yy))continue;sa+=Number(xx>yy);sb+=Number(yy>xx);a.sf+=Number(xx>yy);b.sf+=Number(yy>xx);a.gf+=xx;b.gf+=yy;}
-   a.pj++;b.pj++;a.points+=sa;b.points+=sb;
-   a.forms.push(sa>sb?'win':sa<sb?'loss':'draw');
-   b.forms.push(sb>sa?'win':sb<sa?'loss':'draw');
+   let winsA=0,winsB=0,valid=true,gamesA=0,gamesB=0;
+   for(const set of sets){
+     if(!Array.isArray(set)||set.length<2){valid=false;break;}
+     const xx=Number(set[0]), yy=Number(set[1]);
+     if(!Number.isFinite(xx)||!Number.isFinite(yy)||xx===yy){valid=false;break;}
+     winsA+=Number(xx>yy);winsB+=Number(yy>xx);gamesA+=xx;gamesB+=yy;
+   }
+   if(!valid)continue;
+   a.pj++;b.pj++;
+   a.sf+=winsA;a.sa+=winsB;b.sf+=winsB;b.sa+=winsA;
+   a.gf+=gamesA;a.ga+=gamesB;b.gf+=gamesB;b.ga+=gamesA;
+   // Dos sets por encuentro: 2-0 = 2 puntos; 1-1 = 1 punto por jugador.
+   a.points+=winsA;b.points+=winsB;
+   a.forms.push(winsA>winsB?'win':winsA<winsB?'loss':'draw');
+   b.forms.push(winsB>winsA?'win':winsB<winsA?'loss':'draw');
  }
  rows.sort((a,b)=>b.points-a.points||b.sf-a.sf||b.gf-a.gf||a.name.localeCompare(b.name,'es'));
  const mine=S.user?.playerId;
- const legend='<div class="ldmLegend"><span><i class="ldmDot win"></i> Victoria</span><span><i class="ldmDot draw"></i> Empate</span><span><i class="ldmDot loss"></i> Derrota</span></div><p class="ldmStandingNote">Últimos 6 partidos, del más antiguo al más reciente. Desliza la tabla lateralmente para ver todos los datos.</p>';
+ const legend='<div class="ldmLegend"><span><i class="ldmDot win"></i> Victoria</span><span><i class="ldmDot draw"></i> Empate</span><span><i class="ldmDot loss"></i> Derrota</span></div><p class="ldmStandingNote">Forma de los últimos seis partidos, del más antiguo al más reciente. Desliza lateralmente para consultar todas las estadísticas.</p>';
  $('standingTable').classList.remove('empty');
- $('standingTable').innerHTML=rows.length?'<div class="tablewrap" role="region" aria-label="Clasificación desplazable" tabindex="0"><table><thead><tr><th>#</th><th>Jugador · forma</th><th>PTS</th><th>PJ</th><th>Sets +</th><th>Juegos +</th></tr></thead><tbody>'+rows.map((r,i)=>{
- const isMe=r.id===mine;
- const form=r.forms.slice(-6).map((f,k)=>'<i class="ldmDot '+f+'" title="'+({win:'Victoria',draw:'Empate',loss:'Derrota'}[f])+'" aria-label="'+({win:'Victoria',draw:'Empate',loss:'Derrota'}[f])+'"></i>').join('');
- return '<tr class="'+(isMe?'is-me':'')+'"><td><span class="ldmPos">'+(i+1)+'</span></td><td><span class="ldmStandingName '+(isMe?'is-me':'')+'">'+escapeHtml(r.name)+(isMe?' · Tú':'')+'</span><span class="ldmForm" aria-label="Forma reciente">'+(form||'<i class="ldmDot none" title="Sin resultados"></i>')+'</span></td><td><span class="ldmPoints">'+r.points+'</span></td><td>'+r.pj+'</td><td>'+r.sf+'</td><td>'+r.gf+'</td></tr>';}).join('')+'</tbody></table></div>'+legend:'<div class="empty">No hay participantes en esta división.</div>';
+ const headings=['#','Jugador · forma','PTS','PJ','SF','SA','Dif Sets','J+','J−','Dif Juegos'];
+ const head='<thead><tr>'+headings.map(h=>'<th scope="col">'+h+'</th>').join('')+'</tr></thead>';
+ const body='<tbody>'+rows.map((r,i)=>{
+   const isMe=r.id===mine;
+   const form=r.forms.slice(-6).map(f=>'<i class="ldmDot '+f+'" title="'+({win:'Victoria',draw:'Empate',loss:'Derrota'}[f])+'" aria-label="'+({win:'Victoria',draw:'Empate',loss:'Derrota'}[f])+'"></i>').join('');
+   const cells=['<span class="ldmPoints">'+r.points+'</span>',r.pj,r.sf,r.sa,r.sf-r.sa,r.gf,r.ga,r.gf-r.ga];
+   return '<tr class="'+(isMe?'is-me':'')+'"><td><span class="ldmPos">'+(i+1)+'</span></td><td><span class="ldmStandingName '+(isMe?'is-me':'')+'">'+escapeHtml(r.name)+(isMe?' · Tú':'')+'</span><span class="ldmForm" aria-label="Forma reciente">'+(form||'<i class="ldmDot none" title="Sin resultados"></i>')+'</span></td>'+cells.map(v=>'<td>'+v+'</td>').join('')+'</tr>';
+ }).join('')+'</tbody>';
+ $('standingTable').innerHTML=rows.length?'<div class="ldmRankingOverview"><span>🏆 Clasificación completa</span><small>Partidos con resultado: '+playedMatches.length+'</small></div><div class="tablewrap" role="region" aria-label="Clasificación completa; desliza para ver más estadísticas" tabindex="0"><table>'+head+body+'</table></div>'+legend:'<div class="empty">No hay participantes en esta división.</div>';
 }
+
 async function submit(form,fn){const b=form.querySelector('[type=submit]');b.disabled=true;try{await fn(formVals(form));}catch(e){msg(e.message,'error');toast(e.message);}finally{b.disabled=false;}}
 $('setupForm').addEventListener('submit',e=>{e.preventDefault();submit(e.currentTarget,async v=>{await request('/api/setup',{method:'POST',setupKey:v.setupKey,payload:{name:v.name,pin:v.pin}});$('setupForm').reset();$('setupCard').classList.add('hidden');msg('Administrador creado. Inicia sesión con tu nombre y PIN.','ok');toast('Administrador inicial creado');});});
 $('loginForm').addEventListener('submit',e=>{e.preventDefault();submit(e.currentTarget,async v=>{const data=await request('/api/login',{method:'POST',payload:v});S.token=data.token;sessionStorage.setItem(STORE,S.token);S.user=data.user;view(true);$('loginForm').reset();await refresh();toast('Sesión iniciada');});});
