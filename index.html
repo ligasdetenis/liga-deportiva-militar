@@ -554,13 +554,14 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 
 
 
-/* V1.4.7 · Acciones operativas en tarjetas de inicio */
-#tab-home .ldmFixtureActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid #efe6e9}
-#tab-home .ldmFixtureActions .matchAction{display:flex;justify-content:center;align-items:center;gap:5px;width:100%;min-width:0;min-height:45px;padding:8px 7px;font-size:11px;line-height:1.3;text-align:center;cursor:pointer;touch-action:manipulation}
-#tab-home .ldmFixtureActions .matchAction svg{flex-shrink:0;width:15px;height:15px}
-#tab-home .ldmFixtureActions .matchAction:only-child{grid-column:1/-1}
-#tab-home .ldmFixturePending{grid-column:1/-1;font-size:12px;font-weight:750;color:#806323;text-align:center;padding:10px;border-radius:9px;background:#f9f2df}
-@media(max-width:390px){#tab-home .ldmFixtureActions{grid-template-columns:1fr}#tab-home .ldmFixtureActions .matchAction{font-size:12px}}
+/* V1.4.9 · Los botones de Inicio comparten el estilo y estados de Partidos */
+#tab-home .ldmFixtureActions.matchCardActions{display:flex;flex-direction:column;gap:8px;margin-top:13px;padding:12px 0 0;border-top:1px solid #efe6e9}
+#tab-home .ldmFixtureActions .matchAction{width:100%;min-height:48px;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 13px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:14px;line-height:1.25;font-weight:850;text-align:center;touch-action:manipulation}
+#tab-home .ldmFixtureActions .matchActionPrimary{border:1px solid #830b2f;background:linear-gradient(115deg,#a10b35,#750b2c);color:#fff;box-shadow:0 3px 10px #770e2e20}
+#tab-home .ldmFixtureActions .matchActionSecondary{background:#fff;color:#29242b;border:1.4px solid #d6d3d8}
+#tab-home .ldmFixtureActions .matchAction:active{transform:scale(.99)}
+#tab-home .ldmFixtureActions .matchAction svg{flex-shrink:0;width:19px;height:19px}
+@media(max-width:390px){#tab-home .ldmFixtureActions .matchAction{font-size:13px}}
 
 /* V1.4.6 · controles táctiles dentro de cada tarjeta de próximo partido */
 #tab-home .ldmFixturesTrack>.fixture{display:block;cursor:pointer}
@@ -936,13 +937,17 @@ function renderMobileHome(){
  const fallback=upcoming.length?upcoming:own.filter(m=>!m.result).slice(0,16);
  const fixtureCards=fallback.length?fallback.map((m,i)=>{
    const mine=!!S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId);
-   const maySubmit=!m.result&&!m.pendingResult&&(isAdmin()||mine);
-   const mayPropose=canPropose(m)&&!m.pendingResult;
-   const pending=!!m.pendingResult;
-   const actions='<div class="ldmFixtureActions">'+
+   const pendingResult=m.pendingResult&&!m.result?m.pendingResult:null;
+   const maySubmit=!m.result&&!pendingResult&&(isAdmin()||mine);
+   const canConfirm=!!pendingResult&&pendingResult.status==='pending'&&pendingResult.submittedBy!==S.user?.id&&(mine||isAdmin());
+   const canReopen=!!pendingResult&&pendingResult.status==='disputed'&&isAdmin();
+   const mayPropose=canPropose(m)&&!pendingResult;
+   const actions='<div class="ldmFixtureActions matchCardActions">'+
      (maySubmit?'<button type="button" class="matchAction matchActionPrimary" data-match-result="'+escapeHtml(m.id)+'">'+pencilIcon+' Subir resultado</button>':'')+
-     (mayPropose?'<button type="button" class="matchAction matchActionSecondary" data-match-propose="'+escapeHtml(m.id)+'">'+calendarIcon+' Proponer cambio de fecha</button>':'')+
-     (pending?'<span class="ldmFixturePending">'+(m.pendingResult.status==='disputed'?'Resultado en revisión':'Resultado pendiente de confirmación')+'</span>':'')+
+     (canConfirm?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-confirm="'+escapeHtml(m.id)+'">✓ Confirmar resultado</button><button type="button" class="matchAction matchActionSecondary" data-ldm-result-dispute="'+escapeHtml(m.id)+'">No estoy de acuerdo</button>':'')+
+     (canReopen?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-reopen="'+escapeHtml(m.id)+'">Reabrir resultado</button>':'')+
+     (pendingResult&&!canConfirm&&!canReopen?'<button type="button" class="matchAction matchActionSecondary" data-match-review="'+escapeHtml(m.id)+'">'+(pendingResult.status==='disputed'?'Ver discrepancia':'Esperando confirmación')+'</button>':'')+
+     (mayPropose?'<button type="button" class="matchAction '+(maySubmit?'matchActionSecondary':'matchActionPrimary')+'" data-match-propose="'+escapeHtml(m.id)+'">'+calendarIcon+' Proponer cambio de fecha</button>':'')+
      '</div>';
    return '<div class="fixture" role="button" tabindex="0" data-match-open="'+escapeHtml(m.id)+'"><div class="fixtureHead">Próximo enfrentamiento <span class="ldmFixtureIndex">'+(i+1)+' / '+fallback.length+'</span></div><div class="fixtureNames"><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><b>'+escapeHtml(userName(m.playerAId))+'</b></div><em>VS</em><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><b>'+escapeHtml(userName(m.playerBId))+'</b></div><span class="fixtureNext"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></div><div class="fixtureMeta"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18M7 14h2M12 14h2M7 18h2"/></svg> '+escapeHtml(m.date)+' · '+escapeHtml(m.time)+' · '+escapeHtml(m.court||'Pista por confirmar')+'</div>'+actions+'</div>';
  }).join(''):'<div class="empty">No hay próximos partidos programados.</div>';
