@@ -243,7 +243,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.13", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.14", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -614,7 +614,7 @@ async function handler(req, env, ctx) {
   // Comunicaciones V1.2.3: mensajes persistentes y visibilidad por destinatario.
   if (path === "/api/messages" && req.method === "GET") {
     const messages = await read(env, "messages", []);
-    const visible = messages.filter(m => m.recipientIds.includes(user.id));
+    const visible = messages.filter(m => Array.isArray(m.recipientIds) && m.recipientIds.includes(user.id) && !(Array.isArray(m.deletedBy) && m.deletedBy.includes(user.id)));
     return response({ok:true,messages:visible.map(m => ({...m,read: (m.readBy||[]).includes(user.id)})).sort((a,b)=>b.createdAt.localeCompare(a.createdAt))},200,origin);
   }
   if (path === "/api/messages/send" && req.method === "POST") {
@@ -638,6 +638,18 @@ async function handler(req, env, ctx) {
     if (!item) return response({ok:false,error:"Mensaje no encontrado"},404,origin);
     item.readBy=Array.isArray(item.readBy)?item.readBy:[];
     if (!item.readBy.includes(user.id)){item.readBy.push(user.id);await put(env,"messages",messages);}
+    return response({ok:true},200,origin);
+  }
+  // Eliminación por destinatario: se conserva el mensaje para otros usuarios.
+  if (path === "/api/messages/delete" && req.method === "POST") {
+    const messageId=str(body.messageId,80), messages=await read(env,"messages",[]);
+    const item=messages.find(x=>x.id===messageId && Array.isArray(x.recipientIds) && x.recipientIds.includes(user.id));
+    if (!item) return response({ok:false,error:"Mensaje no encontrado"},404,origin);
+    item.deletedBy=Array.isArray(item.deletedBy)?item.deletedBy:[];
+    if (!item.deletedBy.includes(user.id)) {
+      item.deletedBy.push(user.id);
+      await put(env,"messages",messages);
+    }
     return response({ok:true},200,origin);
   }
   // Resultados V1.2: los antiguos siguen siendo definitivos.
