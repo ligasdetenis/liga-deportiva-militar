@@ -510,14 +510,6 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 .ldmPushLed{height:7px;width:7px;border-radius:50%;background:#d99a1d}
 .ldmPushQuick.on .ldmPushLed{background:#16a05d}
 .ldmPushQuick.blocked .ldmPushLed{background:#d21f43}
-.ldmPushInvite{border:1px solid #e8bcce;border-radius:16px;padding:15px;background:linear-gradient(120deg,#fff7fa,#fff);box-shadow:0 7px 20px #370b1b10;margin:11px 0}
-.ldmPushInvite.hidden{display:none!important}
-.ldmPushInvite strong{font-size:14px;display:block;color:#5b1730}
-.ldmPushInvite p{font-size:12px;color:#635961;line-height:1.4;margin:7px 0 12px}
-.ldmPushInviteActions{display:flex;gap:8px;flex-wrap:wrap}
-.ldmPushInviteActions button{min-height:40px;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12px}
-#ldmPushInviteYes{background:#821332;color:white;border:0;flex:1}
-#ldmPushInviteLater{background:white;border:1px solid #e2d6db;color:#725765}
 @media(max-width:490px){.ldmPushQuick{font-size:9px;padding:4px 6px;min-height:27px}#ldmPushQuickText{max-width:76px;overflow:hidden;text-overflow:ellipsis}}
 
 /* V1.3.10 · Salir solo al final de Más, cabecera despejada */
@@ -550,7 +542,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 <section id="tab-users" class="hidden" aria-label="Usuarios"><div class="sectionHeader"><h2>Usuarios</h2><p>Accesos y permisos de la competición.</p></div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Los PIN nunca se muestran.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
 <section id="tab-more" class="hidden screenPanel moreScreen" aria-label="Más opciones">
 <div class="moreHeader"><h2>Más opciones</h2><p>Gestión de tu competición y cuenta</p></div>
-<div id="ldmPushInvite" class="ldmPushInvite hidden"><strong>🔔 Activa los avisos de tu liga</strong><p>Recibe resultados, cambios de fecha y comunicaciones incluso con la aplicación cerrada.</p><div class="ldmPushInviteActions"><button id="ldmPushInviteYes" type="button">Activar notificaciones</button><button id="ldmPushInviteLater" type="button">Ahora no</button></div></div><div class="ldmMoreGroupTitle">MI CUENTA</div>
+<div class="ldmMoreGroupTitle">MI CUENTA</div>
 <div class="moreList" role="navigation" aria-label="Mi cuenta">
 <button type="button" class="moreItem" id="ldmMorePushGo"><span class="moreItemIcon">🔔</span><span class="moreItemLabel">Notificaciones <small id="ldmMorePushLabel">Comprobando estado…</small></span><span class="moreChevron">›</span></button>
 </div>
@@ -564,7 +556,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 <div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
 <div class="ldmPushPanel" id="ldmPushPanel"><div class="ldmPushPanelTop"><strong>🔔 Notificaciones del móvil</strong><button id="ldmPushClose" type="button" aria-label="Cerrar configuración">✕</button></div><p id="ldmPushStatus">Comprobando el estado de los avisos…</p><div class="ldmPushActions"><button type="button" id="ldmPushActivate">Activar avisos</button><button type="button" id="ldmPushTest">Enviar prueba</button><button type="button" id="ldmPushDisable">Desactivar</button></div><p class="ldmPushHelp">En iPhone, instala primero la app desde Safari → Compartir → Añadir a pantalla de inicio.</p></div>
 <div class="ldmMoreGroupTitle">SESIÓN</div><div class="moreList ldmLogoutList"><button id="logout" class="moreItem ldmLogoutBtn hidden" type="button"><span class="moreItemIcon"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="moreItemLabel">Cerrar sesión<small>Salir de tu cuenta en este dispositivo</small></span><span class="moreChevron">›</span></button></div>
-<div class="moreFooter">LIGA DEPORTIVA MILITAR · V1.3.10</div></section><div id="ldmLatestTicker" class="ldmTicker" role="region" aria-label="Últimos resultados"><span class="ldmTickerLabel"><span class="ldmTickerLive" aria-hidden="true"></span> ÚLTIMOS RESULTADOS</span><div class="ldmTickerViewport"><div class="ldmTickerEmpty">Sin resultados todavía</div></div></div><nav class="bottomNav hidden" id="bottomNav" aria-label="Navegación principal"><button type="button" class="active" data-goto="home"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Inicio</button><button type="button" data-goto="matches"><span class="ic"><img class="tennisIcon tennisIconOutline" src="icons/tenis-contorno.png" alt="" aria-hidden="true"><img class="tennisIcon tennisIconSolid" src="icons/tenis-solida.png" alt="" aria-hidden="true"></span>Partidos</button><button type="button" data-goto="standings"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="3" height="8"/><rect x="10" y="9" width="3" height="12"/><rect x="16" y="4" width="3" height="17"/></svg></span>Clasificación</button><button type="button" data-goto="more"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Más</button></nav><div class="footer">Liga Deportiva Militar · Entorno V1.0.9 · Liga Deportiva Militar</div></main><div id="toast" class="hidden" role="status"></div>
+<div class="moreFooter">LIGA DEPORTIVA MILITAR · V1.3.11</div></section><div id="ldmLatestTicker" class="ldmTicker" role="region" aria-label="Últimos resultados"><span class="ldmTickerLabel"><span class="ldmTickerLive" aria-hidden="true"></span> ÚLTIMOS RESULTADOS</span><div class="ldmTickerViewport"><div class="ldmTickerEmpty">Sin resultados todavía</div></div></div><nav class="bottomNav hidden" id="bottomNav" aria-label="Navegación principal"><button type="button" class="active" data-goto="home"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Inicio</button><button type="button" data-goto="matches"><span class="ic"><img class="tennisIcon tennisIconOutline" src="icons/tenis-contorno.png" alt="" aria-hidden="true"><img class="tennisIcon tennisIconSolid" src="icons/tenis-solida.png" alt="" aria-hidden="true"></span>Partidos</button><button type="button" data-goto="standings"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="3" height="8"/><rect x="10" y="9" width="3" height="12"/><rect x="16" y="4" width="3" height="17"/></svg></span>Clasificación</button><button type="button" data-goto="more"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Más</button></nav><div class="footer">Liga Deportiva Militar · Entorno V1.0.9 · Liga Deportiva Militar</div></main><div id="toast" class="hidden" role="status"></div>
 <script>
 'use strict';
 const API='https://ldm-api.ligasdetenis.workers.dev';
@@ -1017,15 +1009,13 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-goto="more"]'))
 </script><script>
 /* V1.3.8 · indicador Push real y gestión accesible, sin tocar suscripciones existentes */
 function ldmPushDisplay(state){
- const quick=document.getElementById('ldmPushQuick'), label=document.getElementById('ldmPushQuickText'),more=document.getElementById('ldmMorePushLabel'),invite=document.getElementById('ldmPushInvite');
+ const quick=document.getElementById('ldmPushQuick'), label=document.getElementById('ldmPushQuickText'),more=document.getElementById('ldmMorePushLabel');
  if(!quick||!label)return;
  quick.classList.toggle('hidden',!S.user);
  quick.classList.remove('on','off','blocked');quick.classList.add(state);
  label.textContent=state==='on'?'Push activo':state==='blocked'?'Bloqueado':'Activar avisos';
  quick.setAttribute('aria-label',state==='on'?'Notificaciones activadas. Abrir configuración':state==='blocked'?'Notificaciones bloqueadas. Ver instrucciones':'Activar notificaciones del móvil');
  if(more)more.textContent=state==='on'?'Avisos activos en este móvil':state==='blocked'?'Permiso bloqueado':'Avisos desactivados';
- let dismissed=false;try{dismissed=Date.now()<Number(localStorage.getItem('ldm:push:invite:dismissedUntil')||0);}catch{}
- if(invite)invite.classList.toggle('hidden',state!=='off'||dismissed||!S.user);
 }
 function ldmPushOpen(){
  if(!S.user)return;
@@ -1037,11 +1027,6 @@ function ldmPushOpen(){
 document.getElementById('ldmPushQuick')?.addEventListener('click',ldmPushOpen);
 document.getElementById('ldmMorePushGo')?.addEventListener('click',ldmPushOpen);
 document.getElementById('ldmPushClose')?.addEventListener('click',()=>document.getElementById('ldmPushPanel')?.classList.remove('show'));
-document.getElementById('ldmPushInviteYes')?.addEventListener('click',ldmPushOpen);
-document.getElementById('ldmPushInviteLater')?.addEventListener('click',()=>{
- try{localStorage.setItem('ldm:push:invite:dismissedUntil',String(Date.now()+3*24*60*60*1000));}catch{}
- document.getElementById('ldmPushInvite')?.classList.add('hidden');
-});
 window.addEventListener('pageshow',()=>{if(S.user)ldmPushState();});
 document.addEventListener('click',e=>{if(e.target.closest('[data-goto="more"]'))setTimeout(()=>{if(S.user)ldmPushState();},200);});
 </script><div id="ldmAutoOverlay" class="ldmAutoOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="ldmAutoTitle"><div class="ldmAutoCard"><div class="ldmAutoHead"><span class="ldmAutoBell" aria-hidden="true">🔔</span><div><div class="ldmAutoTitle" id="ldmAutoTitle">Tienes asuntos pendientes</div><div class="ldmAutoSub" id="ldmAutoSub"></div></div></div><div id="ldmAutoList" class="ldmAutoList"></div><div class="ldmAutoFoot"><button class="ldmAutoPrimary" id="ldmAutoReview" type="button">Revisar asuntos</button><button class="ldmAutoSecondary" id="ldmAutoClose" type="button">Ahora no</button></div></div></div><script>
