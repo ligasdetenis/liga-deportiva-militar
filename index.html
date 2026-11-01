@@ -491,6 +491,8 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 .ldmAutoList{padding:14px 17px 5px}.ldmAutoItem{padding:11px 0;border-bottom:1px solid #f0e9eb}.ldmAutoItem:last-child{border-bottom:0}
 .ldmAutoKind{font-size:10px;font-weight:900;letter-spacing:.055em;color:#a71942}.ldmAutoItem strong{display:block;font-size:14px;margin:5px 0 3px}.ldmAutoItem p{font-size:12px;color:#6b6370;margin:0;line-height:1.4}
 .ldmAutoFoot{padding:12px 17px 18px;display:grid;gap:9px}.ldmAutoPrimary{min-height:48px;border:0;border-radius:12px;background:#8f1238;color:#fff;font-weight:850;font-size:14px}.ldmAutoSecondary{min-height:40px;border:1px solid #e6d9de;background:#fff;border-radius:11px;color:#6c5360;font-weight:750}
+
+.ldmPushTarget{outline:3px solid #d29a23!important;outline-offset:3px;box-shadow:0 0 0 6px #e5b84c44!important;scroll-margin-top:110px}
 </style></head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span><button id="logout" class="btn alt tiny hidden" type="button">Salir</button></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
@@ -556,9 +558,39 @@ function formVals(form){return Object.fromEntries(new FormData(form).entries());
 function setOptions(node,rows,placeholder='Selecciona una opción'){node.innerHTML='<option value="">'+escapeHtml(placeholder)+'</option>'+rows.map(p=>'<option value="'+escapeHtml(p.id)+'">'+escapeHtml(p.name)+'</option>').join('');}
 function userName(id){return S.players.find(p=>p.id===id)?.name||'Jugador no encontrado';}
 function isAdmin(){return S.user?.role==='admin';}
-function view(logged){$('authBackdrop').classList.toggle('hidden',logged);$('bottomNav').classList.toggle('hidden',!logged);$('authArea').classList.toggle('hidden',logged);$('dashboard').classList.toggle('hidden',!logged);$('logout').classList.toggle('hidden',!logged);$('who').textContent=logged?(S.user.name+' · '+(isAdmin()?'Administrador':'Jugador')):'Sin sesión';for(const name of ['createPlayerBox','createMatchBox','createUserBox'])$(name).classList.toggle('hidden',!isAdmin());$('createResultBox').classList.toggle('hidden',!isAdmin()&&!S.user?.playerId);if(logged){document.querySelectorAll('.adminOnly').forEach(el=>el.classList.toggle('hidden',!isAdmin()));switchScreen(getRememberedTab());}}
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
-async function refresh(){const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();msg('', 'ok');}
+function view(logged){$('authBackdrop').classList.toggle('hidden',logged);$('bottomNav').classList.toggle('hidden',!logged);$('authArea').classList.toggle('hidden',logged);$('dashboard').classList.toggle('hidden',!logged);$('logout').classList.toggle('hidden',!logged);$('who').textContent=logged?(S.user.name+' · '+(isAdmin()?'Administrador':'Jugador')):'Sin sesión';for(const name of ['createPlayerBox','createMatchBox','createUserBox'])$(name).classList.toggle('hidden',!isAdmin());$('createResultBox').classList.toggle('hidden',!isAdmin()&&!S.user?.playerId);if(logged){document.querySelectorAll('.adminOnly').forEach(el=>el.classList.toggle('hidden',!isAdmin()));switchScreen(ldmGetLaunchRoute()||getRememberedTab());}}
+// V1.3.6 · navegación desde avisos Push: no altera el PIN ni la API.
+let ldmDeepLinkHandled='';
+function ldmGetLaunchRoute(){
+ const p=new URLSearchParams(location.search),v=p.get('view');
+ return ['messages','results','proposals','pending','matches'].includes(v)?v:null;
+}
+function ldmApplyPushDeepLink(){
+ if(!S.user)return;
+ const view=ldmGetLaunchRoute();if(!view)return;
+ const p=new URLSearchParams(location.search),item=p.get('item')||'';
+ const key=view+'|'+item;if(key===ldmDeepLinkHandled)return;
+ ldmDeepLinkHandled=key;
+ // Ruta Push tiene prioridad sobre la pestaña recordada.
+ switchScreen(view);ldmAutoDismiss?.();
+ const safe=(typeof CSS!=='undefined'&&CSS.escape)?CSS.escape(item):item.replace(/[^a-zA-Z0-9_-]/g,'');
+ let el=null;
+ if(item&&safe){
+   if(view==='messages')el=document.querySelector('[data-ldm-message-id="'+safe+'"]');
+   if(view==='proposals')el=document.querySelector('[data-ldm-proposal-id="'+safe+'"]');
+   if(view==='results'||view==='matches')el=document.querySelector('[data-ldm-result-match="'+safe+'"]')||document.querySelector('[data-showmatch="'+safe+'"]');
+ }
+ if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('ldmPushTarget');setTimeout(()=>el.classList.remove('ldmPushTarget'),4400);}
+ // Limpiar la URL evita reabrir el mismo asunto en una visita normal posterior.
+ history.replaceState(null,'',location.pathname+location.hash);
+}
+window.addEventListener('pageshow',()=>{if(S.user)ldmApplyPushDeepLink();});
+navigator.serviceWorker?.addEventListener('message',e=>{
+ if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
+ try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
+});
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function refresh(){const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
 const pencilIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 20 4-.8L20 7a2 2 0 0 0-3-3L5 16z"/></svg>';
@@ -827,7 +859,7 @@ function ldmDrawPendingResults(){
   if(!isAdmin()&&!involved)return '';
   const canReply=p.status==='pending'&&p.submittedBy!==S.user.id;
   const score=Array.isArray(p.sets)?p.sets.map(s=>s.join('–')).join(' / '):'';
-  return '<article class="ldmPendingResultCard '+(p.status==='disputed'?'disputed':'')+'"><strong>'+escapeHtml(userName(m.playerAId))+' vs '+escapeHtml(userName(m.playerBId))+'</strong><small>Marcador propuesto: '+escapeHtml(score)+'</small><small>'+(p.status==='disputed'?'⚠️ Resultado discutido · '+escapeHtml(p.reason||''):'⏳ Pendiente de confirmación del rival')+'</small><div class="ldmPendingResultActions">'+(canReply?'<button class="btn tiny" data-ldm-result-confirm="'+escapeHtml(m.id)+'">Confirmar</button><button class="btn alt tiny" data-ldm-result-dispute="'+escapeHtml(m.id)+'">No estoy de acuerdo</button>':'')+(isAdmin()&&p.status==='disputed'?'<button class="btn alt tiny" data-ldm-result-reopen="'+escapeHtml(m.id)+'">Permitir nuevo resultado</button>':'')+'</div></article>';
+  return '<article data-ldm-result-match="'+escapeHtml(m.id)+'" class="ldmPendingResultCard '+(p.status==='disputed'?'disputed':'')+'"><strong>'+escapeHtml(userName(m.playerAId))+' vs '+escapeHtml(userName(m.playerBId))+'</strong><small>Marcador propuesto: '+escapeHtml(score)+'</small><small>'+(p.status==='disputed'?'⚠️ Resultado discutido · '+escapeHtml(p.reason||''):'⏳ Pendiente de confirmación del rival')+'</small><div class="ldmPendingResultActions">'+(canReply?'<button class="btn tiny" data-ldm-result-confirm="'+escapeHtml(m.id)+'">Confirmar</button><button class="btn alt tiny" data-ldm-result-dispute="'+escapeHtml(m.id)+'">No estoy de acuerdo</button>':'')+(isAdmin()&&p.status==='disputed'?'<button class="btn alt tiny" data-ldm-result-reopen="'+escapeHtml(m.id)+'">Permitir nuevo resultado</button>':'')+'</div></article>';
  }).join('');
 }
 document.addEventListener('click',async e=>{
@@ -889,7 +921,7 @@ function ldmRenderMessages(){
  const label=document.getElementById('ldmMsgUnread');if(label)label.textContent=unread?'('+unread+' sin leer)':'';
  const menu=document.getElementById('ldmMoreMessages');if(menu)menu.textContent=unread?'('+unread+')':'';
  const box=document.getElementById('ldmMessagesList');
- if(box)box.innerHTML=all.length?all.map(m=>'<article class="ldmMessageCard '+(!m.read?'unread':'')+'"><small>'+escapeHtml(new Date(m.createdAt).toLocaleString('es-ES'))+' · '+escapeHtml(m.authorName||'Organización')+(!m.read?' · NUEVO':'')+'</small><h3>'+escapeHtml(m.title)+'</h3><p>'+escapeHtml(m.content)+'</p>'+(!m.read?'<button type="button" class="btn tiny" data-ldm-read="'+escapeHtml(m.id)+'">Marcar como leído</button>':'')+'</article>').join(''):'<div class="ldmMessageEmpty">Todavía no has recibido comunicaciones.</div>';
+ if(box)box.innerHTML=all.length?all.map(m=>'<article data-ldm-message-id="'+escapeHtml(m.id)+'" class="ldmMessageCard '+(!m.read?'unread':'')+'"><small>'+escapeHtml(new Date(m.createdAt).toLocaleString('es-ES'))+' · '+escapeHtml(m.authorName||'Organización')+(!m.read?' · NUEVO':'')+'</small><h3>'+escapeHtml(m.title)+'</h3><p>'+escapeHtml(m.content)+'</p>'+(!m.read?'<button type="button" class="btn tiny" data-ldm-read="'+escapeHtml(m.id)+'">Marcar como leído</button>':'')+'</article>').join(''):'<div class="ldmMessageEmpty">Todavía no has recibido comunicaciones.</div>';
  const form=document.getElementById('ldmMessageAdmin');if(form)form.classList.toggle('hidden',!isAdmin());
  const users=document.getElementById('ldmRecipients');if(users&&isAdmin())users.innerHTML=S.users.filter(u=>u.active!==false).map(u=>'<label><input type="checkbox" class="ldmRecipientCheck" value="'+escapeHtml(u.id)+'">'+escapeHtml(u.name)+'</label>').join('');
 }
