@@ -551,7 +551,17 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 #ldmNotify.has-pending .dot{display:none!important}
 #ldmNotify .ldmInboxBadge{background:#f4c64e!important;color:#3e1823!important;border:2px solid #65112c!important;min-width:21px;height:21px;top:-6px;right:-7px;font-variant-numeric:tabular-nums;font-size:10px;line-height:1;font-weight:900}
 #ldmNotify:not(.has-pending){background:transparent!important;color:#fff!important;box-shadow:none!important}
-</style></head><body>
+</style><style id="ldm-bulk-access-v141">
+#ldmBulkAccess{background:#fff;border:1px solid #e5e3e8;border-radius:15px;padding:16px;margin:16px 0;box-shadow:0 3px 14px #200b1010;color:#29252c}
+#ldmBulkAccess h3{margin:0 0 6px;font-size:18px}#ldmBulkAccess p{font-size:12px;color:#64636b;line-height:1.5}
+.ldmBulkTools{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}.ldmBulkTools button{flex:1;min-width:120px;padding:10px;border:1px solid #d5d0d5;border-radius:9px;background:#f9f7f9;color:#53112b;font-weight:750}
+#ldmBulkPlayers{max-height:280px;overflow-y:auto;border:1px solid #e7e4e7;border-radius:11px;padding:8px;background:#faf9fa}
+.ldmBulkPlayer{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #ede9ed;color:#26212a;font-size:12px}.ldmBulkPlayer input{width:18px;height:18px;flex:none}
+#ldmBulkCreate{width:100%;min-height:48px;border:0;border-radius:10px;background:#790c34;color:white;font-weight:800;margin-top:11px}
+#ldmBulkOutput{display:none;background:#f6f7fa;color:#222;border:1px solid #dedfe6;border-radius:10px;padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace}
+#ldmBulkDownload{display:none;width:100%;margin-top:10px;min-height:45px;border:1px solid #28623e;border-radius:10px;background:#e6f6eb;color:#225e3b;font-weight:800}
+</style>
+</head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button type="button" id="ldmPushQuick" class="ldmPushQuick off hidden" title="Configurar avisos del móvil" aria-label="Estado de notificaciones Push"><span class="ldmPushLed"></span><span id="ldmPushQuickText">Avisos</span></button><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
 <div id="authBackdrop" class="authBackdrop"><div class="authBrand"><img class="symbol" src="./logo-cdm.png" alt="Liga Deportiva Militar CDM"><h2>LIGA<br>DEPORTIVA<br>MILITAR</h2><p>Competición de Tenis</p></div><div id="authArea" class="grid">
@@ -671,7 +681,7 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){await ldmLoadLeagueOptions();const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -1266,4 +1276,51 @@ document.addEventListener('click',async e=>{
 });
 const ldmRenderPrev=render;
 render=function(...args){const r=ldmRenderPrev(...args);if(!document.getElementById('ldmImportPanel')?.classList.contains('hidden'))ldmRenderLeagueLinks();return r;};
-</script></body></html>
+</script><script id="ldm-bulk-access-js-v141">
+(()=>{
+let latestCredentials=[];
+function mount(){
+ const host=document.getElementById('tab-users')||document.getElementById('usersView')||document.getElementById('createUserBox')?.parentElement;
+ if(!host||document.getElementById('ldmBulkAccess'))return;
+ const root=document.createElement('section');root.id='ldmBulkAccess';root.className='adminOnly';
+ root.innerHTML='<h3>Accesos de jugadores · Liga activa</h3><p>Selecciona jugadores de la liga. Se reutiliza la cuenta existente cuando coincide el nombre; solo los usuarios nuevos reciben PIN. Descarga los PIN al terminar: no podrán consultarse después.</p><div class="ldmBulkTools"><button type="button" id="ldmBulkAll">Seleccionar todos</button><button type="button" id="ldmBulkNone">Quitar selección</button></div><div id="ldmBulkPlayers"></div><button type="button" id="ldmBulkCreate">Generar accesos / vincular seleccionados</button><div id="ldmBulkOutput" aria-live="polite"></div><button type="button" id="ldmBulkDownload">Descargar credenciales CSV</button><p><b>Entrega:</b> la descarga incluye un enlace de WhatsApp por cada cuenta nueva. Al pulsar el enlace en Excel podrás revisar y enviar el mensaje individualmente. No compartas el CSV por grupos.</p>';
+ host.appendChild(root);
+ root.querySelector('#ldmBulkAll').onclick=()=>root.querySelectorAll('input[data-bulk-player]').forEach(x=>x.checked=true);
+ root.querySelector('#ldmBulkNone').onclick=()=>root.querySelectorAll('input[data-bulk-player]').forEach(x=>x.checked=false);
+ root.querySelector('#ldmBulkCreate').onclick=async()=>{
+ const ids=[...root.querySelectorAll('input[data-bulk-player]:checked')].map(x=>x.value),btn=root.querySelector('#ldmBulkCreate');
+ if(!ids.length){alert('Selecciona jugadores');return;}
+ if(!confirm('¿Crear y vincular las cuentas seleccionadas? Los PIN nuevos solo se mostrarán una vez.'))return;
+ btn.disabled=true;
+ try{const r=await request('/api/users/bulk-access',{method:'POST',payload:{playerIds:ids}});
+ latestCredentials=r.credentials||[];
+ const output=root.querySelector('#ldmBulkOutput');output.style.display='block';output.textContent='Cuentas creadas: '+r.created+' · Cuentas existentes vinculadas: '+r.linked+'\n'+(latestCredentials.length?'DESCARGA AHORA LOS PIN NUEVOS. No se guardarán en texto claro.':'No había nuevos PIN que generar.');
+ root.querySelector('#ldmBulkDownload').style.display=latestCredentials.length?'block':'none';
+ await refresh();paint();
+ }catch(e){alert(e.message||'No se pudieron crear los accesos');}finally{btn.disabled=false;}
+ };
+ root.querySelector('#ldmBulkDownload').onclick=()=>{
+ if(!latestCredentials.length)return;
+ const url=location.origin+location.pathname;
+ const quote=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+ const lines=[['Nombre','Usuario','PIN (entrega privada)','Enlace de acceso','Mensaje WhatsApp'].map(quote).join(';')];
+ latestCredentials.forEach(c=>{const message='Hola, tu acceso a Liga Deportiva Militar es:\nUsuario: '+c.name+'\nPIN: '+c.pin+'\nAplicación: '+url+'\nNo compartas tu PIN.';lines.push([c.name,c.name,c.pin,url,'https://wa.me/?text='+encodeURIComponent(message)].map(quote).join(';'));});
+ const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='LDM_credenciales_'+(S.leagueId||'original')+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+ };
+ }
+ function paint(){if(!document.getElementById('ldmBulkAccess'))mount();const box=document.getElementById('ldmBulkPlayers');if(!box)return;
+ document.getElementById('ldmBulkAccess').style.display=(typeof isAdmin==='function'&&isAdmin())?'block':'none';
+ if(!S.user||!isAdmin())return;
+ const accounts=S.users||[];
+ box.innerHTML=(S.players||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'es')).map(p=>{
+ const normalized=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim().replace(/\s+/g,' ');
+ const u=accounts.find(u=>normalized(u.name)===normalized(p.name));
+ return '<label class="ldmBulkPlayer"><input type="checkbox" data-bulk-player value="'+escapeHtml(p.id)+'"><span>'+escapeHtml(p.name)+' <small>· '+escapeHtml(p.division||'')+' · '+(u?'Cuenta existente':'Sin acceso')+'</small></span></label>';
+ }).join('')||'<p>Esta liga no tiene participantes todavía.</p>';
+ }
+ const origRender=window.render;
+ if(typeof origRender==='function')window.render=function(...args){const ret=origRender.apply(this,args);paint();return ret;};
+ window.addEventListener('load',()=>{mount();paint();});
+})();
+</script>
+</body></html>
