@@ -598,7 +598,21 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 #ldmBulkOutput{display:none;background:#f6f7fa;color:#222;border:1px solid #dedfe6;border-radius:10px;padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace}
 #ldmBulkDownload{display:none;width:100%;margin-top:10px;min-height:45px;border:1px solid #28623e;border-radius:10px;background:#e6f6eb;color:#225e3b;font-weight:800}
 </style>
-</head><body>
+<style id="ldm-user-layout-v153">
+.ldmBackBtn{display:inline-flex;gap:8px;align-items:center;justify-content:center;background:#fff;border:1px solid #e5dfe3;color:#681631;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px #2a06100b;min-height:40px}
+.ldmBackBtn:hover{background:#fff5f7}.moreHeader{position:relative}.moreHeader #ldmMoreBack{margin:0 0 12px;align-self:flex-start}.ldmUserBack{margin:0 0 12px}
+.ldmUserTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0 8px;padding:5px;background:#f3f0f2;border-radius:14px;border:1px solid #ebe4e9}
+.ldmUserTabs button{border:0;border-radius:10px;padding:11px 4px;font:800 12px Inter,system-ui,sans-serif;background:transparent;color:#73646e;min-height:46px;cursor:pointer;line-height:1.35}
+.ldmUserTabs button.active{background:#731c3a;color:white;box-shadow:0 3px 8px #67152b2b}
+.ldmUserTabIntro{font-size:12px;color:#776b74;line-height:1.5;margin:0 3px 14px}
+#tab-users[data-user-panel="accounts"] #ldmBulkAccess,#tab-users[data-user-panel="accounts"] #ldmPinManager{display:none!important}
+#tab-users[data-user-panel="bulk"] > .grid,#tab-users[data-user-panel="bulk"] #ldmPinManager{display:none!important}
+#tab-users[data-user-panel="pins"] > .grid,#tab-users[data-user-panel="pins"] #ldmBulkAccess{display:none!important}
+#tab-users .grid{grid-template-columns:minmax(0,1fr)!important;gap:14px}
+#tab-users .grid>.card{width:100%;max-width:none}
+#tab-users #ldmBulkAccess,#tab-users #ldmPinManager{margin-top:12px}
+@media(max-width:440px){.ldmUserTabs button{font-size:11px;padding:9px 2px}}
+</style></head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button type="button" id="ldmPushQuick" class="ldmPushQuick off hidden" title="Configurar avisos del móvil" aria-label="Estado de notificaciones Push"><span class="ldmPushLed"></span><span id="ldmPushQuickText">Avisos</span></button><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
 <div id="authBackdrop" class="authBackdrop"><div class="authBrand"><img class="symbol" src="./logo-cdm.png" alt="Liga Deportiva Militar CDM"><h2>LIGA<br>DEPORTIVA<br>MILITAR</h2><p>Competición de Tenis</p></div><div id="authArea" class="grid">
@@ -620,9 +634,9 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 </div></section>
 <section id="tab-messages" class="hidden screenPanel ldmMessagesPanel" aria-label="Comunicaciones"><div class="sectionHeader"><h2>Comunicaciones</h2><p>Avisos de la organización y mensajes recibidos.</p></div><div class="card ldmMessageAdmin adminOnly" id="ldmMessageAdmin"><h3>Enviar comunicación</h3><form id="ldmMessageForm"><label>Asunto</label><input name="title" maxlength="120" minlength="3" required placeholder="Ej.: Modificación del calendario"><label>Mensaje</label><textarea name="content" maxlength="2000" minlength="3" rows="5" required placeholder="Escribe la comunicación..."></textarea><label style="display:flex;align-items:center;gap:8px"><input style="width:auto" id="ldmMsgAll" type="checkbox">Enviar a todos los usuarios activos</label><div id="ldmRecipients" class="ldmRecipients"></div><button class="btn" type="submit">Enviar mensaje</button><div class="ldmMsgNote">El mensaje se guarda en el buzón; Si el destinatario ha activado los avisos, también recibirá una notificación Push.</div></form></div><h3>Mis mensajes <span id="ldmMsgUnread" class="ldmMessageCount"></span></h3><div id="ldmMessagesList" aria-live="polite"></div></section><section id="tab-pending" class="hidden screenPanel" aria-label="Asuntos pendientes"><div class="sectionHeader"><h2>Asuntos pendientes</h2><p>Acciones que requieren tu respuesta.</p></div><div class="ldmInboxHead"><strong>Tu bandeja</strong><span id="ldmInboxCount" class="ldmInboxCount">0 pendientes</span></div><div id="ldmInboxList" class="ldmInboxList" aria-live="polite"></div></section>
 <section id="tab-standings" class="hidden" aria-label="Clasificación"><div class="sectionHeader"><h2>Clasificación</h2><p>Puntos, sets y juegos por división.</p></div><div class="card"><p class="desc">Orden: puntos, sets ganados y juegos ganados. Los puntos de color muestran la forma reciente.</p><label>Ver división</label><select id="divisionFilter"></select><div id="standingTable" class="empty">Todavía no hay participantes.</div></div></section>
-<section id="tab-users" class="hidden" aria-label="Usuarios"><div class="sectionHeader"><h2>Usuarios</h2><p>Accesos y permisos de la competición.</p></div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Consulta o renueva los PIN de jugadores. Eliminar una cuenta impide su acceso a todas las ligas sin borrar los resultados históricos.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
+<section id="tab-users" class="hidden" aria-label="Usuarios"><div class="ldmUserBack"><button type="button" id="ldmUsersBack" class="ldmBackBtn">← <span>Volver a Más</span></button></div><div class="sectionHeader"><h2>Gestión de usuarios</h2><p>Organiza las cuentas, altas y credenciales en un solo lugar.</p></div><div class="ldmUserTabs" role="tablist" aria-label="Secciones de gestión de usuarios"><button class="active" type="button" data-ldm-user-tab="accounts" role="tab" aria-selected="true">👥 Cuentas</button><button type="button" data-ldm-user-tab="bulk" role="tab" aria-selected="false">➕ Altas</button><button type="button" data-ldm-user-tab="pins" role="tab" aria-selected="false">🔐 PIN y WhatsApp</button></div><div class="ldmUserTabIntro" id="ldmUserTabIntro">Crea, consulta o elimina cuentas de acceso. Los jugadores y resultados deportivos se gestionan por separado.</div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Consulta o renueva los PIN de jugadores. Eliminar una cuenta impide su acceso a todas las ligas sin borrar los resultados históricos.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
 <section id="tab-more" class="hidden screenPanel moreScreen" aria-label="Más opciones">
-<div class="moreHeader"><h2>Más opciones</h2><p>Gestión de tu competición y cuenta</p></div>
+<div class="moreHeader"><button type="button" id="ldmMoreBack" class="ldmBackBtn" aria-label="Volver a Inicio">← <span>Volver</span></button><h2>Más opciones</h2><p>Gestión de tu competición y cuenta</p></div>
 <div class="ldmMoreGroupTitle">MI CUENTA</div>
 <div class="moreList" role="navigation" aria-label="Mi cuenta">
 <button type="button" class="moreItem" id="ldmMorePushGo"><span class="moreItemIcon">🔔</span><span class="moreItemLabel">Notificaciones <small id="ldmMorePushLabel">Comprobando estado…</small></span><span class="moreChevron">›</span></button>
@@ -1522,4 +1536,20 @@ const prev=window.render;if(typeof prev==='function')window.render=function(...a
 window.addEventListener('load',renderPinManager);
 })();
 </script>
-</body></html>
+<script id="ldm-user-navigation-v153">
+(()=>{
+  const panel=document.getElementById('tab-users');
+  if(panel)panel.dataset.userPanel='accounts';
+  const intro=document.getElementById('ldmUserTabIntro');
+  const descriptions={accounts:'Crea, consulta o elimina cuentas de acceso. Los jugadores y resultados deportivos se gestionan por separado.',bulk:'Selecciona jugadores de esta liga y genera sus accesos de una sola vez.',pins:'Consulta o restablece PIN, guarda teléfonos y abre WhatsApp con el mensaje preparado.'};
+  document.querySelectorAll('[data-ldm-user-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+    const target=btn.dataset.ldmUserTab;
+    if(!panel||!descriptions[target])return;
+    panel.dataset.userPanel=target;
+    document.querySelectorAll('[data-ldm-user-tab]').forEach(b=>{const active=b===btn;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));});
+    if(intro)intro.textContent=descriptions[target];
+  }));
+  document.getElementById('ldmMoreBack')?.addEventListener('click',()=>switchScreen('home'));
+  document.getElementById('ldmUsersBack')?.addEventListener('click',()=>switchScreen('more'));
+})();
+</script></body></html>
