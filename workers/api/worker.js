@@ -252,7 +252,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.1", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -386,6 +386,59 @@ async function handler(req, env, ctx) {
     await put(env,'players',players);
     await put(env,'matches',matches);
     return response({ok:true,players:players.length,matches:matches.length,leagueId:requestedLeague},201,origin);
+  }
+  // V1.4.1 · alta masiva atómica dentro de la clave global de usuarios.
+  // Cada PIN se devuelve UNA sola vez y nunca se guarda sin hash.
+  if(path==='/api/users/bulk-access' && req.method==='POST'){
+    if(!allowAdmin(user)) return response({ok:false,error:'Solo administración'},403,origin);
+    const requested=Array.isArray(body.playerIds)?[...new Set(body.playerIds.map(v=>str(v,80)))]:[];
+    if(!requested.length||requested.length>150)return response({ok:false,error:'Selecciona entre 1 y 150 jugadores'},400,origin);
+    const players=await read(env,'players',[]),allUsers=await read(env,'users',[]);
+    const picked=requested.map(pid=>players.find(p=>p.id===pid));
+    if(picked.some(p=>!p))return response({ok:false,error:'Se ha seleccionado un jugador que no pertenece a la liga'},400,origin);
+    const normalize=n=>String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim().replace(/\s+/g,' ');
+    const newAccounts=[],existingLinks=[],ambiguous=[];
+    const used=new Set();
+    for(const p of picked){
+      const same=allUsers.filter(u=>u.active!==false&&normalize(u.name)===normalize(p.name));
+      if(same.length>1){ambiguous.push(p.name);continue;}
+      const found=same[0];
+      if(found){
+        const alreadyLinked=requestedLeague==='original'?(found.playerId||null):(found.leaguePlayers?.[requestedLeague]||null);
+        if(alreadyLinked&&alreadyLinked!==p.id){ambiguous.push(p.name+' (cuenta vinculada a otro jugador)');continue;}
+        if(used.has(found.id)){ambiguous.push(p.name+' (usuario repetido)');continue;}
+        used.add(found.id);existingLinks.push({p,u:found});
+      }else{
+        const name=p.name;
+        if(allUsers.some(u=>normalize(u.name)===normalize(name))){ambiguous.push(name+' (cuenta inactiva)');continue;}
+        newAccounts.push(p);
+      }
+    }
+    if(ambiguous.length)return response({ok:false,error:'Revisa las coincidencias antes de continuar: '+ambiguous.slice(0,8).join(', ')},409,origin);
+    const credentials=[];
+    for(const p of newAccounts){
+      // 8 dígitos generados con entropía criptográfica; sin duplicar PIN en el lote.
+      let pin;
+      do{pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');}while(credentials.some(x=>x.pin===pin));
+      const nu={id:id(),name:p.name,role:'player',playerId:requestedLeague==='original'?p.id:null,leaguePlayers:requestedLeague==='original'?{}:{[requestedLeague]:p.id},active:true,rev:1,createdAt:now(),...await hashPin(pin)};
+      allUsers.push(nu);credentials.push({userId:nu.id,name:nu.name,pin,playerId:p.id});
+    }
+    for(const {p,u} of existingLinks){
+      if(requestedLeague==='original')u.playerId=p.id;
+      else{u.leaguePlayers=u.leaguePlayers||{};u.leaguePlayers[requestedLeague]=p.id;}
+    }
+    await put(env,'users',allUsers);
+    return response({ok:true,created:credentials.length,linked:existingLinks.length,credentials,leagueId:requestedLeague},201,origin);
+  }
+  if(path==='/api/users/reset-pin' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const userId=str(body.userId,80),users=await read(env,'users',[]),target=users.find(u=>u.id===userId&&u.active);
+    if(!target)return response({ok:false,error:'Cuenta no encontrada'},404,origin);
+    if(target.role==='admin'&&target.id!==user.id)return response({ok:false,error:'No se puede restablecer el PIN de otro administrador'},403,origin);
+    const pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');
+    Object.assign(target,await hashPin(pin));target.rev=(target.rev||1)+1;
+    await put(env,'users',users);
+    return response({ok:true,name:target.name,pin,userId:target.id},200,origin);
   }
   if(path==='/api/users/league-player' && req.method==='POST'){
     if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
