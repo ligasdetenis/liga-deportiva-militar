@@ -583,7 +583,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 </div></section>
 <section id="tab-messages" class="hidden screenPanel ldmMessagesPanel" aria-label="Comunicaciones"><div class="sectionHeader"><h2>Comunicaciones</h2><p>Avisos de la organización y mensajes recibidos.</p></div><div class="card ldmMessageAdmin adminOnly" id="ldmMessageAdmin"><h3>Enviar comunicación</h3><form id="ldmMessageForm"><label>Asunto</label><input name="title" maxlength="120" minlength="3" required placeholder="Ej.: Modificación del calendario"><label>Mensaje</label><textarea name="content" maxlength="2000" minlength="3" rows="5" required placeholder="Escribe la comunicación..."></textarea><label style="display:flex;align-items:center;gap:8px"><input style="width:auto" id="ldmMsgAll" type="checkbox">Enviar a todos los usuarios activos</label><div id="ldmRecipients" class="ldmRecipients"></div><button class="btn" type="submit">Enviar mensaje</button><div class="ldmMsgNote">El mensaje se guarda en el buzón; Si el destinatario ha activado los avisos, también recibirá una notificación Push.</div></form></div><h3>Mis mensajes <span id="ldmMsgUnread" class="ldmMessageCount"></span></h3><div id="ldmMessagesList" aria-live="polite"></div></section><section id="tab-pending" class="hidden screenPanel" aria-label="Asuntos pendientes"><div class="sectionHeader"><h2>Asuntos pendientes</h2><p>Acciones que requieren tu respuesta.</p></div><div class="ldmInboxHead"><strong>Tu bandeja</strong><span id="ldmInboxCount" class="ldmInboxCount">0 pendientes</span></div><div id="ldmInboxList" class="ldmInboxList" aria-live="polite"></div></section>
 <section id="tab-standings" class="hidden" aria-label="Clasificación"><div class="sectionHeader"><h2>Clasificación</h2><p>Puntos, sets y juegos por división.</p></div><div class="card"><p class="desc">Orden: puntos, sets ganados y juegos ganados. Los puntos de color muestran la forma reciente.</p><label>Ver división</label><select id="divisionFilter"></select><div id="standingTable" class="empty">Todavía no hay participantes.</div></div></section>
-<section id="tab-users" class="hidden" aria-label="Usuarios"><div class="sectionHeader"><h2>Usuarios</h2><p>Accesos y permisos de la competición.</p></div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Los PIN nunca se muestran.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
+<section id="tab-users" class="hidden" aria-label="Usuarios"><div class="sectionHeader"><h2>Usuarios</h2><p>Accesos y permisos de la competición.</p></div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 a 12 dígitos)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">El administrador puede consultar o renovar los PIN de jugadores.</p><div id="userList" class="empty">Sin datos.</div></div></div></section></div>
 <section id="tab-more" class="hidden screenPanel moreScreen" aria-label="Más opciones">
 <div class="moreHeader"><h2>Más opciones</h2><p>Gestión de tu competición y cuenta</p></div>
 <div class="ldmMoreGroupTitle">MI CUENTA</div>
@@ -681,7 +681,7 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){await ldmLoadLeagueOptions();const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -1283,18 +1283,18 @@ function mount(){
  const host=document.getElementById('tab-users')||document.getElementById('usersView')||document.getElementById('createUserBox')?.parentElement;
  if(!host||document.getElementById('ldmBulkAccess'))return;
  const root=document.createElement('section');root.id='ldmBulkAccess';root.className='adminOnly';
- root.innerHTML='<h3>Accesos de jugadores · Liga activa</h3><p>Selecciona jugadores de la liga. Se reutiliza la cuenta existente cuando coincide el nombre; solo los usuarios nuevos reciben PIN. Descarga los PIN al terminar: no podrán consultarse después.</p><div class="ldmBulkTools"><button type="button" id="ldmBulkAll">Seleccionar todos</button><button type="button" id="ldmBulkNone">Quitar selección</button></div><div id="ldmBulkPlayers"></div><button type="button" id="ldmBulkCreate">Generar accesos / vincular seleccionados</button><div id="ldmBulkOutput" aria-live="polite"></div><button type="button" id="ldmBulkDownload">Descargar credenciales CSV</button><p><b>Entrega:</b> la descarga incluye un enlace de WhatsApp por cada cuenta nueva. Al pulsar el enlace en Excel podrás revisar y enviar el mensaje individualmente. No compartas el CSV por grupos.</p>';
+ root.innerHTML='<h3>Accesos de jugadores · Liga activa</h3><p>Selecciona jugadores de la liga. Se reutiliza la cuenta existente cuando coincide el nombre; solo los usuarios nuevos reciben PIN. Puedes consultar los PIN nuevos desde esta pantalla. Los antiguos requieren restablecerlos una vez.</p><div class="ldmBulkTools"><button type="button" id="ldmBulkAll">Seleccionar todos</button><button type="button" id="ldmBulkNone">Quitar selección</button></div><div id="ldmBulkPlayers"></div><button type="button" id="ldmBulkCreate">Generar accesos / vincular seleccionados</button><div id="ldmBulkOutput" aria-live="polite"></div><button type="button" id="ldmBulkDownload">Descargar credenciales CSV</button><p><b>Entrega:</b> la descarga incluye un enlace de WhatsApp por cada cuenta nueva. Al pulsar el enlace en Excel podrás revisar y enviar el mensaje individualmente. No compartas el CSV por grupos.</p>';
  host.appendChild(root);
  root.querySelector('#ldmBulkAll').onclick=()=>root.querySelectorAll('input[data-bulk-player]').forEach(x=>x.checked=true);
  root.querySelector('#ldmBulkNone').onclick=()=>root.querySelectorAll('input[data-bulk-player]').forEach(x=>x.checked=false);
  root.querySelector('#ldmBulkCreate').onclick=async()=>{
  const ids=[...root.querySelectorAll('input[data-bulk-player]:checked')].map(x=>x.value),btn=root.querySelector('#ldmBulkCreate');
  if(!ids.length){alert('Selecciona jugadores');return;}
- if(!confirm('¿Crear y vincular las cuentas seleccionadas? Los PIN nuevos solo se mostrarán una vez.'))return;
+ if(!confirm('¿Crear y vincular las cuentas seleccionadas? Los PIN nuevos quedarán disponibles cifrados para administración.'))return;
  btn.disabled=true;
  try{const r=await request('/api/users/bulk-access',{method:'POST',payload:{playerIds:ids}});
  latestCredentials=r.credentials||[];
- const output=root.querySelector('#ldmBulkOutput');output.style.display='block';output.textContent='Cuentas creadas: '+r.created+' · Cuentas existentes vinculadas: '+r.linked+'\n'+(latestCredentials.length?'DESCARGA AHORA LOS PIN NUEVOS. No se guardarán en texto claro.':'No había nuevos PIN que generar.');
+ const output=root.querySelector('#ldmBulkOutput');output.style.display='block';output.textContent='Cuentas creadas: '+r.created+' · Cuentas existentes vinculadas: '+r.linked+'\n'+(latestCredentials.length?'Los PIN nuevos están disponibles en Gestión de PIN y WhatsApp.':'No había nuevos PIN que generar.');
  root.querySelector('#ldmBulkDownload').style.display=latestCredentials.length?'block':'none';
  await refresh();paint();
  }catch(e){alert(e.message||'No se pudieron crear los accesos');}finally{btn.disabled=false;}
@@ -1321,6 +1321,62 @@ function mount(){
  const origRender=window.render;
  if(typeof origRender==='function')window.render=function(...args){const ret=origRender.apply(this,args);paint();return ret;};
  window.addEventListener('load',()=>{mount();paint();});
+})();
+</script>
+
+<style id="ldm-pin-manager-v142">
+#ldmPinManager{margin:16px 0;background:#fff;border:1px solid #e7e8ec;border-radius:16px;padding:14px;color:#222}
+#ldmPinManager h3{margin:0 0 6px;font-size:17px;font-weight:800}
+#ldmPinManager p{font-size:12px;line-height:1.4;color:#6a6d75;margin:0 0 12px}
+.ldmPinRow{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;padding:12px 0;border-top:1px solid #e9eaed}
+.ldmPinRowName{font-size:13px;font-weight:750;overflow-wrap:anywhere}
+.ldmPinRowActions{display:flex;flex-wrap:wrap;gap:7px}
+.ldmPinRowActions button{padding:9px 11px;min-height:39px;border-radius:10px;border:1px solid #e0d9dc;background:#fff;color:#710018;font-size:12px;font-weight:750}
+.ldmPinRowActions .ldmPinWa{background:#e9f8ef;color:#167344;border-color:#bce3cc}
+.ldmPinValue{display:none;background:#f8f4f5;padding:10px;border-radius:10px;font-size:16px;letter-spacing:2px;font-weight:800;font-variant-numeric:tabular-nums}
+.ldmPinValue.visible{display:block}
+</style>
+<script id="ldm-pin-manager-js-v142">
+(()=>{
+const byId=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let revealed=new Map();
+function renderPinManager(){
+ const host=byId('tab-users');if(!host)return;
+ let panel=byId('ldmPinManager');if(!panel){panel=document.createElement('section');panel.id='ldmPinManager';host.appendChild(panel);}
+ const allowed=typeof isAdmin==='function'&&isAdmin();panel.style.display=allowed?'block':'none';if(!allowed)return;
+ const people=(S.users||[]).filter(u=>u.role==='player'&&u.active!==false).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+ panel.innerHTML='<h3>🔐 PIN y WhatsApp</h3><p>Solo administración. Los PIN nuevos se guardan cifrados en el servidor. Para usuarios anteriores al cambio, usa «Restablecer PIN» una vez. «Enviar WhatsApp» abre el mensaje para que elijas destinatario y confirmes el envío.</p>'+(people.length?people.map(u=>{
+ const shown=revealed.get(u.id);
+ return '<div class="ldmPinRow" data-pin-user="'+esc(u.id)+'"><div class="ldmPinRowName">'+esc(u.name)+'</div><div class="ldmPinValue'+(shown?' visible':'')+'" aria-live="polite">'+(shown?esc(shown):'')+'</div><div class="ldmPinRowActions"><button type="button" data-pin-view="'+esc(u.id)+'">Ver PIN</button><button type="button" data-pin-reset="'+esc(u.id)+'">Restablecer PIN</button><button type="button" class="ldmPinWa" data-pin-wa="'+esc(u.id)+'">Enviar WhatsApp</button></div></div>';
+ }).join(''):'<p>No hay cuentas de jugador.</p>');
+}
+async function getPin(userId){
+ if(revealed.has(userId))return revealed.get(userId);
+ const r=await request('/api/users/pin-view',{method:'POST',payload:{userId}});
+ if(!r.pin)throw Error('Este PIN antiguo no se puede recuperar. Usa «Restablecer PIN» para generar uno nuevo.');
+ revealed.set(userId,r.pin);return r.pin;
+}
+document.addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-pin-view],[data-pin-reset],[data-pin-wa]');if(!btn)return;
+ const uid=btn.dataset.pinView||btn.dataset.pinReset||btn.dataset.pinWa;
+ const row=btn.closest('[data-pin-user]');const name=(S.users||[]).find(u=>u.id===uid)?.name||'Jugador';
+ btn.disabled=true;
+ try{
+ if(btn.dataset.pinReset){
+  if(!confirm('¿Restablecer el PIN de '+name+'? El PIN anterior dejará de funcionar y tendrá que acceder de nuevo.'))return;
+  const r=await request('/api/users/reset-pin',{method:'POST',payload:{userId:uid}});
+  revealed.set(uid,r.pin);alert('PIN nuevo generado para '+name+'. Comunícalo de forma privada.');
+ } else if(btn.dataset.pinWa!==undefined){
+  const pin=await getPin(uid);
+  const message='Hola, '+name+'. Tu acceso a Liga Deportiva Militar es:\nUsuario: '+name+'\nPIN: '+pin+'\nAplicación: '+location.origin+location.pathname+'\nNo compartas tu PIN.';
+  window.open('https://wa.me/?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+ } else {await getPin(uid);}
+ if(row){const box=row.querySelector('.ldmPinValue');if(box){box.textContent=revealed.get(uid)||'';box.classList.add('visible');}}
+ }catch(err){alert(err.message||'No se pudo completar la operación');}finally{btn.disabled=false;}
+});
+const prev=window.render;if(typeof prev==='function')window.render=function(...args){const r=prev.apply(this,args);renderPinManager();return r;};
+window.addEventListener('load',renderPinManager);
 })();
 </script>
 </body></html>
