@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.3", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.4", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -371,7 +371,15 @@ async function handler(req, env, ctx) {
 
   if (!user) return response({ ok: false, error: "Inicia sesi\xF3n" }, 401, origin);
 
-  if(path==='/api/leagues' && req.method==='GET') return response({ok:true,leagues,selected:requestedLeague},200,origin);
+  // Nunca exponer ligas ajenas a un jugador. La pertenencia se comprueba en el servidor.
+  const account=(await read(env,'users',[])).find(x=>x.id===user.id&&x.active);
+  const allowedLeagueIds=allowAdmin(user)?leagues.map(x=>x.id):[
+    ...(account?.playerId?['original']:[]),
+    ...Object.entries(account?.leaguePlayers||{}).filter(([,pid])=>!!pid).map(([leagueId])=>leagueId)
+  ].filter(leagueId=>leagues.some(l=>l.id===leagueId));
+  if(path==='/api/leagues' && req.method==='GET') return response({ok:true,leagues:leagues.filter(l=>allowedLeagueIds.includes(l.id)),selected:allowedLeagueIds.includes(requestedLeague)?requestedLeague:(allowedLeagueIds[0]||null)},200,origin);
+  if(path==='/api/me' && req.method==='GET')return response({ok:true,user:{...user,playerId:allowedLeagueIds.includes(requestedLeague)?user.playerId:null}},200,origin);
+  if(!allowedLeagueIds.includes(requestedLeague))return response({ok:false,error:'No tienes acceso a esta liga',code:'LEAGUE_FORBIDDEN'},403,origin);
   if(path==='/api/leagues' && req.method==='POST'){
     if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
     const name=str(body.name,90),slug=str(body.slug||name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),60);
