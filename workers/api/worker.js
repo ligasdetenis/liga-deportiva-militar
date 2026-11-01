@@ -243,7 +243,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.5", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -644,7 +644,7 @@ async function handler(req, env, ctx) {
   }
   if (path === "/api/results/respond" && req.method === "POST") {
     const matchId=str(body.matchId,80),action=str(body.action,24);
-    if (!["confirm","dispute"].includes(action)) return response({ok:false,error:"Acción incorrecta"},400,origin);
+    if (!["confirm","dispute","counter"].includes(action)) return response({ok:false,error:"Acción incorrecta"},400,origin);
     const matches=await read(env,"matches",[]),m=matches.find(x=>x.id===matchId);
     if (!m) return response({ok:false,error:"Partido no encontrado"},404,origin);
     const p=m.pendingResult;
@@ -652,6 +652,18 @@ async function handler(req, env, ctx) {
     if (!allowAdmin(user) && (!user.playerId || ![m.playerAId,m.playerBId].includes(user.playerId))) return response({ok:false,error:"No participas en el partido"},403,origin);
     if (p.submittedBy===user.id) return response({ok:false,error:"No puedes confirmar tu propio resultado"},403,origin);
     p.history=Array.isArray(p.history)?p.history:[];
+    if(action==="counter"){
+      const sets=body.sets;
+      if(!scoreIsValid({sets}))return response({ok:false,error:"Introduce dos sets válidos para tu propuesta"},400,origin);
+      if(JSON.stringify(sets)===JSON.stringify(p.sets))return response({ok:false,error:"Tu propuesta es idéntica. Si estás de acuerdo, confirma el resultado."},400,origin);
+      const previous={sets:p.sets,submittedBy:p.submittedBy,submittedAt:p.submittedAt,status:p.status};
+      const history=[...p.history,{action:"counter",by:user.id,at:now(),previousSets:p.sets,proposedSets:sets,reason:str(body.reason,300)}];
+      m.pendingResult={sets,submittedBy:user.id,submittedPlayerId:user.playerId||null,submittedAt:now(),status:"pending",reason:str(body.reason,300),history,previousProposal:previous};
+      m.status="result_pending";
+      await put(env,"matches",matches);
+      await pushNotify(env,ctx,[previous.submittedBy],"🎾 Contrapropuesta de resultado","Tu rival ha enviado otro marcador. Debes revisarlo y confirmarlo.","results");
+      return response({ok:true,match:m},200,origin);
+    }
     p.history.push({action,by:user.id,at:now()});
     if (action==="dispute") {
       const reason=str(body.reason,300);
