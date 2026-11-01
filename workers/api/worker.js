@@ -200,7 +200,7 @@ async function handler(req, env) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.2.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.2.3", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -524,6 +524,34 @@ async function handler(req, env) {
 
   }
 
+  // Comunicaciones V1.2.3: mensajes persistentes y visibilidad por destinatario.
+  if (path === "/api/messages" && req.method === "GET") {
+    const messages = await read(env, "messages", []);
+    const visible = messages.filter(m => m.recipientIds.includes(user.id));
+    return response({ok:true,messages:visible.map(m => ({...m,read: (m.readBy||[]).includes(user.id)})).sort((a,b)=>b.createdAt.localeCompare(a.createdAt))},200,origin);
+  }
+  if (path === "/api/messages/send" && req.method === "POST") {
+    if (!allowAdmin(user)) return response({ok:false,error:"Solo la organización puede enviar comunicaciones"},403,origin);
+    const title=str(body.title,120), content=str(body.content,2000);
+    if (title.length<3 || content.length<3) return response({ok:false,error:"Escribe un asunto y un mensaje (mínimo 3 caracteres)"},400,origin);
+    const users=(await read(env,"users",[])).filter(u=>u.active);
+    const selection=Array.isArray(body.recipientIds)?body.recipientIds:[];
+    const ids=body.all===true?users.map(u=>u.id):[...new Set(selection.map(x=>str(x,80)))];
+    if (!ids.length || ids.length>500 || ids.some(v=>!users.some(u=>u.id===v))) return response({ok:false,error:"Selecciona destinatarios válidos"},400,origin);
+    const messages=await read(env,"messages",[]);
+    const item={id:id(),title,content,createdAt:now(),authorId:user.id,authorName:user.name,recipientIds:ids,readBy:[]};
+    messages.push(item);
+    await put(env,"messages",messages);
+    return response({ok:true,id:item.id,recipients:ids.length},201,origin);
+  }
+  if (path === "/api/messages/read" && req.method === "POST") {
+    const messageId=str(body.messageId,80), messages=await read(env,"messages",[]);
+    const item=messages.find(x=>x.id===messageId && x.recipientIds.includes(user.id));
+    if (!item) return response({ok:false,error:"Mensaje no encontrado"},404,origin);
+    item.readBy=Array.isArray(item.readBy)?item.readBy:[];
+    if (!item.readBy.includes(user.id)){item.readBy.push(user.id);await put(env,"messages",messages);}
+    return response({ok:true},200,origin);
+  }
   // Resultados V1.2: los antiguos siguen siendo definitivos.
   if (path === "/api/results" && req.method === "POST") {
     const matchId = str(body.matchId, 80), sets = body.sets;
