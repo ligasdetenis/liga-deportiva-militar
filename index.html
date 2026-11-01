@@ -544,6 +544,13 @@ body{min-height:100%;overflow-x:hidden}
 #ldmLatestTicker.ldmTicker{bottom:var(--ldm-nav-height)!important;z-index:2999}
 body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area-inset-bottom, 0px))!important}
 @media(min-width:900px){#bottomNav.bottomNav{left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:520px}}
+
+/* V1.3.18 · Campana dorada y contador de asuntos pendientes */
+#ldmNotify.has-pending{color:#f4c64e!important;background:rgba(244,198,78,.13)!important;border-radius:11px;box-shadow:inset 0 0 0 1px rgba(244,198,78,.25)}
+#ldmNotify.has-pending .ldmIcon{stroke:#f4c64e!important;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12))}
+#ldmNotify.has-pending .dot{display:none!important}
+#ldmNotify .ldmInboxBadge{background:#f4c64e!important;color:#3e1823!important;border:2px solid #65112c!important;min-width:21px;height:21px;top:-6px;right:-7px;font-variant-numeric:tabular-nums;font-size:10px;line-height:1;font-weight:900}
+#ldmNotify:not(.has-pending){background:transparent!important;color:#fff!important;box-shadow:none!important}
 </style></head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button type="button" id="ldmPushQuick" class="ldmPushQuick off hidden" title="Configurar avisos del móvil" aria-label="Estado de notificaciones Push"><span class="ldmPushLed"></span><span id="ldmPushQuickText">Avisos</span></button><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
@@ -990,8 +997,8 @@ function ldmInboxItems(){
 function ldmRenderInbox(){
  if(!S.user)return;
  const items=ldmInboxItems(),badge=$('ldmInboxBadge'),count=$('ldmInboxCount'),box=$('ldmInboxList');
- if(badge){badge.textContent=items.length>9?'9+':String(items.length);badge.classList.toggle('show',items.length>0);}
- $('ldmNotify')?.classList.toggle('has-pending',items.length>0);
+ if(badge){badge.textContent=String(items.length);badge.classList.toggle('show',items.length>0);badge.setAttribute('aria-label',items.length+' asuntos pendientes');}
+ $('ldmNotify')?.classList.toggle('has-pending',items.length>0);$('ldmNotify')?.setAttribute('aria-label',items.length?('Ver '+items.length+' asuntos pendientes'):'Ver asuntos pendientes');
  if(count)count.textContent=items.length+' pendiente'+(items.length===1?'':'s');
  if($('ldmMorePending'))$('ldmMorePending').textContent=items.length?'('+items.length+')':'';
  if(box)box.innerHTML=items.length?items.map(i=>'<article class="ldmInboxCard"><span class="inboxType">'+(i.type==='proposal'?'CAMBIO DE FECHA':i.type==='dispute'?'DISCREPANCIA':'RESULTADO')+'</span><h3>'+escapeHtml(i.title)+'</h3><p>'+escapeHtml(i.body)+'</p><button type="button" class="inboxAction" data-inbox-dest="'+escapeHtml(i.dest)+'">'+escapeHtml(i.action)+' →</button></article>').join(''):'<div class="ldmInboxEmpty">✓<strong>¡Todo al día!</strong>No tienes resultados ni propuestas pendientes de respuesta.</div>';
