@@ -551,6 +551,22 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 #ldmNotify.has-pending .dot{display:none!important}
 #ldmNotify .ldmInboxBadge{background:#f4c64e!important;color:#3e1823!important;border:2px solid #65112c!important;min-width:21px;height:21px;top:-6px;right:-7px;font-variant-numeric:tabular-nums;font-size:10px;line-height:1;font-weight:900}
 #ldmNotify:not(.has-pending){background:transparent!important;color:#fff!important;box-shadow:none!important}
+
+/* V1.4.5 · próximos enfrentamientos, carrusel accesible */
+#tab-home .ldmFixturesNav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 9px}
+#tab-home .ldmFixturesNav .ldmFixturesCount{font-size:11px;color:#777078;font-weight:650}
+#tab-home .ldmFixturesActions{display:flex;gap:7px}
+#tab-home .ldmFixturesArrow{display:grid;place-items:center;width:38px;height:36px;border:1px solid #ded7dc;border-radius:10px;background:#fff;color:#69112b;cursor:pointer;box-shadow:0 2px 8px #00000009;touch-action:manipulation}
+#tab-home .ldmFixturesArrow:disabled{opacity:.32;cursor:default;box-shadow:none}
+#tab-home .ldmFixturesArrow svg{height:19px;width:19px}
+#tab-home .ldmFixturesTrack{display:flex;gap:11px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 1px 10px;touch-action:pan-x pan-y}
+#tab-home .ldmFixturesTrack::-webkit-scrollbar{display:none}
+#tab-home .ldmFixturesTrack>.fixture{flex:0 0 100%;width:100%;max-width:none;margin:0;scroll-snap-align:start;scroll-snap-stop:normal;box-sizing:border-box}
+#tab-home .ldmFixturesTrack>.empty{flex:0 0 100%}
+#tab-home .ldmFixturesTrack .fixtureHead{align-items:center}
+#tab-home .ldmFixtureIndex{font-size:10px;color:#8b7980;font-weight:700}
+@media(min-width:680px){#tab-home .ldmFixturesTrack>.fixture{flex-basis:calc((100% - 11px)/2)}}
+@media(prefers-reduced-motion:reduce){#tab-home .ldmFixturesTrack{scroll-behavior:auto}}
 </style><style id="ldm-bulk-access-v141">
 #ldmBulkAccess{background:#fff;border:1px solid #e5e3e8;border-radius:15px;padding:16px;margin:16px 0;box-shadow:0 3px 14px #200b1010;color:#29252c}
 #ldmBulkAccess h3{margin:0 0 6px;font-size:18px}#ldmBulkAccess p{font-size:12px;color:#64636b;line-height:1.5}
@@ -898,9 +914,18 @@ function renderMobileHome(){
  $('homePlayed').textContent=isPlayer&&finished.length?Math.round(wins/finished.length*100)+'%':'—';
  const div=myPlayer?.division;
  if(isPlayer&&div){const ranking=S.players.filter(p=>p.division===div).map(p=>({id:p.id,pts:0,sf:0,gf:0}));for(const m of S.matches){if(!m.result)continue;for(const r of ranking){if(r.id===m.playerAId){r.pts+=Number(m.result.pointsA)||0;r.sf+=m.result.sets?.filter(s=>s[0]>s[1]).length||0;r.gf+=m.result.sets?.reduce((n,s)=>n+Number(s[0]),0)||0;}if(r.id===m.playerBId){r.pts+=Number(m.result.pointsB)||0;r.sf+=m.result.sets?.filter(s=>s[1]>s[0]).length||0;r.gf+=m.result.sets?.reduce((n,s)=>n+Number(s[1]),0)||0;}}}ranking.sort((a,b)=>b.pts-a.pts||b.sf-a.sf||b.gf-a.gf);const ix=ranking.findIndex(p=>p.id===myId);$('homePosition').textContent=ix<0?'—':(ix+1)+'º';}else $('homePosition').textContent='—';
- const upcoming=own.filter(m=>!m.result&&(!m.date||m.date>=new Date().toISOString().slice(0,10))).slice(0,1);
- const fallback=upcoming.length?upcoming:own.filter(m=>!m.result).slice(0,1);
- $('homeFixtures').innerHTML=fallback.length?fallback.map(m=>'<button type="button" class="fixture" data-match-open="'+escapeHtml(m.id)+'"><div class="fixtureHead">Próximo enfrentamiento</div><div class="fixtureNames"><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><b>'+escapeHtml(userName(m.playerAId))+'</b></div><em>VS</em><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><b>'+escapeHtml(userName(m.playerBId))+'</b></div><span class="fixtureNext"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></div><div class="fixtureMeta"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18M7 14h2M12 14h2M7 18h2"/></svg> '+escapeHtml(m.date)+' · '+escapeHtml(m.time)+' · '+escapeHtml(m.court||'Pista por confirmar')+'</div></button>').join(''):'<div class="empty">No hay próximos partidos programados.</div>';
+ const upcoming=own.filter(m=>!m.result&&(!m.date||m.date>=new Date().toISOString().slice(0,10))).slice(0,16);
+ const fallback=upcoming.length?upcoming:own.filter(m=>!m.result).slice(0,16);
+ const fixtureCards=fallback.length?fallback.map((m,i)=>'<button type="button" class="fixture" data-match-open="'+escapeHtml(m.id)+'"><div class="fixtureHead">Próximo enfrentamiento <span class="ldmFixtureIndex">'+(i+1)+' / '+fallback.length+'</span></div><div class="fixtureNames"><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><b>'+escapeHtml(userName(m.playerAId))+'</b></div><em>VS</em><div class="fixturePlayer"><span class="playerFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><b>'+escapeHtml(userName(m.playerBId))+'</b></div><span class="fixtureNext"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></div><div class="fixtureMeta"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18M7 14h2M12 14h2M7 18h2"/></svg> '+escapeHtml(m.date)+' · '+escapeHtml(m.time)+' · '+escapeHtml(m.court||'Pista por confirmar')+'</div></button>').join(''):'<div class="empty">No hay próximos partidos programados.</div>';
+ $('homeFixtures').innerHTML=fallback.length?'<div class="ldmFixturesNav"><span class="ldmFixturesCount">'+fallback.length+' partido'+(fallback.length===1?'':'s')+' programado'+(fallback.length===1?'':'s')+'</span><div class="ldmFixturesActions"><button type="button" class="ldmFixturesArrow" id="ldmFixturePrev" aria-label="Enfrentamiento anterior" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="ldmFixturesArrow" id="ldmFixtureNext" aria-label="Enfrentamiento siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div></div><div class="ldmFixturesTrack" id="ldmFixturesTrack" tabindex="0" aria-label="Desliza para ver los próximos enfrentamientos">'+fixtureCards+'</div>':fixtureCards;
+ const track=$('ldmFixturesTrack'),prev=$('ldmFixturePrev'),next=$('ldmFixtureNext');
+ if(track&&prev&&next){
+   const updateArrows=()=>{const max=track.scrollWidth-track.clientWidth;prev.disabled=track.scrollLeft<=3;next.disabled=track.scrollLeft>=max-3 || max<=3;};
+   const move=(dir)=>{const card=track.querySelector('.fixture');if(!card)return;const stride=card.getBoundingClientRect().width+11;const target=Math.round(track.scrollLeft/stride+dir)*stride;track.scrollTo({left:Math.max(0,Math.min(target,track.scrollWidth-track.clientWidth)),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});};
+   prev.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));
+   track.addEventListener('scroll',updateArrows,{passive:true});requestAnimationFrame(updateArrows);
+ }
+
  const pending=S.proposals.filter(p=>p.status==='pending'&&p.fromUserId!==S.user.id&&(isAdmin()||S.matches.some(m=>m.id===p.matchId&&[m.playerAId,m.playerBId].includes(myId))));
  $('ldmNotify').classList.toggle('has-pending',pending.length>0);
  $('homePending').innerHTML=pending.length?'<div class="alertBox"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v7M12 17v.5"/></svg><div class="alertContent"><b>'+pending.length+' solicitud(es) de cambio de fecha</b>Tienes una propuesta de reprogramación pendiente de responder.<br><button class="btn tiny" type="button" data-go-proposals>Ver propuesta</button></div></div>':'';
