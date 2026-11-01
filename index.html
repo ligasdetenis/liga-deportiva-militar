@@ -1108,4 +1108,29 @@ document.addEventListener('visibilitychange',async()=>{
  ldmAutoShown=false;
  try{await refresh();}catch(e){console.warn('No se pudieron actualizar los asuntos pendientes:',e.message);}
 });
-</script></body></html>
+</script><style id="ldm-typography-v1316">
+/* LDM V1.3.16 · Refinamiento tipográfico — no cambia el diseño ni las funciones */
+:root,body,button,input,select,textarea{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif!important}
+body{font-weight:450;letter-spacing:-.008em;font-kerning:normal;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+/* Jerarquía editorial más sobria */
+.screenTitle{font-size:clamp(21px,4.7vw,25px)!important;font-weight:750!important;letter-spacing:-.035em!important;line-height:1.17!important}
+.screenTitle small{font-size:12px!important;font-weight:450!important;letter-spacing:0!important;line-height:1.5!important}
+.brand h1{font-weight:750!important;letter-spacing:-.025em!important;line-height:1.2!important}
+.eyebrow{font-weight:700!important;letter-spacing:.105em!important}
+/* Tarjetas, títulos y cifras: legibilidad sin exceso de peso */
+#tab-home .homeTop h2,#tab-home .home-section>h3{font-weight:760!important;letter-spacing:-.03em!important}
+#tab-home .homeStats strong{font-weight:800!important;letter-spacing:-.035em!important;font-variant-numeric:tabular-nums}
+.matchCard h3,.matchCard strong,.fixtureNames strong{font-weight:750!important;letter-spacing:-.018em}
+.fixtureMeta,.fixtureNames em{font-weight:550!important;letter-spacing:0!important}
+/* Acciones uniformes y más profesionales */
+button,.btn,.bottomNav button{letter-spacing:-.01em}
+.bottomNav button{font-weight:650!important}
+button:focus-visible{outline:2px solid #a2113b;outline-offset:2px}
+/* Clasificación y resultados: cifras perfectamente alineadas */
+table{font-variant-numeric:tabular-nums lining-nums}
+th{font-weight:700!important;letter-spacing:.025em!important}
+td{font-weight:500;letter-spacing:-.006em}
+input,select,textarea{font-weight:500;letter-spacing:0}
+/* Mejor ajuste en pantallas pequeñas */
+@media(max-width:420px){.screenTitle{font-size:22px!important}.brand h1{font-size:15px!important}.bottomNav button{letter-spacing:-.02em}}
+</style></body></html>
