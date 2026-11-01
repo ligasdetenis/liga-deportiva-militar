@@ -1335,6 +1335,12 @@ function mount(){
 .ldmPinRowActions .ldmPinWa{background:#e9f8ef;color:#167344;border-color:#bce3cc}
 .ldmPinValue{display:none;background:#f8f4f5;padding:10px;border-radius:10px;font-size:16px;letter-spacing:2px;font-weight:800;font-variant-numeric:tabular-nums}
 .ldmPinValue.visible{display:block}
+.ldmPinPhoneRow{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:2px}
+.ldmPinPhoneRow label{font-size:11px;color:#686d75;font-weight:750}
+.ldmPinPhoneRow input{flex:1 1 155px;width:auto;max-width:280px;min-width:120px;padding:9px 10px;border:1px solid #d9dce2;border-radius:9px;background:#fff;color:#222;font-size:14px}
+.ldmPinPhoneRow button{padding:9px 12px;min-height:39px;border-radius:9px;border:1px solid #cfd6df;background:#f6f7fa;color:#4d2730;font-size:11px;font-weight:800}
+.ldmPinPhoneRow small{flex-basis:100%;font-size:10px;color:#747981}
+
 </style>
 <script id="ldm-pin-manager-js-v142">
 (()=>{
@@ -1346,9 +1352,9 @@ function renderPinManager(){
  let panel=byId('ldmPinManager');if(!panel){panel=document.createElement('section');panel.id='ldmPinManager';host.appendChild(panel);}
  const allowed=typeof isAdmin==='function'&&isAdmin();panel.style.display=allowed?'block':'none';if(!allowed)return;
  const people=(S.users||[]).filter(u=>u.role==='player'&&u.active!==false).sort((a,b)=>a.name.localeCompare(b.name,'es'));
- panel.innerHTML='<h3>🔐 PIN y WhatsApp</h3><p>Solo administración. Los PIN nuevos se guardan cifrados en el servidor. Para usuarios anteriores al cambio, usa «Restablecer PIN» una vez. «Enviar WhatsApp» abre el mensaje para que elijas destinatario y confirmes el envío.</p>'+(people.length?people.map(u=>{
+ panel.innerHTML='<h3>🔐 PIN y WhatsApp</h3><p>Solo administración. Los PIN nuevos se guardan cifrados en el servidor. Para usuarios anteriores al cambio, usa «Restablecer PIN» una vez. Guarda primero el teléfono del jugador. «Enviar WhatsApp» abre directamente su conversación con el mensaje preparado; confirma el envío en WhatsApp.</p>'+(people.length?people.map(u=>{
  const shown=revealed.get(u.id);
- return '<div class="ldmPinRow" data-pin-user="'+esc(u.id)+'"><div class="ldmPinRowName">'+esc(u.name)+'</div><div class="ldmPinValue'+(shown?' visible':'')+'" aria-live="polite">'+(shown?esc(shown):'')+'</div><div class="ldmPinRowActions"><button type="button" data-pin-view="'+esc(u.id)+'">Ver PIN</button><button type="button" data-pin-reset="'+esc(u.id)+'">Restablecer PIN</button><button type="button" class="ldmPinWa" data-pin-wa="'+esc(u.id)+'">Enviar WhatsApp</button></div></div>';
+ return '<div class="ldmPinRow" data-pin-user="'+esc(u.id)+'"><div class="ldmPinRowName">'+esc(u.name)+'</div><div class="ldmPinPhoneRow"><label for="phone-'+esc(u.id)+'">Teléfono WhatsApp</label><input id="phone-'+esc(u.id)+'" type="tel" inputmode="tel" autocomplete="off" data-pin-phone="'+esc(u.id)+'" value="'+esc(u.phone||'')+'" placeholder="600123456 o +34..."><button type="button" data-pin-savephone="'+esc(u.id)+'">Guardar número</button><small>Para España puedes escribir 9 cifras. Para otros países, incluye el prefijo.</small></div><div class="ldmPinValue'+(shown?' visible':'')+'" aria-live="polite">'+(shown?esc(shown):'')+'</div><div class="ldmPinRowActions"><button type="button" data-pin-view="'+esc(u.id)+'">Ver PIN</button><button type="button" data-pin-reset="'+esc(u.id)+'">Restablecer PIN</button><button type="button" class="ldmPinWa" data-pin-wa="'+esc(u.id)+'">Enviar WhatsApp</button></div></div>';
  }).join(''):'<p>No hay cuentas de jugador.</p>');
 }
 async function getPin(userId){
@@ -1358,19 +1364,36 @@ async function getPin(userId){
  revealed.set(userId,r.pin);return r.pin;
 }
 document.addEventListener('click',async e=>{
- const btn=e.target.closest('[data-pin-view],[data-pin-reset],[data-pin-wa]');if(!btn)return;
- const uid=btn.dataset.pinView||btn.dataset.pinReset||btn.dataset.pinWa;
+ const btn=e.target.closest('[data-pin-view],[data-pin-reset],[data-pin-wa],[data-pin-savephone]');if(!btn)return;
+ const uid=btn.dataset.pinView||btn.dataset.pinReset||btn.dataset.pinWa||btn.dataset.pinSavephone;
  const row=btn.closest('[data-pin-user]');const name=(S.users||[]).find(u=>u.id===uid)?.name||'Jugador';
  btn.disabled=true;
  try{
- if(btn.dataset.pinReset){
+ if(btn.dataset.pinSavephone!==undefined){
+  const input=row?.querySelector('[data-pin-phone]');
+  const r=await request('/api/users/phone',{method:'POST',payload:{userId:uid,phone:input?.value||''}});
+  const target=(S.users||[]).find(u=>u.id===uid);if(target)target.phone=r.phone;
+  if(input)input.value=r.phone;
+  alert(r.phone?'Número de WhatsApp guardado para '+name:'Número eliminado');
+ } else if(btn.dataset.pinReset){
   if(!confirm('¿Restablecer el PIN de '+name+'? El PIN anterior dejará de funcionar y tendrá que acceder de nuevo.'))return;
   const r=await request('/api/users/reset-pin',{method:'POST',payload:{userId:uid}});
   revealed.set(uid,r.pin);alert('PIN nuevo generado para '+name+'. Comunícalo de forma privada.');
  } else if(btn.dataset.pinWa!==undefined){
   const pin=await getPin(uid);
   const message='Hola, '+name+'. Tu acceso a Liga Deportiva Militar es:\nUsuario: '+name+'\nPIN: '+pin+'\nAplicación: '+location.origin+location.pathname+'\nNo compartas tu PIN.';
-  window.open('https://wa.me/?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+  const current=(S.users||[]).find(u=>u.id===uid);
+  let phone=String(current?.phone||'').replace(/\D/g,'');
+  const input=row?.querySelector('[data-pin-phone]');
+  if(!phone){
+    const supplied=prompt('Introduce el WhatsApp de '+name+' (9 cifras españolas o número internacional). Se guardará para próximos envíos.',input?.value||'');
+    if(supplied===null)return;
+    const r=await request('/api/users/phone',{method:'POST',payload:{userId:uid,phone:supplied}});
+    phone=r.phone;if(current)current.phone=phone;if(input)input.value=phone;
+  }
+  if(!phone)throw Error('Guarda primero un teléfono para abrir su conversación de WhatsApp.');
+  // wa.me abre el chat exacto, pero el administrador confirma manualmente el envío.
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
  } else {await getPin(uid);}
  if(row){const box=row.querySelector('.ldmPinValue');if(box){box.textContent=revealed.get(uid)||'';box.classList.add('visible');}}
  }catch(err){alert(err.message||'No se pudo completar la operación');}finally{btn.disabled=false;}
