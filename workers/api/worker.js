@@ -242,6 +242,23 @@ async function pushNotify(env,ctx,userIds,title,body,route='pending'){
 }
 async function pushForMatch(env,ctx,match,excludeUserId,title,body,route){const users=await read(env,'users',[]);const ids=users.filter(u=>u.active&&u.playerId&&[match.playerAId,match.playerBId].includes(u.playerId)&&u.id!==excludeUserId).map(u=>u.id);await pushNotify(env,ctx,ids,title,body,route);}
 
+
+// V1.4.2: almacenamiento cifrado para consulta administrativa de PIN.
+// La autenticación sigue verificando exclusivamente PBKDF2.
+async function ldmPinKey(secret){
+  const raw=await crypto.subtle.digest('SHA-256',enc.encode('LDM:pin-vault:v1:'+secret));
+  return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['encrypt','decrypt']);
+}
+async function ldmSealPin(pin,env){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const bytes=await crypto.subtle.encrypt({name:'AES-GCM',iv},await ldmPinKey(env.AUTH_SECRET),enc.encode(pin));
+  return {iv:b64(iv),data:b64(new Uint8Array(bytes))};
+}
+async function ldmOpenPin(vault,env){
+  if(!vault?.iv||!vault?.data)return null;
+  try{const data=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(vault.iv)},await ldmPinKey(env.AUTH_SECRET),unb64(vault.data));return td.decode(data)}catch{return null}
+}
+
 async function handler(req, env, ctx) {
 
   const origin = req.headers.get("Origin") || "";
@@ -252,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.1", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -387,6 +404,15 @@ async function handler(req, env, ctx) {
     await put(env,'matches',matches);
     return response({ok:true,players:players.length,matches:matches.length,leagueId:requestedLeague},201,origin);
   }
+  if(path==='/api/users/pin-view' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const targetId=str(body.userId,80),accounts=await read(env,'users',[]);
+    const target=accounts.find(x=>x.id===targetId&&x.active&&x.role==='player');
+    if(!target)return response({ok:false,error:'Jugador no encontrado'},404,origin);
+    const pin=await ldmOpenPin(target.pinVault,env);
+    if(!pin)return response({ok:true,userId:target.id,name:target.name,pin:null,needsReset:true},200,origin);
+    return response({ok:true,userId:target.id,name:target.name,pin,needsReset:false},200,origin);
+  }
   // V1.4.1 · alta masiva atómica dentro de la clave global de usuarios.
   // Cada PIN se devuelve UNA sola vez y nunca se guarda sin hash.
   if(path==='/api/users/bulk-access' && req.method==='POST'){
@@ -420,7 +446,7 @@ async function handler(req, env, ctx) {
       // 8 dígitos generados con entropía criptográfica; sin duplicar PIN en el lote.
       let pin;
       do{pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');}while(credentials.some(x=>x.pin===pin));
-      const nu={id:id(),name:p.name,role:'player',playerId:requestedLeague==='original'?p.id:null,leaguePlayers:requestedLeague==='original'?{}:{[requestedLeague]:p.id},active:true,rev:1,createdAt:now(),...await hashPin(pin)};
+      const nu={id:id(),name:p.name,role:'player',pinVault:await ldmSealPin(pin,env),playerId:requestedLeague==='original'?p.id:null,leaguePlayers:requestedLeague==='original'?{}:{[requestedLeague]:p.id},active:true,rev:1,createdAt:now(),...await hashPin(pin)};
       allUsers.push(nu);credentials.push({userId:nu.id,name:nu.name,pin,playerId:p.id});
     }
     for(const {p,u} of existingLinks){
@@ -436,7 +462,7 @@ async function handler(req, env, ctx) {
     if(!target)return response({ok:false,error:'Cuenta no encontrada'},404,origin);
     if(target.role==='admin'&&target.id!==user.id)return response({ok:false,error:'No se puede restablecer el PIN de otro administrador'},403,origin);
     const pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');
-    Object.assign(target,await hashPin(pin));target.rev=(target.rev||1)+1;
+    Object.assign(target,await hashPin(pin));target.pinVault=await ldmSealPin(pin,env);target.rev=(target.rev||1)+1;
     await put(env,'users',users);
     return response({ok:true,name:target.name,pin,userId:target.id},200,origin);
   }
@@ -484,7 +510,7 @@ async function handler(req, env, ctx) {
 
     if (!allowAdmin(user)) return response({ ok: false, error: "Solo administraci\xF3n" }, 403, origin);
 
-    return response({ ok: true, users: (await read(env, 'users', [])).map(({salt,hash,...safe})=>({...safe,playerId:requestedLeague==='original'?safe.playerId||null:safe.leaguePlayers?.[requestedLeague]||null})) }, 200, origin);
+    return response({ ok: true, users: (await read(env, 'users', [])).map(({salt,hash,pinVault,...safe})=>({...safe,playerId:requestedLeague==='original'?safe.playerId||null:safe.leaguePlayers?.[requestedLeague]||null})) }, 200, origin);
 
   }
 
@@ -504,7 +530,7 @@ async function handler(req, env, ctx) {
 
     if (playerId && !(await read(env, "players", [])).some((x) => x.id === playerId)) return response({ ok: false, error: "Jugador no encontrado" }, 400, origin);
 
-    const nu = { id: id(), name, role, playerId:requestedLeague==='original'?playerId:null, leaguePlayers:requestedLeague!=='original'&&playerId?{[requestedLeague]:playerId}:{}, active: true, rev: 1, createdAt: now(), ...await hashPin(pin) };
+    const nu = { id: id(), name, role, playerId:requestedLeague==='original'?playerId:null, leaguePlayers:requestedLeague!=='original'&&playerId?{[requestedLeague]:playerId}:{}, active: true, rev: 1, createdAt: now(), ...await hashPin(pin),pinVault:role==='player'?await ldmSealPin(pin,env):undefined };
 
     users.push(nu);
 
