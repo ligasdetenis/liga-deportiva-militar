@@ -226,7 +226,7 @@ async function pushNotify(env,ctx,userIds,title,body,route='pending'){
  const ids=[...new Set(userIds.filter(Boolean))];
  const run=(async()=>{for(const uid of ids.slice(0,100)){
    const devices=await read(env,'push:'+uid,[]),next=[];
-   for(const s of devices.slice(0,8))try{const r=await pushSendOne(env,s,{title,body,url:'./?view='+encodeURIComponent(route),tag:'ldm-'+route,icon:'./icons/icon-192.png'});if(r.status!==404&&r.status!==410)next.push(s);if(!r.ok)console.warn('Push entrega',r.status);}catch(e){console.warn('Push fallo',String(e));next.push(s);}
+   for(const s of devices.slice(0,8))try{const r=await pushSendOne(env,s,{title,body,url:'./?view='+encodeURIComponent(String(route).split(':')[0])+(String(route).includes(':')?'&item='+encodeURIComponent(String(route).split(':').slice(1).join(':')):''),tag:'ldm-'+route,icon:'./icons/icon-192.png'});if(r.status!==404&&r.status!==410)next.push(s);if(!r.ok)console.warn('Push entrega',r.status);}catch(e){console.warn('Push fallo',String(e));next.push(s);}
    if(next.length!==devices.length)await put(env,'push:'+uid,next);
  }})();
  if(ctx&&ctx.waitUntil)ctx.waitUntil(run);else await run;
@@ -243,7 +243,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.5", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.6", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -464,7 +464,7 @@ async function handler(req, env, ctx) {
     proposals.push(p);
 
     await put(env, "proposals", proposals);
-    await pushForMatch(env,ctx,match,user.id,'📅 Propuesta de cambio','Tu rival propone otra fecha para el partido.','proposals');
+    await pushForMatch(env,ctx,match,user.id,'📅 Propuesta de cambio','Tu rival propone otra fecha para el partido.','proposals:'+p.id);
 
     return response({ ok: true, proposal: p }, 201, origin);
 
@@ -503,7 +503,7 @@ async function handler(req, env, ctx) {
       p.events.push({ type: "rejected", by: user.id, at: now() });
 
       await put(env, "proposals", proposals);
-      await pushNotify(env,ctx,[p.fromUserId],'📅 Cambio rechazado','Tu rival ha rechazado la propuesta.','proposals');
+      await pushNotify(env,ctx,[p.fromUserId],'📅 Cambio rechazado','Tu rival ha rechazado la propuesta.','proposals:'+p.id);
 
       return response({ ok: true, proposal: p }, 200, origin);
 
@@ -528,7 +528,7 @@ async function handler(req, env, ctx) {
       proposals.push(next);
 
       await put(env, "proposals", proposals);
-      await pushNotify(env,ctx,[p.fromUserId],'📅 Nueva contrapropuesta','Tu rival propone otro horario.','proposals');
+      await pushNotify(env,ctx,[p.fromUserId],'📅 Nueva contrapropuesta','Tu rival propone otro horario.','proposals:'+next.id);
 
       return response({ ok: true, proposal: next }, 201, origin);
 
@@ -565,7 +565,7 @@ async function handler(req, env, ctx) {
     p.events.push({ type: "accepted", by: user.id, at: now(), externalCourtConfirmed: true });
 
     await put(env, "proposals", proposals);
-    await pushNotify(env,ctx,[p.fromUserId],'✅ Nueva fecha aceptada','Tu rival ha confirmado el cambio de fecha.','proposals');
+    await pushNotify(env,ctx,[p.fromUserId],'✅ Nueva fecha aceptada','Tu rival ha confirmado el cambio de fecha.','proposals:'+p.id);
 
     return response({ ok: true, proposal: p, match: m }, 200, origin);
 
@@ -608,7 +608,7 @@ async function handler(req, env, ctx) {
     const item={id:id(),title,content,createdAt:now(),authorId:user.id,authorName:user.name,recipientIds:ids,readBy:[]};
     messages.push(item);
     await put(env,"messages",messages);
-    await pushNotify(env,ctx,ids,'📢 '+title,content.slice(0,110),'messages');
+    await pushNotify(env,ctx,ids,'📢 '+title,content.slice(0,110),'messages:'+item.id);
     return response({ok:true,id:item.id,recipients:ids.length},201,origin);
   }
   if (path === "/api/messages/read" && req.method === "POST") {
@@ -675,7 +675,7 @@ async function handler(req, env, ctx) {
       m.status="played";p.status="confirmed";p.respondedAt=now();
     }
     await put(env,"matches",matches);
-    await pushNotify(env,ctx,[p.submittedBy],action==='confirm'?'✅ Resultado confirmado':'⚠️ Resultado discutido',action==='confirm'?'Tu rival ha confirmado el resultado.':'Tu rival ha comunicado una discrepancia.','results');
+    await pushNotify(env,ctx,[p.submittedBy],action==='confirm'?'✅ Resultado confirmado':'⚠️ Resultado discutido',action==='confirm'?'Tu rival ha confirmado el resultado.':'Tu rival ha comunicado una discrepancia.','results:'+m.id);
     return response({ok:true,match:m},200,origin);
   }
   if (path === "/api/results/reopen" && req.method === "POST") {
