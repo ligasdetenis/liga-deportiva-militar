@@ -659,7 +659,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <input type="file" accept=".csv,text/csv" id="ldmCsvFile" aria-label="Seleccionar archivo CSV">
 <div id="ldmCsvPreview" class="ldmCsvPreview">Todavía no has seleccionado ningún CSV.</div>
 <button type="button" class="btn" id="ldmDoImport" disabled>Importar enfrentamientos</button>
-<p class="desc">Las cuentas existentes se mantienen. Vincula cada usuario con su jugador en la nueva liga usando el panel inferior.</p>
+<p class="desc">Las cuentas y los PIN existentes se conservan. Las vinculaciones se hacen normalmente desde Altas de usuarios.</p>
 <div id="ldmLeagueLinks"></div>
 </div><div class="ldmPushPanel" id="ldmPushPanel"><div class="ldmPushPanelTop"><strong>🔔 Notificaciones del móvil</strong><button id="ldmPushClose" type="button" aria-label="Cerrar configuración">✕</button></div><p id="ldmPushStatus">Comprobando el estado de los avisos…</p><div class="ldmPushActions"><button type="button" id="ldmPushActivate">Activar avisos</button><button type="button" id="ldmPushTest">Enviar prueba</button><button type="button" id="ldmPushDisable">Desactivar</button></div><p class="ldmPushHelp">En iPhone, instala primero la app desde Safari → Compartir → Añadir a pantalla de inicio.</p></div>
 <div class="ldmMoreGroupTitle">SESIÓN</div><div class="moreList ldmLogoutList"><button id="logout" class="moreItem ldmLogoutBtn hidden" type="button"><span class="moreItemIcon"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="moreItemLabel">Cerrar sesión<small>Salir de tu cuenta en este dispositivo</small></span><span class="moreChevron">›</span></button></div>
@@ -1295,6 +1295,22 @@ input,select,textarea{font-weight:500;letter-spacing:0}
 .ldmLeagueLinkRow label{font-size:11px;color:#5d5e65}
 .ldmLeagueLinkRow button{padding:10px;border-radius:9px;border:0;background:#680e2b;color:white}
 @media(max-width:540px){.ldmLeagueLinkRow{grid-template-columns:1fr 1fr}.ldmLeagueLinkRow button{grid-column:1/-1}}
+
+/* V1.5.4: Vinculaciones manuales compactas; invisible hasta que haga falta */
+.ldmManualLinks{margin:14px 0 2px;border:1px solid #e5dfe2;border-radius:13px;background:#fff;overflow:hidden}
+.ldmManualLinks>summary{display:flex;gap:10px;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;padding:13px 14px;color:#68233d;font-weight:800;font-size:13px}
+.ldmManualLinks>summary::-webkit-details-marker{display:none}
+.ldmManualLinks>summary:before{content:'▸';font-size:14px;transition:transform .15s ease}
+.ldmManualLinks[open]>summary:before{transform:rotate(90deg)}
+.ldmManualLinks>summary span:first-child{flex:1;min-width:0}
+.ldmManualLinks>summary small{display:block;font-weight:500;color:#827780;font-size:11px;margin-top:3px}
+.ldmManualCounter{white-space:nowrap;background:#f7f1f4;color:#69334a;border-radius:99px;padding:5px 8px;font-size:10px}
+.ldmManualBody{border-top:1px solid #eee7eb;padding:12px}
+.ldmLinkSearchLabel{display:block;color:#4b4450;font-size:12px;font-weight:700;margin-top:10px}
+#ldmLeagueLinkSearch{margin:6px 0 10px!important}
+.ldmLeagueLinkRow[hidden]{display:none!important}
+.ldmLeagueLinkRow{grid-template-columns:minmax(90px,1fr) minmax(0,1.5fr) auto}
+@media(max-width:540px){.ldmLeagueLinkRow{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}.ldmLeagueLinkRow button{grid-column:2;justify-self:end;min-width:96px}}
 </style>
 <script>
 /* LDM v1.4.0 — ligas múltiples y carga segura de partidos desde CSV. */
@@ -1394,12 +1410,26 @@ document.getElementById('ldmDoImport')?.addEventListener('click',async()=>{
 });
 function ldmRenderLeagueLinks(){
  const box=document.getElementById('ldmLeagueLinks');if(!box||!isAdmin())return;
- if(S.leagueId==='original'){box.innerHTML='<p>La liga original mantiene las vinculaciones existentes.</p>';return;}
- if(!S.users.length){box.innerHTML='<p>No hay usuarios creados todavía.</p>';return;}
- box.innerHTML='<h3>Vincular usuarios con jugadores de esta liga</h3>'+S.users.filter(u=>u.role!=='admin').map(u=>
-  '<div class="ldmLeagueLinkRow"><label>'+escapeHtml(u.name)+'</label><select data-ldm-link-user="'+escapeHtml(u.id)+'"><option value="">Sin vincular</option>'+S.players.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(u.playerId===p.id?'selected':'')+'>'+escapeHtml(p.division+' · '+p.name)+'</option>').join('')+'</select><button type="button" data-ldm-link-save="'+escapeHtml(u.id)+'">Guardar</button></div>'
- ).join('');
+ if(S.leagueId==='original'){box.innerHTML='';return;}
+ const users=S.users.filter(u=>u.role!=='admin');
+ if(!users.length||!S.players.length){box.innerHTML='';return;}
+ const pending=users.filter(u=>!S.players.some(p=>p.id===u.playerId)).length;
+ // The details element must survive refreshes without reopening after each redraw.
+ const wasOpen=box.querySelector('details')?.open||false;
+ const oldSearch=box.querySelector('#ldmLeagueLinkSearch')?.value||'';
+ box.innerHTML='<details class="ldmManualLinks"'+(wasOpen?' open':'')+'><summary><span>🔗 Vinculaciones manuales <small>Solo si alguna cuenta no corresponde a su jugador</small></span><span class="ldmManualCounter">'+pending+' sin asociar</span></summary><div class="ldmManualBody"><p>La opción <b>Usuarios → Altas</b> ya vincula las cuentas normalmente. Aquí puedes corregir una asociación concreta si hace falta.</p><label class="ldmLinkSearchLabel" for="ldmLeagueLinkSearch">Buscar usuario<input id="ldmLeagueLinkSearch" type="search" placeholder="Escribe un nombre…" autocomplete="off"></label><div id="ldmLeagueLinkRows">'+users.map(u=>
+  '<div class="ldmLeagueLinkRow" data-ldm-link-name="'+escapeHtml(u.name.toLocaleLowerCase('es'))+'"><label>'+escapeHtml(u.name)+'</label><select aria-label="Jugador vinculado a '+escapeHtml(u.name)+'" data-ldm-link-user="'+escapeHtml(u.id)+'"><option value="">Sin vincular</option>'+S.players.map(p=>'<option value="'+escapeHtml(p.id)+'" '+(u.playerId===p.id?'selected':'')+'>'+escapeHtml(p.division+' · '+p.name)+'</option>').join('')+'</select><button type="button" data-ldm-link-save="'+escapeHtml(u.id)+'">Guardar</button></div>'
+ ).join('')+'</div><p id="ldmLinkSearchEmpty" class="hidden">No se encuentran usuarios con ese nombre.</p></div></details>';
+ const search=box.querySelector('#ldmLeagueLinkSearch');search.value=oldSearch;
+ ldmFilterLeagueLinks(search);
 }
+function ldmFilterLeagueLinks(input){
+ const box=document.getElementById('ldmLeagueLinks');if(!box||!input)return;
+ const q=(input.value||'').trim().toLocaleLowerCase('es');let count=0;
+ box.querySelectorAll('[data-ldm-link-name]').forEach(row=>{const show=!q||row.dataset.ldmLinkName.includes(q);row.hidden=!show;if(show)count++;});
+ const empty=box.querySelector('#ldmLinkSearchEmpty');if(empty)empty.classList.toggle('hidden',count!==0);
+}
+document.addEventListener('input',e=>{if(e.target.id==='ldmLeagueLinkSearch')ldmFilterLeagueLinks(e.target);});
 document.addEventListener('click',async e=>{
  const button=e.target.closest('[data-ldm-link-save]');if(!button)return;
  const userId=button.dataset.ldmLinkSave,playerId=document.querySelector('[data-ldm-link-user="'+userId+'"]')?.value||'';
