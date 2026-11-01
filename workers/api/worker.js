@@ -190,7 +190,50 @@ function scoreIsValid(s) {
 
 __name(scoreIsValid, "scoreIsValid");
 
-async function handler(req, env) {
+
+// V1.3 · Web Push estándar RFC8291 + VAPID RFC8292 (Cloudflare WebCrypto).
+const pushJoin=(...xs)=>{const n=xs.reduce((s,x)=>s+x.length,0),out=new Uint8Array(n);let i=0;for(const x of xs){out.set(x,i);i+=x.length;}return out;};
+async function pushHkdf(ikm,salt,info,len){const k=await crypto.subtle.importKey('raw',ikm,'HKDF',false,['deriveBits']);return new Uint8Array(await crypto.subtle.deriveBits({name:'HKDF',hash:'SHA-256',salt,info},k,len*8));}
+async function pushEncrypt(subscription,payload){
+ const auth=unb64(subscription.keys.auth), receiver=unb64(subscription.keys.p256dh);
+ const server=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+ const serverPub=new Uint8Array(await crypto.subtle.exportKey('raw',server.publicKey));
+ const receiverKey=await crypto.subtle.importKey('raw',receiver,{name:'ECDH',namedCurve:'P-256'},false,[]);
+ const secret=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:receiverKey},server.privateKey,256));
+ const info=pushJoin(enc.encode('WebPush: info\0'),receiver,serverPub);
+ const prk=await pushHkdf(secret,auth,info,32);
+ const salt=crypto.getRandomValues(new Uint8Array(16));
+ const cek=await pushHkdf(prk,salt,enc.encode('Content-Encoding: aes128gcm\0'),16);
+ const nonce=await pushHkdf(prk,salt,enc.encode('Content-Encoding: nonce\0'),12);
+ const key=await crypto.subtle.importKey('raw',cek,{name:'AES-GCM'},false,['encrypt']);
+ const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce},key,pushJoin(enc.encode(JSON.stringify(payload)),new Uint8Array([2]))));
+ const header=new Uint8Array(16+4+1+serverPub.length);header.set(salt,0);new DataView(header.buffer).setUint32(16,4096);header[20]=serverPub.length;header.set(serverPub,21);
+ return pushJoin(header,cipher);
+}
+async function pushJwt(env,audience){
+ const privateKey=await crypto.subtle.importKey('jwk',{kty:'EC',crv:'P-256',d:env.VAPID_PRIVATE_KEY,x:env.VAPID_PUBLIC_X,y:env.VAPID_PUBLIC_Y,ext:true}, {name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+ const body=b64(enc.encode(JSON.stringify({aud:audience,exp:Math.floor(Date.now()/1000)+3600,sub:'mailto:'+env.VAPID_CONTACT_EMAIL})));
+ const data=b64(enc.encode(JSON.stringify({typ:'JWT',alg:'ES256'})))+'.'+body;
+ return data+'.'+b64(new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},privateKey,enc.encode(data))));
+}
+async function pushSendOne(env,subscription,payload){
+ const u=new URL(subscription.endpoint);if(u.protocol!=='https:')throw Error('Endpoint no HTTPS');
+ const jwt=await pushJwt(env,u.origin),data=await pushEncrypt(subscription,payload);
+ return fetch(subscription.endpoint,{method:'POST',headers:{'Content-Type':'application/octet-stream','Content-Encoding':'aes128gcm','TTL':'86400','Authorization':'vapid t='+jwt+', k='+env.VAPID_PUBLIC_KEY},body:data});
+}
+async function pushNotify(env,ctx,userIds,title,body,route='pending'){
+ if(!env.VAPID_PRIVATE_KEY||!env.VAPID_PUBLIC_KEY||!env.VAPID_CONTACT_EMAIL)return;
+ const ids=[...new Set(userIds.filter(Boolean))];
+ const run=(async()=>{for(const uid of ids.slice(0,100)){
+   const devices=await read(env,'push:'+uid,[]),next=[];
+   for(const s of devices.slice(0,8))try{const r=await pushSendOne(env,s,{title,body,url:'./?view='+encodeURIComponent(route),tag:'ldm-'+route,icon:'./icons/icon-192.png'});if(r.status!==404&&r.status!==410)next.push(s);if(!r.ok)console.warn('Push entrega',r.status);}catch(e){console.warn('Push fallo',String(e));next.push(s);}
+   if(next.length!==devices.length)await put(env,'push:'+uid,next);
+ }})();
+ if(ctx&&ctx.waitUntil)ctx.waitUntil(run);else await run;
+}
+async function pushForMatch(env,ctx,match,excludeUserId,title,body,route){const users=await read(env,'users',[]);const ids=users.filter(u=>u.active&&u.playerId&&[match.playerAId,match.playerBId].includes(u.playerId)&&u.id!==excludeUserId).map(u=>u.id);await pushNotify(env,ctx,ids,title,body,route);}
+
+async function handler(req, env, ctx) {
 
   const origin = req.headers.get("Origin") || "";
 
@@ -200,7 +243,7 @@ async function handler(req, env) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.2.3", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.3.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -421,6 +464,7 @@ async function handler(req, env) {
     proposals.push(p);
 
     await put(env, "proposals", proposals);
+    await pushForMatch(env,ctx,match,user.id,'📅 Propuesta de cambio','Tu rival propone otra fecha para el partido.','proposals');
 
     return response({ ok: true, proposal: p }, 201, origin);
 
@@ -459,6 +503,7 @@ async function handler(req, env) {
       p.events.push({ type: "rejected", by: user.id, at: now() });
 
       await put(env, "proposals", proposals);
+      await pushNotify(env,ctx,[p.fromUserId],'📅 Cambio rechazado','Tu rival ha rechazado la propuesta.','proposals');
 
       return response({ ok: true, proposal: p }, 200, origin);
 
@@ -483,6 +528,7 @@ async function handler(req, env) {
       proposals.push(next);
 
       await put(env, "proposals", proposals);
+      await pushNotify(env,ctx,[p.fromUserId],'📅 Nueva contrapropuesta','Tu rival propone otro horario.','proposals');
 
       return response({ ok: true, proposal: next }, 201, origin);
 
@@ -519,11 +565,31 @@ async function handler(req, env) {
     p.events.push({ type: "accepted", by: user.id, at: now(), externalCourtConfirmed: true });
 
     await put(env, "proposals", proposals);
+    await pushNotify(env,ctx,[p.fromUserId],'✅ Nueva fecha aceptada','Tu rival ha confirmado el cambio de fecha.','proposals');
 
     return response({ ok: true, proposal: p, match: m }, 200, origin);
 
   }
 
+  // Push: claves públicas, registro por usuario y prueba autenticada.
+  if(path==='/api/push/config'&&req.method==='GET')return response({ok:true,available:!!(env.VAPID_PUBLIC_KEY&&env.VAPID_PRIVATE_KEY&&env.VAPID_PUBLIC_X&&env.VAPID_PUBLIC_Y&&env.VAPID_CONTACT_EMAIL),publicKey:env.VAPID_PUBLIC_KEY||null},200,origin);
+  if(path==='/api/push/subscribe'&&req.method==='POST'){
+    const s=body.subscription;
+    if(!s||typeof s.endpoint!=='string'||s.endpoint.length>1800||!s.endpoint.startsWith('https://')||!s.keys||!s.keys.auth||!s.keys.p256dh)return response({ok:false,error:'Suscripción no válida'},400,origin);
+    const devices=await read(env,'push:'+user.id,[]),idx=devices.findIndex(x=>x.endpoint===s.endpoint);
+    if(idx>=0)devices[idx]=s;else devices.push(s);
+    await put(env,'push:'+user.id,devices.slice(-8));return response({ok:true,devices:Math.min(devices.length,8)},200,origin);
+  }
+  if(path==='/api/push/unsubscribe'&&req.method==='POST'){
+    const endpoint=str(body.endpoint,1800),devices=await read(env,'push:'+user.id,[]);
+    await put(env,'push:'+user.id,devices.filter(x=>x.endpoint!==endpoint));return response({ok:true},200,origin);
+  }
+  if(path==='/api/push/test'&&req.method==='POST'){
+    const devices=await read(env,'push:'+user.id,[]);
+    if(!devices.length)return response({ok:false,error:'Primero activa las notificaciones'},409,origin);
+    await pushNotify(env,ctx,[user.id],'🎾 Liga CDM','Notificaciones activadas correctamente','messages');
+    return response({ok:true,devices:devices.length,queued:true},200,origin);
+  }
   // Comunicaciones V1.2.3: mensajes persistentes y visibilidad por destinatario.
   if (path === "/api/messages" && req.method === "GET") {
     const messages = await read(env, "messages", []);
@@ -542,6 +608,7 @@ async function handler(req, env) {
     const item={id:id(),title,content,createdAt:now(),authorId:user.id,authorName:user.name,recipientIds:ids,readBy:[]};
     messages.push(item);
     await put(env,"messages",messages);
+    await pushNotify(env,ctx,ids,'📢 '+title,content.slice(0,110),'messages');
     return response({ok:true,id:item.id,recipients:ids.length},201,origin);
   }
   if (path === "/api/messages/read" && req.method === "POST") {
@@ -572,6 +639,7 @@ async function handler(req, env) {
       m.status="result_pending";
     }
     await put(env,"matches",matches);
+    if(m.pendingResult?.status==='pending')await pushForMatch(env,ctx,m,user.id,'🎾 Resultado pendiente','Tu rival ha introducido un resultado. Revísalo en la aplicación.','results');
     return response({ok:true,match:m},200,origin);
   }
   if (path === "/api/results/respond" && req.method === "POST") {
@@ -595,6 +663,7 @@ async function handler(req, env) {
       m.status="played";p.status="confirmed";p.respondedAt=now();
     }
     await put(env,"matches",matches);
+    await pushNotify(env,ctx,[p.submittedBy],action==='confirm'?'✅ Resultado confirmado':'⚠️ Resultado discutido',action==='confirm'?'Tu rival ha confirmado el resultado.':'Tu rival ha comunicado una discrepancia.','results');
     return response({ok:true,match:m},200,origin);
   }
   if (path === "/api/results/reopen" && req.method === "POST") {
@@ -615,11 +684,11 @@ async function handler(req, env) {
 
 __name(handler, "handler");
 
-var worker_default = { async fetch(req, env) {
+var worker_default = { async fetch(req, env, ctx) {
 
   try {
 
-    return await handler(req, env);
+    return await handler(req, env, ctx);
 
   } catch (e) {
 
