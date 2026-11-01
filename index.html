@@ -633,7 +633,7 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <button type="button" class="moreItem" data-goto="proposals"><span class="moreItemIcon">↔</span><span class="moreItemLabel">Cambios de fecha</span><span class="moreChevron">›</span></button>
 <button type="button" class="moreItem" data-goto="players"><span class="moreItemIcon">♙</span><span class="moreItemLabel">Jugadores</span><span class="moreChevron">›</span></button>
 </div>
-<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" id="ldmImportGo"><span class="moreItemIcon">⇧</span><span class="moreItemLabel">Nueva liga e importar CSV<small>Crear temporada y cargar enfrentamientos desde PDF convertido</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
+<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" id="ldmImportGo"><span class="moreItemIcon">⇧</span><span class="moreItemLabel">Nueva liga e importar CSV<small>Crear temporada y cargar enfrentamientos desde PDF convertido</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" id="ldmDeleteLeagueGo"><span class="moreItemIcon">🗑</span><span class="moreItemLabel">Eliminar liga<small>Eliminar competición y partidos, conservar todos los usuarios</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
 <div id="ldmImportPanel" class="ldmImportPanel hidden adminOnly">
 <h3>Importar enfrentamientos CSV</h3><p>Primero convierte el PDF de enfrentamientos a CSV con las columnas: <code>categoria,jugador_a,jugador_b,fecha,hora,pista</code>.</p>
 <div class="ldmImportFields"><label>Nombre de la nueva liga<input id="ldmNewLeagueName" type="text" maxlength="90" placeholder="Ej.: Liga Otoño 2026"></label>
@@ -715,7 +715,7 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4','1.4.8'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){await ldmLoadLeagueOptions();if(!S.leagueId){S.players=[];S.matches=[];S.proposals=[];S.messages=[];S.photos={};render();msg('Tu usuario todavía no está vinculado a ninguna liga. Pide al administrador que lo inscriba.','error');return;}S.user=(await request('/api/me')).user;const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -1265,6 +1265,27 @@ document.getElementById('ldmLeagueSelect')?.addEventListener('change',async e=>{
  ldmAutoShown=false;ldmAutoDismiss();
  try{S.user=(await request('/api/me')).user;view(true);await refresh();ldmRenderLeagueLinks();toast('Liga activa: '+ldmLeagues.find(l=>l.id===chosen)?.name);}
  catch(err){toast(err.message)}
+});
+document.getElementById('ldmDeleteLeagueGo')?.addEventListener('click',async()=>{
+ if(!isAdmin())return;
+ const candidates=ldmLeagues.filter(l=>l.id!=='original');
+ if(!candidates.length){toast('No hay ligas eliminables. La liga original está protegida.');return;}
+ const options=candidates.map((l,i)=>(i+1)+'. '+l.name).join('\n');
+ const selected=prompt('ELIMINAR LIGA\nSelecciona el número de la competición que deseas eliminar:\n\n'+options);
+ if(selected===null)return;
+ const idx=Number(selected)-1;
+ if(!/^\d+$/.test(selected.trim())||!Number.isInteger(idx)||idx<0||idx>=candidates.length){toast('Selección no válida');return;}
+ const league=candidates[idx];
+ const name=prompt('⚠️ ELIMINACIÓN DEFINITIVA\nSe perderán los partidos, resultados, fotos y mensajes de «'+league.name+'».\nLos usuarios, PIN, teléfonos y otras ligas se conservarán.\n\nPara confirmar, escribe EXACTAMENTE:\n'+league.name);
+ if(name===null)return;
+ if(name!==league.name){toast('Nombre incorrecto. No se ha eliminado ninguna liga.');return;}
+ const button=document.getElementById('ldmDeleteLeagueGo');button.disabled=true;
+ try{
+  const result=await request('/api/leagues/delete',{method:'POST',payload:{leagueId:league.id,confirmName:name}});
+  if(S.leagueId===league.id){S.leagueId='original';try{localStorage.setItem('ldm:active-league','original')}catch{}}
+  await ldmLoadLeagueOptions();await refresh();ldmRenderLeagueLinks();
+  toast('Liga eliminada. Se conservan todas las cuentas y PIN.');
+ }catch(e){toast('No se pudo eliminar: '+e.message)}finally{button.disabled=false;}
 });
 document.getElementById('ldmImportGo')?.addEventListener('click',()=>{
  const el=document.getElementById('ldmImportPanel');el.classList.toggle('hidden');if(!el.classList.contains('hidden')){el.scrollIntoView({behavior:'smooth',block:'start'});ldmRenderLeagueLinks();}
