@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.1", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -632,12 +632,19 @@ async function handler(req, env, ctx) {
     if (confirmName!==target.name) return response({ok:false,error:'Escribe exactamente el nombre del jugador'},400,origin);
     const matches=await read(env,'matches',[]);
     const affected=matches.filter(m=>m.playerAId===playerId||m.playerBId===playerId);
-    if (affected.some(m=>m.result||m.pendingResult)) return response({ok:false,error:'Este jugador tiene partidos con resultados registrados o pendientes. No se puede eliminar sin alterar el historial deportivo.'},409,origin);
+    const hasScores=affected.some(m=>m.result||m.pendingResult);
+    if(hasScores&&!(body.force===true&&body.forceConfirmation==='ELIMINAR')){
+      return response({ok:false,error:'Tiene partidos con resultados o marcadores pendientes. Confirma la baja forzada para retirarlos.',requiresForce:true,confirmed:affected.filter(m=>m.result).length,pending:affected.filter(m=>!m.result&&m.pendingResult).length},409,origin);
+    }
     const remaining=matches.filter(m=>m.playerAId!==playerId&&m.playerBId!==playerId);
     const matchIds=new Set(affected.map(m=>m.id));
     const proposals=await read(env,'proposals',[]);
     const remainingProposals=proposals.filter(proposal=>!matchIds.has(proposal.matchId));
     const photos=await read(env,'photos',{});
+    // Copia de seguridad por baja, antes de cualquier modificación destructiva.
+    // Solo accesible desde KV: no se devuelve a las cuentas de jugadores.
+    const backupId=id();
+    await put(env,'player-removal-backup:'+backupId,{id:backupId,leagueId:requestedLeague,player:target,affectedMatches:affected,affectedProposals:proposals.filter(p=>matchIds.has(p.matchId)),photo:photos[playerId]||null,createdAt:now(),performedBy:user.id});
     delete photos[playerId];
     const accounts=await read(env,'users',[]);
     let unlinked=0;
@@ -654,7 +661,7 @@ async function handler(req, env, ctx) {
     await put(env,'players',players.filter(p=>p.id!==playerId));
     await put(env,'photos',photos);
     if (unlinked) await put(env,'users',accounts);
-    return response({ok:true,deletedPlayer:target.name,removedScheduledMatches:affected.length,unlinkedAccounts:unlinked,accountsPreserved:true},200,origin);
+    return response({ok:true,deletedPlayer:target.name,removedScheduledMatches:affected.length,removedMatches:affected.length,removedConfirmedResults:affected.filter(m=>m.result).length,removedPendingResults:affected.filter(m=>!m.result&&m.pendingResult).length,backupCreated:true,unlinkedAccounts:unlinked,accountsPreserved:true},200,origin);
   }
 
   if (path === "/api/players" && req.method === "POST") {
