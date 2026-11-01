@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.4", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.8", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -363,7 +363,7 @@ async function handler(req, env, ctx) {
 
   // Aislamiento por competición. Solo las claves de la liga original conservan el prefijo anterior.
   const requestedLeague = str(req.headers.get('X-LDM-League')||'original',60)||'original';
-  const leagues = [LDM_DEFAULT_LEAGUE,...await read(env,'leagues',[])];
+  const leagues = [LDM_DEFAULT_LEAGUE,...(await read(env,'leagues',[])).filter(l=>!l.deleting)];
   if(!ldmSlug(requestedLeague) && requestedLeague!=='original') return response({ok:false,error:'Liga inválida'},400,origin);
   if(!leagues.some(l=>l.id===requestedLeague)) return response({ok:false,error:'La liga seleccionada no existe'},404,origin);
   env = Object.assign(Object.create(env),{__ldmLeague:requestedLeague});
@@ -388,6 +388,42 @@ async function handler(req, env, ctx) {
     const existing=await read(env,'leagues',[]);existing.push({id:slug,name,createdAt:now(),legacy:false});
     await put(env,'leagues',existing);
     return response({ok:true,league:existing.at(-1)},201,origin);
+  }
+  // Borrado definitivo de una competición. Los usuarios, sus PIN, teléfonos y push son globales.
+  // La liga original queda protegida; no se permite borrar otras ligas sin permisos de admin.
+  if(path==='/api/leagues/delete' && req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const target=str(body.leagueId,60), confirmation=str(body.confirmName,90);
+    if(target==='original')return response({ok:false,error:'La liga original no se puede eliminar'},403,origin);
+    if(!ldmSlug(target))return response({ok:false,error:'Identificador de liga inválido'},400,origin);
+    const registry=await read(env,'leagues',[]), entry=registry.find(l=>l.id===target);
+    if(!entry||entry.deleting)return response({ok:false,error:'Liga inexistente o eliminación en curso'},404,origin);
+    if(confirmation!==entry.name)return response({ok:false,error:'Para confirmar, escribe exactamente el nombre de la liga'},400,origin);
+    // Bloquear nuevas lecturas y escrituras antes de limpiar las claves de esta competición.
+    entry.deleting=true;
+    await put(env,'leagues',registry);
+    try{
+      const prefix=key('league:'+target+':');
+      let cursor, count=0, complete=false;
+      do{
+        const page=await env.DATA.list({prefix,limit:1000,...(cursor?{cursor}:{})});
+        for(const item of page.keys){await env.DATA.delete(item.name);count++;}
+        complete=page.list_complete;cursor=page.cursor;
+      }while(!complete);
+      const accounts=await read(env,'users',[]);
+      let unlinked=0;
+      for(const account of accounts){
+        if(account.leaguePlayers && Object.prototype.hasOwnProperty.call(account.leaguePlayers,target)){
+          delete account.leaguePlayers[target];unlinked++;
+        }
+      }
+      if(unlinked)await put(env,'users',accounts);
+      await put(env,'leagues',(await read(env,'leagues',[])).filter(l=>l.id!==target));
+      return response({ok:true,deletedLeague:target,deletedKeys:count,unlinkedAccounts:unlinked,usersPreserved:true},200,origin);
+    }catch(e){
+      console.error('Eliminación parcial de liga '+target,e);
+      return response({ok:false,error:'No se completó la eliminación. La liga está bloqueada para evitar mezclar datos. Contacta con administración técnica para revisar Cloudflare KV.'},500,origin);
+    }
   }
   if(path==='/api/leagues/import' && req.method==='POST'){
     if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
