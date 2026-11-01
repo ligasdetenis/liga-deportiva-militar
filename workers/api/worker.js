@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.8", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -565,6 +565,26 @@ async function handler(req, env, ctx) {
     target.phone=phone;
     await put(env,'users',users);
     return response({ok:true,userId:target.id,phone},200,origin);
+  }
+
+  // V1.5.0 · Eliminar únicamente la cuenta global, no los jugadores ni los resultados históricos.
+  if (path === "/api/users/delete" && req.method === "POST") {
+    if (!allowAdmin(user)) return response({ok:false,error:"Solo administración"},403,origin);
+    const targetId=str(body.userId,80),confirmName=str(body.confirmName,80);
+    if (!targetId) return response({ok:false,error:"Selecciona un usuario"},400,origin);
+    const accounts=await read(env,'users',[]);
+    const target=accounts.find(u=>u.id===targetId&&u.active!==false);
+    if (!target) return response({ok:false,error:"Usuario no encontrado"},404,origin);
+    if (target.id===user.id) return response({ok:false,error:"No puedes eliminar tu propia cuenta"},403,origin);
+    if (confirmName!==target.name) return response({ok:false,error:"Escribe exactamente el nombre del usuario para confirmar"},400,origin);
+    if (target.role==='admin' && accounts.filter(u=>u.role==='admin'&&u.active!==false).length<=1)
+      return response({ok:false,error:"No se puede eliminar el último administrador"},403,origin);
+    // El registro se elimina de la lista global; ningún token anterior seguirá siendo válido.
+    await put(env,'users',accounts.filter(u=>u.id!==targetId));
+    // Eliminar las suscripciones Push asociadas a la cuenta (sin afectar a otros usuarios).
+    try { await env.DATA.delete(key('push:'+targetId)); }
+    catch(err) { console.warn('No se pudieron borrar las suscripciones Push del usuario',err); }
+    return response({ok:true,deletedUserId:targetId,deletedName:target.name},200,origin);
   }
 
   if (path === "/api/users" && req.method === "GET") {
