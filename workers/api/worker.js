@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.4.3", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -505,6 +505,23 @@ async function handler(req, env, ctx) {
   }
 
   if (path === "/api/matches" && req.method === "GET") return response({ ok: true, matches: await read(env, "matches", []) }, 200, origin);
+
+  // V1.4.3 · teléfono de contacto, solo para gestionar envíos asistidos desde administración.
+  if (path === "/api/users/phone" && req.method === "POST") {
+    if (!allowAdmin(user)) return response({ok:false,error:"Solo administración"},403,origin);
+    const userId=str(body.userId,80);
+    let phone=String(body.phone??'').trim().replace(/[\s().-]/g,'');
+    if(phone.startsWith('00')) phone='+'+phone.slice(2);
+    if(phone && !/^\+?[0-9]{9,15}$/.test(phone))return response({ok:false,error:'Introduce un teléfono válido (9 a 15 cifras, con prefijo internacional si procede)'},400,origin);
+    if(phone.startsWith('+'))phone=phone.slice(1);
+    if(phone.length===9)phone='34'+phone; // España por defecto cuando se indican 9 cifras.
+    const users=await read(env,'users',[]);
+    const target=users.find(x=>x.id===userId&&x.role==='player'&&x.active!==false);
+    if(!target)return response({ok:false,error:'Cuenta de jugador no encontrada'},404,origin);
+    target.phone=phone;
+    await put(env,'users',users);
+    return response({ok:true,userId:target.id,phone},200,origin);
+  }
 
   if (path === "/api/users" && req.method === "GET") {
 
