@@ -517,6 +517,23 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 #tab-more .ldmLogoutBtn{color:#a52d43;font-weight:850}
 #tab-more .ldmLogoutBtn .moreItemIcon{color:#b62647}
 #tab-more .ldmLogoutBtn:hover,#tab-more .ldmLogoutBtn:focus-visible{background:#fff0f3;color:#8b1032}
+
+/* LDM V1.3.12 · Calendario a ancho útil: elimina la caja exterior anidada. */
+#tab-matches{width:100%;max-width:960px;margin-inline:auto;min-width:0}
+#tab-matches>.grid{display:block!important;width:100%;min-width:0}
+#tab-matches>.grid>.card:not(#createMatchBox){padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;margin:0!important;overflow:visible!important}
+#tab-matches>.grid>.card:not(#createMatchBox)>h3{padding:0 2px;margin:0 0 5px;font-size:18px}
+#tab-matches>.grid>.card:not(#createMatchBox)>.desc{display:none}
+#tab-matches #matchList{width:100%;max-width:none;min-width:0;margin:0;padding:0}
+#tab-matches .matchCards{width:100%;max-width:none;min-width:0}
+#tab-matches .v09MatchCard{min-width:0;margin:0;width:100%}
+@media(max-width:700px){
+ body:has(#dashboard:not(.hidden)) .app:has(#tab-matches:not(.hidden)){padding-left:8px!important;padding-right:8px!important}
+ #tab-matches .sectionHeader{padding-inline:3px}
+ #tab-matches>.grid>.card:not(#createMatchBox)>h3{padding-left:3px}
+ #tab-matches .matchCardTop{padding-inline:12px}
+ #tab-matches .matchCardActions{padding-inline:12px}
+}
 </style></head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button type="button" id="ldmPushQuick" class="ldmPushQuick off hidden" title="Configurar avisos del móvil" aria-label="Estado de notificaciones Push"><span class="ldmPushLed"></span><span id="ldmPushQuickText">Avisos</span></button><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
