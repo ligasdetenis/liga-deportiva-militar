@@ -269,7 +269,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.1", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -619,6 +619,42 @@ async function handler(req, env, ctx) {
 
     return response({ ok: true, user: { id: nu.id, name, role, playerId } }, 201, origin);
 
+  }
+
+  // V1.5.1 · Baja de participante SOLO en la liga seleccionada.
+  // Se conservan las cuentas globales, PIN, teléfonos y el historial de otras ligas.
+  if (path === "/api/players/delete" && req.method === "POST") {
+    if (!allowAdmin(user)) return response({ok:false,error:"Solo administración"},403,origin);
+    const playerId=str(body.playerId,80), confirmName=str(body.confirmName,90);
+    const players=await read(env,'players',[]);
+    const target=players.find(p=>p.id===playerId);
+    if (!target) return response({ok:false,error:'Jugador no encontrado en esta liga'},404,origin);
+    if (confirmName!==target.name) return response({ok:false,error:'Escribe exactamente el nombre del jugador'},400,origin);
+    const matches=await read(env,'matches',[]);
+    const affected=matches.filter(m=>m.playerAId===playerId||m.playerBId===playerId);
+    if (affected.some(m=>m.result||m.pendingResult)) return response({ok:false,error:'Este jugador tiene partidos con resultados registrados o pendientes. No se puede eliminar sin alterar el historial deportivo.'},409,origin);
+    const remaining=matches.filter(m=>m.playerAId!==playerId&&m.playerBId!==playerId);
+    const matchIds=new Set(affected.map(m=>m.id));
+    const proposals=await read(env,'proposals',[]);
+    const remainingProposals=proposals.filter(proposal=>!matchIds.has(proposal.matchId));
+    const photos=await read(env,'photos',{});
+    delete photos[playerId];
+    const accounts=await read(env,'users',[]);
+    let unlinked=0;
+    for (const account of accounts) {
+      if (requestedLeague==='original') {
+        if (account.playerId===playerId) { account.playerId=null; unlinked++; }
+      } else if (account.leaguePlayers?.[requestedLeague]===playerId) {
+        delete account.leaguePlayers[requestedLeague]; unlinked++;
+      }
+    }
+    // KV no admite transacciones; primero dejar de mostrar partidos, después jugador y vínculos.
+    await put(env,'matches',remaining);
+    if (remainingProposals.length!==proposals.length) await put(env,'proposals',remainingProposals);
+    await put(env,'players',players.filter(p=>p.id!==playerId));
+    await put(env,'photos',photos);
+    if (unlinked) await put(env,'users',accounts);
+    return response({ok:true,deletedPlayer:target.name,removedScheduledMatches:affected.length,unlinkedAccounts:unlinked,accountsPreserved:true},200,origin);
   }
 
   if (path === "/api/players" && req.method === "POST") {
