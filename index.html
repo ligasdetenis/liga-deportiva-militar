@@ -400,6 +400,30 @@ body:has(#dashboard.hidden) #ldmLatestTicker{display:none!important}
 body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 @media(min-width:900px){#ldmLatestTicker.ldmTicker{bottom:73px}}
 @media(max-width:480px){#ldmLatestTicker.ldmTicker{height:31px;min-height:31px;bottom:calc(73px + env(safe-area-inset-bottom));padding:0 8px;gap:8px}#ldmLatestTicker .ldmTickerLabel{font-size:9px;padding-right:8px}#ldmLatestTicker .ldmTickerItem{font-size:10px;min-height:31px}#ldmLatestTicker .ldmTickerItem strong{font-size:10px}}
+
+/* V1.1.0 — Calendario compacto. Solo presentación; mantiene acciones y datos. */
+#tab-matches .matchCards{gap:9px}
+#tab-matches .v09MatchCard{border-radius:14px;box-shadow:0 2px 9px #34121c0d}
+#tab-matches .matchCardTop{padding:9px 12px 3px}
+#tab-matches .matchCardKicker{font-size:9px;letter-spacing:.04em}
+#tab-matches .badge{font-size:10px;padding:4px 8px}
+#tab-matches .matchCardDetail{padding:2px 10px 6px}
+#tab-matches .matchCardPlayers{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:5px}
+#tab-matches .matchCardPlayer{gap:4px}
+#tab-matches .matchFace{width:52px;height:52px;border-width:2px;outline-width:1px;font-size:17px;box-shadow:none}
+#tab-matches .matchCardPlayer strong{font-size:12px;line-height:1.16;max-width:130px;letter-spacing:-.018em}
+#tab-matches .matchVs{width:32px;height:32px;font-size:11px}
+#tab-matches .matchCardWhen{font-size:12px;margin-top:8px;gap:5px}
+#tab-matches .matchCardWhen .v09Icon{width:15px;height:15px}
+#tab-matches .matchCardCourt{font-size:11px;margin-top:2px}
+#tab-matches .matchScore{font-size:14px;margin-top:5px}
+#tab-matches .matchCardActions{padding:5px 10px 10px;gap:5px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#tab-matches .matchAction{min-width:0;min-height:35px;font-size:11px;line-height:1.15;padding:7px 5px;gap:5px;border-radius:9px}
+#tab-matches .matchAction .v09Icon{width:15px;height:15px}
+#tab-matches .matchActionPrimary{grid-column:1/-1;min-height:38px}
+#tab-matches .matchCardActions>.matchAction:only-child{grid-column:1/-1}
+@media(max-width:390px){#tab-matches .matchFace{width:46px;height:46px}#tab-matches .matchCardPlayer strong{font-size:11.5px}#tab-matches .matchAction{font-size:10.5px}}
+@media(min-width:800px){#tab-matches .matchCards{gap:12px}}
 </style></head><body>
 <header><div class="top"><div class="brand"><div class="logo" aria-label="CDM"></div><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button id="ldmNotify" type="button" aria-label="Ver propuestas pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><span id="who" class="pill">Sin sesión</span><button id="logout" class="btn alt tiny hidden" type="button">Salir</button></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
