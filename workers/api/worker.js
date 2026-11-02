@@ -281,6 +281,46 @@ async function ldmOpenPin(vault,env){
   try{const data=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(vault.iv)},await ldmPinKey(env.AUTH_SECRET),unb64(vault.data));return td.decode(data)}catch{return null}
 }
 
+// V1.6.7 — confirmación automática tras 24 horas sin respuesta.
+const LDM_RESULT_CONFIRM_MS=24*60*60*1000;
+async function ldmConfirmExpiredResults(env,ctx,leagueId){
+  const scoped=Object.assign(Object.create(env),{__ldmLeague:leagueId});
+  const matches=await read(scoped,'matches',[]);
+  const nowMs=Date.now();let changed=false;const notices=[];
+  for(const m of matches){
+    const p=m.pendingResult;
+    if(m.result||!p||p.status!=='pending'||!scoreIsValid({sets:p.sets}))continue;
+    const submitted=Date.parse(p.submittedAt||'');
+    if(!Number.isFinite(submitted)||submitted>nowMs||nowMs-submitted<LDM_RESULT_CONFIRM_MS)continue;
+    const sets=p.sets,pa=Number(sets[0][0]>sets[0][1])+Number(sets[1][0]>sets[1][1]);
+    const timestamp=now();
+    m.result={sets,pointsA:pa,pointsB:2-pa,updatedAt:timestamp,updatedBy:p.submittedBy,confirmedAt:timestamp,source:'automatic_24h'};
+    m.status='played';p.status='auto_confirmed';p.respondedAt=timestamp;
+    p.history=Array.isArray(p.history)?p.history:[];
+    p.history.push({action:'auto_confirmed_24h',by:'system',at:timestamp});
+    notices.push({match:m,submitter:p.submittedBy});changed=true;
+  }
+  if(changed){
+    await put(scoped,'matches',matches);
+    // Evitar que un error de Web Push afecte a los resultados confirmados.
+    for(const n of notices){try{
+      const users=await read(scoped,'users',[]);
+      const recipients=users.filter(u=>u.active&&(
+        (leagueId==='original'&&u.playerId&&[n.match.playerAId,n.match.playerBId].includes(u.playerId))||
+        (leagueId!=='original'&&u.leaguePlayers&&[n.match.playerAId,n.match.playerBId].includes(u.leaguePlayers[leagueId]))
+      )).map(u=>u.id);
+      await pushNotify(scoped,ctx,recipients,'✅ Resultado confirmado automáticamente','Han transcurrido 24 horas sin oposición. El resultado ya cuenta en la clasificación.','results:'+n.match.id);
+    }catch(e){console.warn('Push confirmación automática',String(e));}}
+  }
+  return notices.length;
+}
+async function ldmScheduledResults(env,ctx){
+  const leagues=[LDM_DEFAULT_LEAGUE,...(await read(env,'leagues',[])).filter(x=>!x.deleting)];
+  let total=0;
+  for(const l of leagues){try{total+=await ldmConfirmExpiredResults(env,ctx,l.id)}catch(e){console.error('Error confirmando resultados en liga',l.id,e)}}
+  console.log('LDM confirmaciones automáticas:',total);
+}
+
 async function handler(req, env, ctx) {
 
   const origin = req.headers.get("Origin") || "";
@@ -291,7 +331,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.6.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.6.7", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -594,7 +634,10 @@ async function handler(req, env, ctx) {
     return response({ ok:true, playerId },200,origin);
   }
 
-  if (path === "/api/matches" && req.method === "GET") return response({ ok: true, matches: await read(env, "matches", []) }, 200, origin);
+  if (path === "/api/matches" && req.method === "GET") {
+    await ldmConfirmExpiredResults(env,ctx,requestedLeague);
+    return response({ ok: true, matches: await read(env, "matches", []) }, 200, origin);
+  }
 
   // V1.4.3 · teléfono de contacto, solo para gestionar envíos asistidos desde administración.
   if (path === "/api/users/phone" && req.method === "POST") {
@@ -990,6 +1033,7 @@ async function handler(req, env, ctx) {
   if (path === "/api/results/respond" && req.method === "POST") {
     const matchId=str(body.matchId,80),action=str(body.action,24);
     if (!["confirm","dispute","counter"].includes(action)) return response({ok:false,error:"Acción incorrecta"},400,origin);
+    await ldmConfirmExpiredResults(env,ctx,requestedLeague);
     const matches=await read(env,"matches",[]),m=matches.find(x=>x.id===matchId);
     if (!m) return response({ok:false,error:"Partido no encontrado"},404,origin);
     const p=m.pendingResult;
@@ -1041,21 +1085,18 @@ async function handler(req, env, ctx) {
 
 __name(handler, "handler");
 
-var worker_default = { async fetch(req, env, ctx) {
-
-  try {
-
-    return await handler(req, env, ctx);
-
-  } catch (e) {
-
-    console.error("LDM API error", e);
-
-    return response({ ok: false, error: "Error interno" }, 500, req.headers.get("Origin") || "");
-
+var worker_default = {
+  async fetch(req, env, ctx) {
+    try { return await handler(req, env, ctx); }
+    catch(e) {
+      console.error('LDM API error',e);
+      return response({ok:false,error:'Error interno'},500,req.headers.get('Origin')||'');
+    }
+  },
+  async scheduled(event,env,ctx) {
+    ctx.waitUntil(ldmScheduledResults(env,ctx));
   }
-
-} };
+};
 
 export {
 
