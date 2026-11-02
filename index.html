@@ -1663,10 +1663,10 @@ window.addEventListener('load',renderPinManager);
 #ldmSixMigration p{font-size:12px;color:#665133}
 
 
-/* V1.6.8 — pista de tenis difuminada en tarjetas de partidos */
+/* V1.6.9 — fotografía real de pista difuminada, visible y legible */
 #tab-matches .v09MatchCard,#tab-home .ldmFixturesTrack>.fixture{position:relative;isolation:isolate;overflow:hidden;background:#fff!important}
-#tab-matches .v09MatchCard::before,#tab-home .ldmFixturesTrack>.fixture::before{content:"";position:absolute;z-index:0;inset:-10px;background:url("./images/pista-tenis-difuminada.svg") center center / cover no-repeat;filter:blur(3px);opacity:.95;pointer-events:none}
-#tab-matches .v09MatchCard::after,#tab-home .ldmFixturesTrack>.fixture::after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(100deg,rgba(255,255,255,.80),rgba(255,255,255,.65) 57%,rgba(255,255,255,.57));pointer-events:none}
+#tab-matches .v09MatchCard::before,#tab-home .ldmFixturesTrack>.fixture::before{content:"";position:absolute;z-index:0;inset:-10px;background:url("./images/pista-tenis-tierra-batida.png") center center / cover no-repeat;filter:blur(1.4px);opacity:.95;pointer-events:none}
+#tab-matches .v09MatchCard::after,#tab-home .ldmFixturesTrack>.fixture::after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(100deg,rgba(255,255,255,.72),rgba(255,255,255,.52) 57%,rgba(255,255,255,.43));pointer-events:none}
 #tab-matches .v09MatchCard>.matchCardTop,#tab-matches .v09MatchCard>.matchCardDetail,#tab-matches .v09MatchCard>.matchCardActions,#tab-home .ldmFixturesTrack>.fixture>*{position:relative;z-index:2}
 #tab-matches .v09MatchCard>.matchCardDetail,#tab-matches .v09MatchCard>.matchCardTop,#tab-matches .v09MatchCard>.matchCardActions{background:transparent!important}
 #tab-matches .v09MatchCard .matchCardPlayer strong,#tab-home .ldmFixturesTrack>.fixture .fixtureNames{color:#231c21}
