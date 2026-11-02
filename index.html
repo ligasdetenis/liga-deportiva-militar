@@ -1587,7 +1587,7 @@ window.addEventListener('load',renderPinManager);
   const panel=document.getElementById('tab-users');
   if(panel)panel.dataset.userPanel='accounts';
   const intro=document.getElementById('ldmUserTabIntro');
-  const descriptions={accounts:'Crea una cuenta individual o genera los accesos de los jugadores de esta liga.',bulk:'Selecciona jugadores de esta liga y genera sus accesos de una sola vez.',pins:'Consulta o restablece PIN, guarda teléfonos y abre WhatsApp con el mensaje preparado.'};
+  const descriptions={accounts:'Crea una cuenta individual o genera los accesos de los jugadores de esta liga.',pins:'Consulta o restablece PIN, guarda teléfonos y abre WhatsApp con el mensaje preparado.',delete:'Selecciona una cuenta para eliminar su acceso. Los jugadores, sus partidos y resultados permanecen en la liga.'};
   document.querySelectorAll('[data-ldm-user-tab]').forEach(btn=>btn.addEventListener('click',()=>{
     const target=btn.dataset.ldmUserTab;
     if(!panel||!descriptions[target])return;
