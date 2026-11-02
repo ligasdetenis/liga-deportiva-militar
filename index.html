@@ -1701,6 +1701,18 @@ window.addEventListener('load',renderPinManager);
 #tab-matches .v09MatchCard .matchCardPlayer strong,#tab-home .ldmFixturesTrack>.fixture .fixtureNames{color:#231c21}
 #tab-matches .v09MatchCard .matchAction,#tab-home .ldmFixturesTrack>.fixture .matchAction{position:relative;z-index:3}
 @media(prefers-reduced-transparency:reduce){#tab-matches .v09MatchCard::before,#tab-home .ldmFixturesTrack>.fixture::before{opacity:.55}#tab-matches .v09MatchCard::after,#tab-home .ldmFixturesTrack>.fixture::after{background:rgba(255,255,255,.78)}}
+
+/* V1.7.2 · Cabeceras pegadas: contraste entre cabecera principal y secundaria */
+body:has(#dashboard:not(.hidden)) header{background:linear-gradient(110deg,#480719 0%,#690923 65%,#780b2b 100%)}
+#ldmUnifiedHero.ldmUnifiedHero{
+  margin-top:-22px!important;
+  border-radius:0 0 18px 18px!important;
+  background:linear-gradient(110deg,#92163c 0%,#a51d47 58%,#bb2853 100%)!important;
+  box-shadow:0 8px 18px rgba(72,7,25,.12);
+}
+@media(max-width:700px){#ldmUnifiedHero.ldmUnifiedHero{margin-top:-15px!important}}
+@media(max-width:600px){#ldmUnifiedHero.ldmUnifiedHero{border-radius:0 0 19px 19px!important}}
+/* La separación anterior permanece únicamente debajo de la barra secundaria. */
 </style>
 <script>
 (()=>{
