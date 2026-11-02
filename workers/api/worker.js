@@ -157,6 +157,28 @@ async function identity(request, env) {
 
 __name(identity, "identity");
 
+// PIN de seis cifras: huella HMAC global (sin guardar el PIN en claro).
+async function pinTag(pin,env){return signature(env.AUTH_SECRET,'ldm-pin-v160:'+pin);}
+function newSixPin(){const n=crypto.getRandomValues(new Uint32Array(1))[0];return String(n%1000000).padStart(6,'0');}
+async function chooseUniquePin(users,env,reserved=new Set()){
+ for(let i=0;i<1000;i++){
+  const pin=newSixPin(),tag=await pinTag(pin,env);
+  if(!reserved.has(tag)&&!users.some(u=>u.active!==false&&u.pinTag===tag)) {reserved.add(tag);return {pin,tag};}
+ }
+ throw Error('No se pudo generar un PIN único');
+}
+// Límite por dirección y por ventana (KV es eventual; para garantías fuertes usar Durable Objects/WAF).
+async function loginRate(env,req,success=false){
+ const ip=req.headers.get('CF-Connecting-IP')||'unknown';
+ const slot=Math.floor(Date.now()/900000);
+ const raw=await signature(env.AUTH_SECRET,'ip:'+ip+':'+slot);
+ const k=key('auth-rate:'+raw);
+ const count=Number(await env.DATA.get(k)||0);
+ if(success){await env.DATA.delete(k);return false;}
+ if(count>=10)return true;
+ await env.DATA.put(k,String(count+1),{expirationTtl:1000});
+ return false;
+}
 function validPin(pin) {
 
   return /^\d{6,12}$/.test(String(pin || ""));
@@ -269,7 +291,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.5.2", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.6.0", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -295,7 +317,7 @@ async function handler(req, env, ctx) {
 
     const name = str(body.name, 80), pin = str(body.pin, 20);
 
-    if (name.length < 2 || !validPin(pin)) return response({ ok: false, error: "Nombre y PIN de 6 a 12 d\xEDgitos obligatorios" }, 400, origin);
+    if (name.length < 2 || !/^\d{6}$/.test(pin)) return response({ ok: false, error: "Nombre y PIN de 6 d\xEDgitos obligatorios" }, 400, origin);
 
     let p;
 
@@ -315,7 +337,7 @@ async function handler(req, env, ctx) {
 
     try {
 
-      user2 = { id: id(), name, role: "admin", active: true, rev: 1, createdAt: now(), ...p };
+      user2 = { id: id(), name, role: "admin", active: true, rev: 1, createdAt: now(), pinTag:await pinTag(pin,env),...p };
 
     } catch (e) {
 
@@ -342,23 +364,26 @@ async function handler(req, env, ctx) {
   }
 
   if (path === "/api/login" && req.method === "POST") {
-
-    const name = str(body.name, 80), pin = str(body.pin, 20);
-
-    if (!name || !validPin(pin)) return response({ ok: false, error: "Credenciales inv\xE1lidas" }, 400, origin);
-
-    const users = await read(env, "users", []);
-
-    const u = users.find((x) => x.name.toLocaleLowerCase("es") === name.toLocaleLowerCase("es") && x.active);
-
-    const salt = u?.salt || b64(new Uint8Array(16));
-
-    const hash = await derive(pin, salt);
-
-    if (!u || !safeEq(hash, u.hash)) return response({ ok: false, error: "Credenciales incorrectas" }, 401, origin);
-
-    return response({ ok: true, token: await token(env.AUTH_SECRET, { app: "ldm:v1", id: u.id, rev: u.rev, exp: Date.now() + 30 * 24 * 36e5 }), user: { id: u.id, name: u.name, role: u.role, playerId: u.playerId || null } }, 200, origin);
-
+    const pin=str(body.pin,20),name=str(body.name,80);
+    if(!/^\d{6}$/.test(pin) && !(name&&validPin(pin)))return response({ok:false,error:'Introduce tu PIN de seis cifras'},400,origin);
+    // A efectos de migración, un administrador antiguo aún puede utilizar nombre+PIN.
+    if(await loginRate(env,req,false))return response({ok:false,error:'Demasiados intentos. Prueba en 15 minutos.'},429,origin);
+    const users=await read(env,'users',[]);
+    let u;
+    if(name){
+      u=users.find(x=>x.active&&x.role==='admin'&&ldmNorm(x.name)===ldmNorm(name));
+      if(!u)return response({ok:false,error:'PIN incorrecto'},401,origin);
+      const d=await derive(pin,u.salt);
+      if(!safeEq(d,u.hash))return response({ok:false,error:'PIN incorrecto'},401,origin);
+    }else{
+      const tag=await pinTag(pin,env);
+      u=users.find(x=>x.active&&x.pinTag===tag);
+      if(!u)return response({ok:false,error:'PIN incorrecto'},401,origin);
+      const d=await derive(pin,u.salt);
+      if(!safeEq(d,u.hash))return response({ok:false,error:'PIN incorrecto'},401,origin);
+    }
+    await loginRate(env,req,true);
+    return response({ok:true,token:await token(env.AUTH_SECRET,{app:'ldm:v1',id:u.id,rev:u.rev,exp:Date.now()+30*24*36e5}),user:{id:u.id,name:u.name,role:u.role,playerId:u.playerId||null}},200,origin);
   }
 
   // Aislamiento por competición. Solo las claves de la liga original conservan el prefijo anterior.
@@ -380,6 +405,28 @@ async function handler(req, env, ctx) {
   if(path==='/api/leagues' && req.method==='GET') return response({ok:true,leagues:leagues.filter(l=>allowedLeagueIds.includes(l.id)),selected:allowedLeagueIds.includes(requestedLeague)?requestedLeague:(allowedLeagueIds[0]||null)},200,origin);
   if(path==='/api/me' && req.method==='GET')return response({ok:true,user:{...user,playerId:allowedLeagueIds.includes(requestedLeague)?user.playerId:null}},200,origin);
   if(!allowedLeagueIds.includes(requestedLeague))return response({ok:false,error:'No tienes acceso a esta liga',code:'LEAGUE_FORBIDDEN'},403,origin);
+  // Operación voluntaria única: renovación masiva a 6 cifras. Conserva usuarios,
+  // nombres, teléfonos, ligas, mensajes y permisos. Devuelve CSV con credenciales
+  // solo en esta respuesta. Requiere confirmación explícita en el cliente.
+  if(path==='/api/users/migrate-six-pin'&&req.method==='POST'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    if(body.confirm!=='RENOVAR TODOS LOS PIN')return response({ok:false,error:'Confirmación incorrecta'},400,origin);
+    const users=await read(env,'users',[]);
+    const need=users.filter(u=>u.active!==false&&(!u.pinTag||body.force===true));
+    if(!need.length)return response({ok:true,changed:0,credentials:[]},200,origin);
+    const reserved=new Set(users.filter(u=>u.active!==false).map(u=>u.pinTag).filter(Boolean));
+    const credentials=[];
+    for(const target of need){
+      const {pin,tag}=await chooseUniquePin(users,env,reserved);
+      Object.assign(target,await hashPin(pin));
+      target.pinTag=tag;
+      target.pinVault=await ldmSealPin(pin,env);
+      target.rev=(target.rev||1)+1;
+      credentials.push({id:target.id,name:target.name,role:target.role,phone:target.phone||'',pin});
+    }
+    await put(env,'users',users);
+    return response({ok:true,changed:credentials.length,credentials},200,origin);
+  }
   if(path==='/api/leagues' && req.method==='POST'){
     if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
     const name=str(body.name,90),slug=str(body.slug||name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),60);
@@ -451,7 +498,7 @@ async function handler(req, env, ctx) {
   if(path==='/api/users/pin-view' && req.method==='POST'){
     if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
     const targetId=str(body.userId,80),accounts=await read(env,'users',[]);
-    const target=accounts.find(x=>x.id===targetId&&x.active&&x.role==='player');
+    const target=accounts.find(x=>x.id===targetId&&x.active&&(x.role==='player'||x.id===user.id));
     if(!target)return response({ok:false,error:'Jugador no encontrado'},404,origin);
     const pin=await ldmOpenPin(target.pinVault,env);
     if(!pin)return response({ok:true,userId:target.id,name:target.name,pin:null,needsReset:true},200,origin);
@@ -488,9 +535,8 @@ async function handler(req, env, ctx) {
     const credentials=[];
     for(const p of newAccounts){
       // 8 dígitos generados con entropía criptográfica; sin duplicar PIN en el lote.
-      let pin;
-      do{pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');}while(credentials.some(x=>x.pin===pin));
-      const nu={id:id(),name:p.name,role:'player',pinVault:await ldmSealPin(pin,env),playerId:requestedLeague==='original'?p.id:null,leaguePlayers:requestedLeague==='original'?{}:{[requestedLeague]:p.id},active:true,rev:1,createdAt:now(),...await hashPin(pin)};
+      const {pin,tag}=await chooseUniquePin(allUsers,env);
+      const nu={id:id(),name:p.name,role:'player',pinTag:tag,pinVault:await ldmSealPin(pin,env),playerId:requestedLeague==='original'?p.id:null,leaguePlayers:requestedLeague==='original'?{}:{[requestedLeague]:p.id},active:true,rev:1,createdAt:now(),...await hashPin(pin)};
       allUsers.push(nu);credentials.push({userId:nu.id,name:nu.name,pin,playerId:p.id});
     }
     for(const {p,u} of existingLinks){
@@ -505,8 +551,8 @@ async function handler(req, env, ctx) {
     const userId=str(body.userId,80),users=await read(env,'users',[]),target=users.find(u=>u.id===userId&&u.active);
     if(!target)return response({ok:false,error:'Cuenta no encontrada'},404,origin);
     if(target.role==='admin'&&target.id!==user.id)return response({ok:false,error:'No se puede restablecer el PIN de otro administrador'},403,origin);
-    const pin=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');
-    Object.assign(target,await hashPin(pin));target.pinVault=await ldmSealPin(pin,env);target.rev=(target.rev||1)+1;
+    const {pin,tag}=await chooseUniquePin(users,env);
+    Object.assign(target,await hashPin(pin));target.pinTag=tag;target.pinVault=await ldmSealPin(pin,env);target.rev=(target.rev||1)+1;
     await put(env,'users',users);
     return response({ok:true,name:target.name,pin,userId:target.id},200,origin);
   }
@@ -601,17 +647,19 @@ async function handler(req, env, ctx) {
 
     const name = str(body.name, 80), pin = str(body.pin, 20), role = body.role === "admin" ? "admin" : "player";
 
-    if (name.length < 2 || !validPin(pin)) return response({ ok: false, error: "Nombre y PIN de 6 a 12 d\xEDgitos obligatorios" }, 400, origin);
+    if (name.length < 2 || !/^\d{6}$/.test(pin)) return response({ ok: false, error: "Nombre y PIN de 6 d\xEDgitos obligatorios" }, 400, origin);
 
     const users = await read(env, "users", []);
 
     if (users.some((x) => x.name.toLocaleLowerCase("es") === name.toLocaleLowerCase("es"))) return response({ ok: false, error: "Usuario ya existente" }, 409, origin);
 
+    const tag=await pinTag(pin,env);
+    if(users.some(u=>u.active!==false&&u.pinTag===tag))return response({ok:false,error:'Este PIN ya está asignado. Elige otro.'},409,origin);
     const playerId = str(body.playerId || "", 80) || null;
 
     if (playerId && !(await read(env, "players", [])).some((x) => x.id === playerId)) return response({ ok: false, error: "Jugador no encontrado" }, 400, origin);
 
-    const nu = { id: id(), name, role, playerId:requestedLeague==='original'?playerId:null, leaguePlayers:requestedLeague!=='original'&&playerId?{[requestedLeague]:playerId}:{}, active: true, rev: 1, createdAt: now(), ...await hashPin(pin),pinVault:role==='player'?await ldmSealPin(pin,env):undefined };
+    const nu = { id: id(), name, role, pinTag:tag, playerId:requestedLeague==='original'?playerId:null, leaguePlayers:requestedLeague!=='original'&&playerId?{[requestedLeague]:playerId}:{}, active: true, rev: 1, createdAt: now(), ...await hashPin(pin),pinVault:role==='player'?await ldmSealPin(pin,env):undefined };
 
     users.push(nu);
 
