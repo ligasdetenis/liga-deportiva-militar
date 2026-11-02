@@ -433,10 +433,10 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:150px}
 .ldmParticipantCard{display:flex;align-items:center;gap:12px;border:1px solid #EDF7F6;background:#fff;border-radius:16px;padding:12px;box-shadow:0 3px 11px rgba(48,10,23,.055);min-width:0}
 .ldmParticipantPortrait{width:62px;height:62px;flex:0 0 62px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 1px #DDEDEF;background:linear-gradient(135deg,#DDEDEF,#E3EBED);color:#003E4A;display:grid;place-items:center;font-size:20px;font-weight:850;overflow:hidden;position:relative}
 .ldmParticipantPortrait img{width:100%;height:100%;object-fit:cover}
-.ldmParticipantText{flex:1;min-width:0}.ldmParticipantName{font-size:15px;font-weight:850;line-height:1.24;color:#00313B;overflow-wrap:anywhere}.ldmParticipantDivision{display:inline-block;margin-top:7px;background:#F2FAFA;color:#003E4A;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.ldmParticipantText{flex:1;min-width:0}.ldmParticipantName{font-size:15px;font-weight:850;line-height:1.24;color:#00313B;overflow-wrap:break-word;word-break:normal;white-space:normal;hyphens:auto}.ldmParticipantDivision{display:inline-block;margin-top:7px;background:#F2FAFA;color:#003E4A;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800}
 .ldmParticipantPhotoBtn{background:#fff;border:1px solid #DDEDEF;border-radius:10px;color:#003E4A;padding:8px;flex:none;cursor:pointer;display:grid;place-items:center}.ldmParticipantPhotoBtn svg{width:19px;height:19px}
 .ldmParticipantHint{font-size:12px;color:#718087;line-height:1.5;margin:12px 2px 0}
-@media(max-width:480px){.ldmParticipantGrid{grid-template-columns:1fr}.ldmParticipantCard{padding:10px 12px}.ldmParticipantPortrait{width:56px;height:56px;flex-basis:56px}}
+@media(max-width:480px){.ldmParticipantGrid{grid-template-columns:1fr}.ldmParticipantCard{display:grid;grid-template-columns:56px minmax(0,1fr);align-items:center;column-gap:10px;row-gap:8px;padding:10px 12px}.ldmParticipantPortrait{width:56px;height:56px;flex-basis:56px}.ldmParticipantText{min-width:0}.ldmParticipantName{font-size:15px;line-height:1.28}.ldmParticipantPhotoBtn{grid-column:2;justify-self:start;margin-top:2px}.ldmRemovePlayerBtn{grid-column:1/-1;width:100%;margin:0;padding:8px 10px}}
 
 .installPwa{appearance:none;background:#b6d735;color:#00313B;border:0;padding:8px 10px;border-radius:11px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap}
 .installPwa.hidden{display:none!important}
@@ -1965,6 +1965,47 @@ body:has(#dashboard:not(.hidden)) header{background:linear-gradient(110deg,#0031
 #tab-home .homeStats .statIcon>strong{font-size:17px!important}
 #tab-home .homeStats>div>strong{font-size:20px!important;line-height:1.08!important}
 #tab-home .homeStats>div>span{font-size:10px!important;line-height:1.15!important}
+
+/* V1.8.1 — acentos verde tenis en acciones positivas (sin cambiar estados ni avisos) */
+:root{--tennis-accent:#B8E020;--tennis-accent-hover:#A5CB15;--tennis-accent-ink:#14242D}
+/* Acciones deportivas principales: subir y confirmar marcadores */
+#tab-matches .matchActionPrimary[data-match-result],
+#tab-matches .matchActionPrimary[data-ldm-result-confirm],
+#tab-home .matchActionPrimary[data-match-result],
+#tab-home .matchActionPrimary[data-ldm-result-confirm],
+#resultForm button[type="submit"]{
+  background:var(--tennis-accent)!important;
+  border:1px solid #9DBD22!important;
+  color:var(--tennis-accent-ink)!important;
+  box-shadow:0 4px 13px rgba(98,125,11,.14)!important;
+}
+/* Propuestas de fecha, disputas y revisiones conservan su jerarquía visual */
+#tab-matches .matchActionPrimary[data-match-result]:hover,
+#tab-matches .matchActionPrimary[data-ldm-result-confirm]:hover,
+#tab-home .matchActionPrimary[data-match-result]:hover,
+#tab-home .matchActionPrimary[data-ldm-result-confirm]:hover,
+#resultForm button[type="submit"]:hover{background:var(--tennis-accent-hover)!important}
+/* Acciones de activación y creación sin asociar el verde a botones destructivos */
+#ldmPushActivate,#ldmCreateLeague,#ldmDoImport{
+  background:var(--tennis-accent)!important;
+  color:var(--tennis-accent-ink)!important;
+  border:1px solid #9DBD22!important;
+  font-weight:850;
+}
+#ldmPushActivate:hover,#ldmCreateLeague:hover,#ldmDoImport:hover{background:var(--tennis-accent-hover)!important}
+/* Elementos deportivos pequeños en Más, con acento de la nueva identidad */
+#tab-more .ldmQuickCard[data-goto="matches"] .iconWrap,
+#tab-more .ldmQuickCard[data-goto="results"] .iconWrap{
+  background:#EFF8CC!important;
+  border-color:#D3E99B!important;
+  color:#254047!important;
+}
+#tab-more .ldmDataCard.tone-gold{background:linear-gradient(180deg,#EAF7BB,#fff)!important;border-color:#CEE68A!important}
+/* Accesibilidad: foco claro y sin depender únicamente del color */
+#tab-matches .matchActionPrimary:focus-visible,#tab-home .matchActionPrimary:focus-visible,
+#resultForm button[type="submit"]:focus-visible,#ldmPushActivate:focus-visible,
+#ldmCreateLeague:focus-visible,#ldmDoImport:focus-visible{outline:3px solid #003E4A;outline-offset:3px}
+
 </style>
 <script>
 (()=>{
