@@ -1965,6 +1965,47 @@ body:has(#dashboard:not(.hidden)) header{background:linear-gradient(110deg,#0031
 #tab-home .homeStats .statIcon>strong{font-size:17px!important}
 #tab-home .homeStats>div>strong{font-size:20px!important;line-height:1.08!important}
 #tab-home .homeStats>div>span{font-size:10px!important;line-height:1.15!important}
+
+/* V1.8.1 — acentos verde tenis en acciones positivas (sin cambiar estados ni avisos) */
+:root{--tennis-accent:#B8E020;--tennis-accent-hover:#A5CB15;--tennis-accent-ink:#14242D}
+/* Acciones deportivas principales: subir y confirmar marcadores */
+#tab-matches .matchActionPrimary[data-match-result],
+#tab-matches .matchActionPrimary[data-ldm-result-confirm],
+#tab-home .matchActionPrimary[data-match-result],
+#tab-home .matchActionPrimary[data-ldm-result-confirm],
+#resultForm button[type="submit"]{
+  background:var(--tennis-accent)!important;
+  border:1px solid #9DBD22!important;
+  color:var(--tennis-accent-ink)!important;
+  box-shadow:0 4px 13px rgba(98,125,11,.14)!important;
+}
+/* Propuestas de fecha, disputas y revisiones conservan su jerarquía visual */
+#tab-matches .matchActionPrimary[data-match-result]:hover,
+#tab-matches .matchActionPrimary[data-ldm-result-confirm]:hover,
+#tab-home .matchActionPrimary[data-match-result]:hover,
+#tab-home .matchActionPrimary[data-ldm-result-confirm]:hover,
+#resultForm button[type="submit"]:hover{background:var(--tennis-accent-hover)!important}
+/* Acciones de activación y creación sin asociar el verde a botones destructivos */
+#ldmPushActivate,#ldmCreateLeague,#ldmDoImport{
+  background:var(--tennis-accent)!important;
+  color:var(--tennis-accent-ink)!important;
+  border:1px solid #9DBD22!important;
+  font-weight:850;
+}
+#ldmPushActivate:hover,#ldmCreateLeague:hover,#ldmDoImport:hover{background:var(--tennis-accent-hover)!important}
+/* Elementos deportivos pequeños en Más, con acento de la nueva identidad */
+#tab-more .ldmQuickCard[data-goto="matches"] .iconWrap,
+#tab-more .ldmQuickCard[data-goto="results"] .iconWrap{
+  background:#EFF8CC!important;
+  border-color:#D3E99B!important;
+  color:#254047!important;
+}
+#tab-more .ldmDataCard.tone-gold{background:linear-gradient(180deg,#EAF7BB,#fff)!important;border-color:#CEE68A!important}
+/* Accesibilidad: foco claro y sin depender únicamente del color */
+#tab-matches .matchActionPrimary:focus-visible,#tab-home .matchActionPrimary:focus-visible,
+#resultForm button[type="submit"]:focus-visible,#ldmPushActivate:focus-visible,
+#ldmCreateLeague:focus-visible,#ldmDoImport:focus-visible{outline:3px solid #003E4A;outline-offset:3px}
+
 </style>
 <script>
 (()=>{
