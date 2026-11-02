@@ -588,6 +588,46 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 @media(prefers-reduced-motion:reduce){#tab-home .ldmFixturesTrack{scroll-behavior:auto}}
 
 .ldmDeleteUserBtn{border:1px solid #b42338;background:#fff4f5;color:#96172b;border-radius:9px;padding:9px 11px;font:600 12px Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer}.ldmDeleteUserBtn:disabled{opacity:.35;cursor:not-allowed}.ldmDeleteUserBtn:not(:disabled):hover{background:#fae2e6}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style><style id="ldm-bulk-access-v141">
 #ldmBulkAccess{background:#fff;border:1px solid #e5e3e8;border-radius:15px;padding:16px;margin:16px 0;box-shadow:0 3px 14px #200b1010;color:#29252c}
 #ldmBulkAccess h3{margin:0 0 6px;font-size:18px}#ldmBulkAccess p{font-size:12px;color:#64636b;line-height:1.5}
@@ -597,6 +637,46 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 #ldmBulkCreate{width:100%;min-height:48px;border:0;border-radius:10px;background:#790c34;color:white;font-weight:800;margin-top:11px}
 #ldmBulkOutput{display:none;background:#f6f7fa;color:#222;border:1px solid #dedfe6;border-radius:10px;padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace}
 #ldmBulkDownload{display:none;width:100%;margin-top:10px;min-height:45px;border:1px solid #28623e;border-radius:10px;background:#e6f6eb;color:#225e3b;font-weight:800}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style>
 <style id="ldm-user-layout-v153">
 .ldmBackBtn{display:inline-flex;gap:8px;align-items:center;justify-content:center;background:#fff;border:1px solid #e5dfe3;color:#681631;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px #2a06100b;min-height:40px}
@@ -628,6 +708,46 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 #ldmSixMigration summary{font-weight:750;cursor:pointer;color:#664456}
 #ldmSixMigration{margin-top:12px!important}
 @media(max-width:440px){#tab-users .ldmUserTabs button{font-size:10.5px;line-height:1.25;padding:8px 3px}}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style></head><body>
 <header><div class="top"><div class="brand"><img class="logo" src="./logo-cdm.png" alt="Escudo CDM"><div><div class="eyebrow">CDM · TENIS</div><h1>Liga Deportiva Militar</h1></div></div><div class="topRight"><button type="button" id="ldmPushQuick" class="ldmPushQuick off hidden" title="Configurar avisos del móvil" aria-label="Estado de notificaciones Push"><span class="ldmPushLed"></span><span id="ldmPushQuickText">Avisos</span></button><button id="ldmNotify" type="button" aria-label="Ver asuntos pendientes"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/></svg><span class="dot"></span><span id="ldmInboxBadge" class="ldmInboxBadge" aria-hidden="true"></span></button><span class="pill">V1.0.1 · Clasificación móvil</span><button type="button" id="installPwa" class="installPwa hidden">Instalar app</button><span id="who" class="pill">Sin sesión</span></div></div></header>
 <main class="app"><div class="hero"><div><div class="eyebrow">Temporada en preparación</div><h2>Tu liga, bajo control.</h2><p>Jugadores, enfrentamientos y resultados en un mismo lugar. Entorno de pruebas independiente.</p></div><div class="icon">🏆</div></div><div id="notice" class="banner">Conectando con la API...</div>
@@ -652,21 +772,26 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <section id="tab-standings" class="hidden" aria-label="Clasificación"><div class="sectionHeader"><h2>Clasificación</h2><p>Puntos, sets y juegos por división.</p></div><div class="card"><p class="desc">Orden: puntos, sets ganados y juegos ganados. Los puntos de color muestran la forma reciente.</p><label>Ver división</label><select id="divisionFilter"></select><div id="standingTable" class="empty">Todavía no hay participantes.</div></div></section>
 <section id="tab-users" class="hidden" aria-label="Usuarios"><div class="ldmUserBack"><button type="button" id="ldmUsersBack" class="ldmBackBtn">← <span>Volver a Más</span></button></div><div class="sectionHeader"><h2>Gestión de usuarios</h2><p>Tres funciones claras para administrar las cuentas de acceso.</p></div><div class="ldmUserTabs" role="tablist" aria-label="Secciones de gestión de usuarios"><button class="active" type="button" data-ldm-user-tab="accounts" role="tab" aria-selected="true">➕ Crear cuentas</button><button type="button" data-ldm-user-tab="pins" role="tab" aria-selected="false">🔐 PIN y WhatsApp</button><button type="button" data-ldm-user-tab="delete" role="tab" aria-selected="false">🗑 Eliminar cuentas</button></div><div class="ldmUserTabIntro" id="ldmUserTabIntro">Crea una cuenta individual o genera los accesos de los jugadores de esta liga.</div><div class="grid"><div class="card" id="createUserBox"><h3>🔐 Nueva cuenta</h3><p class="desc">Crea cuentas para jugadores o administradores. El PIN se envía por HTTPS y no se conserva aquí.</p><form id="userForm"><label>Nombre de acceso</label><input name="name" maxlength="80" minlength="2" required><label>PIN de acceso (6 cifras)</label><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="new-password" required><label>Rol</label><select name="role"><option value="player">Jugador</option><option value="admin">Administrador</option></select><label>Vincular a jugador (opcional)</label><select name="playerId" id="userPlayer"></select><button class="btn" type="submit">Crear cuenta</button></form></div><div class="card"><h3>👤 Cuentas registradas</h3><p class="desc">Consulta o renueva los PIN de jugadores. Eliminar una cuenta impide su acceso a todas las ligas sin borrar los resultados históricos.</p><div id="userList" class="empty">Sin datos.</div></div></div></section>
 <section id="tab-more" class="hidden screenPanel moreScreen" aria-label="Más opciones">
-<div class="moreHeader"><button type="button" id="ldmMoreBack" class="ldmBackBtn" aria-label="Volver a Inicio">← <span>Volver</span></button><h2>Más opciones</h2><p>Gestión de tu competición y cuenta</p></div>
-<div class="ldmMoreGroupTitle">MI CUENTA</div>
-<div class="moreList" role="navigation" aria-label="Mi cuenta">
-<button type="button" class="moreItem" id="ldmMorePushGo"><span class="moreItemIcon">🔔</span><span class="moreItemLabel">Notificaciones <small id="ldmMorePushLabel">Comprobando estado…</small></span><span class="moreChevron">›</span></button>
+<div class="moreHeader"><button type="button" id="ldmMoreBack" class="ldmBackBtn" aria-label="Volver a Inicio">← <span>Volver</span></button><h2>Más</h2><p>Accesos rápidos de tu competición</p></div>
+<div class="ldmSectionTitle">Liga activa</div>
+<div class="ldmLeagueCard"><strong>Competición seleccionada</strong><label for="ldmLeagueSelect">Seleccionar liga</label><select id="ldmLeagueSelect" aria-label="Liga activa"><option value="original">Liga original</option></select><p>Cada liga mantiene sus propios jugadores, partidos, resultados y mensajes.</p></div>
+<div class="ldmSectionTitle">Datos</div>
+<div class="ldmMoreDataGrid" aria-label="Resumen de la liga activa">
+<div class="ldmDataCard tone-wine"><b id="ldmMoreDataPlayers">0</b><span>Jugadores</span><small>Participantes activos</small></div>
+<div class="ldmDataCard tone-gold"><b id="ldmMoreDataMatches">0</b><span>Partidos</span><small>Enfrentamientos totales</small></div>
+<div class="ldmDataCard tone-green"><b id="ldmMoreDataPlayed">0</b><span>Resultados</span><small>Partidos ya cerrados</small></div>
+<div class="ldmDataCard tone-soft"><b id="ldmMoreDataPending">0</b><span>Pendientes</span><small>Por jugar o revisar</small></div>
 </div>
-<div class="ldmMoreGroupTitle">LIGA ACTIVA</div>
-<div class="ldmLeagueCard"><label for="ldmLeagueSelect">Seleccionar competición</label><select id="ldmLeagueSelect" aria-label="Liga activa"><option value="original">Liga original</option></select><p>Cada liga mantiene sus propios jugadores, partidos, resultados y mensajes.</p></div>
-<div class="ldmMoreGroupTitle">MI COMPETICIÓN</div>
-<div class="moreList" role="navigation" aria-label="Mi competición">
-<button type="button" class="moreItem" data-goto="pending"><span class="moreItemIcon">☷</span><span class="moreItemLabel">Asuntos pendientes <small id="ldmMorePending"></small></span><span class="moreChevron">›</span></button>
-<button type="button" class="moreItem" data-goto="messages"><span class="moreItemIcon">✉</span><span class="moreItemLabel">Comunicaciones <small id="ldmMoreMessages"></small></span><span class="moreChevron">›</span></button>
-<button type="button" class="moreItem" data-goto="proposals"><span class="moreItemIcon">↔</span><span class="moreItemLabel">Cambios de fecha</span><span class="moreChevron">›</span></button>
-<button type="button" class="moreItem" data-goto="players"><span class="moreItemIcon">♙</span><span class="moreItemLabel">Jugadores</span><span class="moreChevron">›</span></button>
+<div class="ldmSectionTitle">Mi competición</div>
+<div class="ldmQuickGrid" role="navigation" aria-label="Mi competición">
+<button type="button" class="ldmQuickCard" data-goto="players"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="10" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><strong>Jugadores</strong><small>Participantes y fotos</small></button>
+<button type="button" class="ldmQuickCard" data-goto="matches"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 4.5c2 1.2 3 3.6 3 7.5s-1 6.3-3 7.5"></path><path d="M16 4.5c-2 1.2-3 3.6-3 7.5s1 6.3 3 7.5"></path></svg></span><strong>Partidos</strong><small>Calendario y acciones</small></button>
+<button type="button" class="ldmQuickCard" data-goto="results"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></span><strong>Resultados</strong><small>Marcadores registrados</small></button>
+<button type="button" class="ldmQuickCard" data-goto="standings"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg></span><strong>Clasificación</strong><small>Tabla y forma</small></button>
+<button type="button" class="ldmQuickCard" data-goto="messages"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H7l-3 3z"></path></svg></span><strong>Comunicaciones</strong><small>Bandeja de entrada</small><span class="count" id="ldmMoreMessages"></span></button>
+<button type="button" class="ldmQuickCard" data-goto="pending"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></span><strong>Pendientes</strong><small>Acciones por resolver</small><span class="count" id="ldmMorePending"></span></button>
 </div>
-<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmMoreGroupTitle">ADMINISTRACIÓN</div><div class="moreList"><button type="button" class="moreItem" id="ldmImportGo"><span class="moreItemIcon">⇧</span><span class="moreItemLabel">Nueva liga e importar CSV<small>Crear temporada y cargar enfrentamientos desde PDF convertido</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" id="ldmDeleteLeagueGo"><span class="moreItemIcon">🗑</span><span class="moreItemLabel">Eliminar liga<small>Eliminar competición y partidos, conservar todos los usuarios</small></span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="users"><span class="moreItemIcon">⚙</span><span class="moreItemLabel">Gestión de usuarios</span><span class="moreChevron">›</span></button><button type="button" class="moreItem" data-goto="results"><span class="moreItemIcon">▤</span><span class="moreItemLabel">Gestión de resultados</span><span class="moreChevron">›</span></button></div></div>
+<div class="adminOnly" id="ldmMoreAdminGroup"><div class="ldmSectionTitle">Administración</div><div class="ldmAdminGrid" role="navigation" aria-label="Administración"><button type="button" class="ldmQuickCard" data-goto="users"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path><path d="M4 21a8 8 0 0 1 16 0"></path><path d="M19 8h2"></path><path d="M20 7v2"></path></svg></span><strong>Usuarios</strong><small>Cuentas, PIN y WhatsApp</small></button><button type="button" class="ldmQuickCard" data-goto="results"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"></path><path d="M7 16V8"></path><path d="M12 16V5"></path><path d="M17 16v-3"></path></svg></span><strong>Resultados</strong><small>Gestión y revisión</small></button><button type="button" class="ldmQuickCard" id="ldmImportGo"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span><strong>Nueva liga</strong><small>Importar CSV</small></button><button type="button" class="ldmQuickCard" id="ldmDeleteLeagueGo"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></span><strong>Eliminar liga</strong><small>Conservar usuarios</small></button></div></div>
 <div id="ldmImportPanel" class="ldmImportPanel hidden adminOnly">
 <h3>Importar enfrentamientos CSV</h3><p>Primero convierte el PDF de enfrentamientos a CSV con las columnas: <code>categoria,jugador_a,jugador_b,fecha,hora,pista</code>.</p>
 <div class="ldmImportFields"><label>Nombre de la nueva liga<input id="ldmNewLeagueName" type="text" maxlength="90" placeholder="Ej.: Liga Otoño 2026"></label>
@@ -678,8 +803,8 @@ body:has(#dashboard:not(.hidden)) .app{padding-bottom:calc(125px + env(safe-area
 <p class="desc">Las cuentas y los PIN existentes se conservan. Las vinculaciones se hacen normalmente desde Altas de usuarios.</p>
 <div id="ldmLeagueLinks"></div>
 </div><div class="ldmPushPanel" id="ldmPushPanel"><div class="ldmPushPanelTop"><strong>🔔 Notificaciones del móvil</strong><button id="ldmPushClose" type="button" aria-label="Cerrar configuración">✕</button></div><p id="ldmPushStatus">Comprobando el estado de los avisos…</p><div class="ldmPushActions"><button type="button" id="ldmPushActivate">Activar avisos</button><button type="button" id="ldmPushTest">Enviar prueba</button><button type="button" id="ldmPushDisable">Desactivar</button></div><p class="ldmPushHelp">En iPhone, instala primero la app desde Safari → Compartir → Añadir a pantalla de inicio.</p></div>
-<div class="ldmMoreGroupTitle">SESIÓN</div><div class="moreList ldmLogoutList"><button id="logout" class="moreItem ldmLogoutBtn hidden" type="button"><span class="moreItemIcon"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="moreItemLabel">Cerrar sesión<small>Salir de tu cuenta en este dispositivo</small></span><span class="moreChevron">›</span></button></div>
-<div class="moreFooter">LIGA DEPORTIVA MILITAR · V1.3.13</div></section></div><div id="ldmLatestTicker" class="ldmTicker" role="region" aria-label="Últimos resultados"><span class="ldmTickerLabel"><span class="ldmTickerLive" aria-hidden="true"></span> ÚLTIMOS RESULTADOS</span><div class="ldmTickerViewport"><div class="ldmTickerEmpty">Sin resultados todavía</div></div></div><nav class="bottomNav hidden" id="bottomNav" aria-label="Navegación principal"><button type="button" class="active" data-goto="home"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Inicio</button><button type="button" data-goto="matches"><span class="ic"><img class="tennisIcon tennisIconOutline" src="icons/tenis-contorno.png" alt="" aria-hidden="true"><img class="tennisIcon tennisIconSolid" src="icons/tenis-solida.png" alt="" aria-hidden="true"></span>Partidos</button><button type="button" data-goto="standings"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="3" height="8"/><rect x="10" y="9" width="3" height="12"/><rect x="16" y="4" width="3" height="17"/></svg></span>Clasificación</button><button type="button" data-goto="more"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Más</button></nav><div class="footer">Liga Deportiva Militar · Entorno V1.0.9 · Liga Deportiva Militar</div></main><div id="toast" class="hidden" role="status"></div>
+<div class="ldmSectionTitle">Cuenta</div><div class="ldmActionList"><button type="button" class="ldmActionRow" id="ldmMorePushGo"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg></span><span><span class="moreItemLabel">Notificaciones</span><small id="ldmMorePushLabel">Comprobando estado…</small></span><span class="moreChevron">›</span></button><button id="logout" class="ldmActionRow ldmLogoutAction hidden" type="button"><span class="iconWrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></span><span><span class="moreItemLabel">Cerrar sesión</span><small>Salir de tu cuenta en este dispositivo</small></span><span class="moreChevron">›</span></button></div>
+<div class="moreFooter">LIGA DEPORTIVA MILITAR · V1.6.4</div></section></div><div id="ldmLatestTicker" class="ldmTicker" role="region" aria-label="Últimos resultados"><span class="ldmTickerLabel"><span class="ldmTickerLive" aria-hidden="true"></span> ÚLTIMOS RESULTADOS</span><div class="ldmTickerViewport"><div class="ldmTickerEmpty">Sin resultados todavía</div></div></div><nav class="bottomNav hidden" id="bottomNav" aria-label="Navegación principal"><button type="button" class="active" data-goto="home"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Inicio</button><button type="button" data-goto="matches"><span class="ic"><img class="tennisIcon tennisIconOutline" src="icons/tenis-contorno.png" alt="" aria-hidden="true"><img class="tennisIcon tennisIconSolid" src="icons/tenis-solida.png" alt="" aria-hidden="true"></span>Partidos</button><button type="button" data-goto="standings"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="3" height="8"/><rect x="10" y="9" width="3" height="12"/><rect x="16" y="4" width="3" height="17"/></svg></span>Clasificación</button><button type="button" data-goto="more"><span class="ic"><svg class="ldmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span>Más</button></nav><div class="footer">Liga Deportiva Militar · Entorno V1.0.9 · Liga Deportiva Militar</div></main><div id="toast" class="hidden" role="status"></div>
 <script>
 'use strict';
 const API='https://ldm-api.ligasdetenis.workers.dev';
@@ -754,7 +879,7 @@ async function refresh(){await ldmLoadLeagueOptions();if(!S.leagueId){S.players=
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
 const pencilIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 20 4-.8L20 7a2 2 0 0 0-3-3L5 16z"/></svg>';
 const arrowIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 5 7 7-7 7"/></svg>';
-function render(){const played=S.matches.filter(m=>m.result).length;$('kPlayers').textContent=S.players.length;$('kMatches').textContent=S.matches.length;$('kPlayed').textContent=played;$('kPending').textContent=S.matches.length-played;renderParticipants();setOptions($('playerA'),S.players);setOptions($('playerB'),S.players);setOptions($('userPlayer'),S.players,'Sin vincular');setOptions($('resultMatch'),S.matches.filter(m=>!m.result&&!m.pendingResult&&(isAdmin()||(S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId)))).map(m=>({id:m.id,name:m.date+' '+m.time+' · '+userName(m.playerAId)+' vs '+userName(m.playerBId)})),'Selecciona un partido');const sorted=[...S.matches].sort((a,b)=>(a.date+' '+a.time).localeCompare(b.date+' '+b.time));$('matchList').innerHTML=sorted.length?'<div class="matchCards v09MatchCards">'+sorted.map(m=>{const done=!!m.result;const canChange=canPropose(m);const isMyMatch=!!S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId);const pendingResult=m.pendingResult&&!done?m.pendingResult:null;const maySubmit=!done&&!pendingResult&&(isAdmin()||isMyMatch);const canConfirm=!!pendingResult&&pendingResult.status==='pending'&&pendingResult.submittedBy!==S.user?.id&&(isMyMatch||isAdmin());const canReopen=!!pendingResult&&pendingResult.status==='disputed'&&isAdmin();const state=done?'Finalizado':pendingResult?(pendingResult.status==='disputed'?'En revisión':'Por confirmar'):'Programado';return '<article class="matchCard v09MatchCard"><div class="matchCardTop"><span class="matchCardKicker">🎾 LIGA DEPORTIVA MILITAR</span><span class="badge '+(done?'done':'')+'">'+state+'</span></div><button type="button" class="matchCardDetail" data-showmatch="'+escapeHtml(m.id)+'" aria-label="Ver detalles de '+escapeHtml(userName(m.playerAId))+' contra '+escapeHtml(userName(m.playerBId))+'"><div class="matchCardPlayers"><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><strong>'+escapeHtml(userName(m.playerAId))+'</strong></div><span class="matchVs">VS</span><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><strong>'+escapeHtml(userName(m.playerBId))+'</strong></div></div><div class="matchCardWhen">'+calendarIcon+'<span>'+escapeHtml(m.date||'Sin fecha')+' · '+escapeHtml(m.time||'Hora pendiente')+'</span></div><div class="matchCardCourt">'+escapeHtml(m.court||'Pista por confirmar')+'</div>'+(done?'<div class="matchScore">'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</div>':pendingResult?'<div class="matchScore" style="color:#936c24">Propuesto: '+escapeHtml((pendingResult.sets||[]).map(s=>s.join('-')).join(' / '))+'</div>':'')+'</button><div class="matchCardActions">'+(maySubmit?'<button type="button" class="matchAction matchActionPrimary" data-match-result="'+escapeHtml(m.id)+'"'+'>'+pencilIcon+' Subir resultado</button>':'')+(canConfirm?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-confirm="'+escapeHtml(m.id)+'"'+'>✓ Confirmar resultado</button><button type="button" class="matchAction matchActionSecondary" data-ldm-result-dispute="'+escapeHtml(m.id)+'"'+'>No estoy de acuerdo</button>':'')+(canReopen?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-reopen="'+escapeHtml(m.id)+'"'+'>Reabrir resultado</button>':'')+(pendingResult&&!canConfirm&&!canReopen?'<button type="button" class="matchAction matchActionSecondary" data-match-review="'+escapeHtml(m.id)+'"'+'> '+(pendingResult.status==='disputed'?'Ver discrepancia':'Esperando confirmación')+'</button>':'')+(canChange&&!pendingResult?'<button type="button" class="matchAction '+(maySubmit?'matchActionSecondary':'matchActionPrimary')+'" data-match-propose="'+escapeHtml(m.id)+'"'+'> '+calendarIcon+' Proponer cambio de fecha</button>':'')+'</div></article>';}).join('')+'</div>':'<div class="empty">No hay enfrentamientos.</div>';const results=sorted.filter(m=>m.result).reverse();$('resultList').innerHTML=results.length?'<div class="tablewrap"><table><thead><tr><th>Partido</th><th>Sets</th><th>Puntos</th></tr></thead><tbody>'+results.map(m=>'<tr><td>'+escapeHtml(userName(m.playerAId))+'<br><small>vs '+escapeHtml(userName(m.playerBId))+'</small></td><td>'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</td><td>'+m.result.pointsA+' - '+m.result.pointsB+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Sin resultados.</div>';$('userList').innerHTML=isAdmin()&&S.users.length?'<div class="tablewrap"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Jugador</th><th>Acciones</th></tr></thead><tbody>'+S.users.map(u=>'<tr><td>'+escapeHtml(u.name)+'</td><td>'+escapeHtml(u.role==='admin'?'Administrador':'Jugador')+'</td><td>'+escapeHtml(u.playerId?userName(u.playerId):'—')+'</td><td><button type="button" class="ldmDeleteUserBtn" data-ldm-delete-user="'+escapeHtml(u.id)+'"'+(u.id===S.user?.id?' disabled title="No puedes eliminar tu propia cuenta"':'')+'>Eliminar usuario</button></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">No hay cuentas disponibles para mostrar.</div>';const pick=$('divisionFilter'),old=pick.value,divs=[...new Set(S.players.map(p=>p.division||'Sub-18'))].sort((a,b)=>a.localeCompare(b,'es'));pick.innerHTML=divs.map(d=>'<option value="'+escapeHtml(d)+'">'+escapeHtml(d)+'</option>').join('');if(divs.includes(old))pick.value=old;standings();renderProposals();renderLatestTicker();renderMobileHome();}
+function render(){const played=S.matches.filter(m=>m.result).length;const pendingTotal=S.matches.length-played;$('kPlayers').textContent=S.players.length;$('kMatches').textContent=S.matches.length;$('kPlayed').textContent=played;$('kPending').textContent=pendingTotal;if($('ldmMoreDataPlayers'))$('ldmMoreDataPlayers').textContent=S.players.length;if($('ldmMoreDataMatches'))$('ldmMoreDataMatches').textContent=S.matches.length;if($('ldmMoreDataPlayed'))$('ldmMoreDataPlayed').textContent=played;if($('ldmMoreDataPending'))$('ldmMoreDataPending').textContent=pendingTotal;renderParticipants();setOptions($('playerA'),S.players);setOptions($('playerB'),S.players);setOptions($('userPlayer'),S.players,'Sin vincular');setOptions($('resultMatch'),S.matches.filter(m=>!m.result&&!m.pendingResult&&(isAdmin()||(S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId)))).map(m=>({id:m.id,name:m.date+' '+m.time+' · '+userName(m.playerAId)+' vs '+userName(m.playerBId)})),'Selecciona un partido');const sorted=[...S.matches].sort((a,b)=>(a.date+' '+a.time).localeCompare(b.date+' '+b.time));$('matchList').innerHTML=sorted.length?'<div class="matchCards v09MatchCards">'+sorted.map(m=>{const done=!!m.result;const canChange=canPropose(m);const isMyMatch=!!S.user?.playerId&&[m.playerAId,m.playerBId].includes(S.user.playerId);const pendingResult=m.pendingResult&&!done?m.pendingResult:null;const maySubmit=!done&&!pendingResult&&(isAdmin()||isMyMatch);const canConfirm=!!pendingResult&&pendingResult.status==='pending'&&pendingResult.submittedBy!==S.user?.id&&(isMyMatch||isAdmin());const canReopen=!!pendingResult&&pendingResult.status==='disputed'&&isAdmin();const state=done?'Finalizado':pendingResult?(pendingResult.status==='disputed'?'En revisión':'Por confirmar'):'Programado';return '<article class="matchCard v09MatchCard"><div class="matchCardTop"><span class="matchCardKicker">🎾 LIGA DEPORTIVA MILITAR</span><span class="badge '+(done?'done':'')+'">'+state+'</span></div><button type="button" class="matchCardDetail" data-showmatch="'+escapeHtml(m.id)+'" aria-label="Ver detalles de '+escapeHtml(userName(m.playerAId))+' contra '+escapeHtml(userName(m.playerBId))+'"><div class="matchCardPlayers"><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerAId,userName(m.playerAId))+'</span><strong>'+escapeHtml(userName(m.playerAId))+'</strong></div><span class="matchVs">VS</span><div class="matchCardPlayer"><span class="matchFace">'+pictureMarkup(m.playerBId,userName(m.playerBId))+'</span><strong>'+escapeHtml(userName(m.playerBId))+'</strong></div></div><div class="matchCardWhen">'+calendarIcon+'<span>'+escapeHtml(m.date||'Sin fecha')+' · '+escapeHtml(m.time||'Hora pendiente')+'</span></div><div class="matchCardCourt">'+escapeHtml(m.court||'Pista por confirmar')+'</div>'+(done?'<div class="matchScore">'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</div>':pendingResult?'<div class="matchScore" style="color:#936c24">Propuesto: '+escapeHtml((pendingResult.sets||[]).map(s=>s.join('-')).join(' / '))+'</div>':'')+'</button><div class="matchCardActions">'+(maySubmit?'<button type="button" class="matchAction matchActionPrimary" data-match-result="'+escapeHtml(m.id)+'"'+'>'+pencilIcon+' Subir resultado</button>':'')+(canConfirm?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-confirm="'+escapeHtml(m.id)+'"'+'>✓ Confirmar resultado</button><button type="button" class="matchAction matchActionSecondary" data-ldm-result-dispute="'+escapeHtml(m.id)+'"'+'>No estoy de acuerdo</button>':'')+(canReopen?'<button type="button" class="matchAction matchActionPrimary" data-ldm-result-reopen="'+escapeHtml(m.id)+'"'+'>Reabrir resultado</button>':'')+(pendingResult&&!canConfirm&&!canReopen?'<button type="button" class="matchAction matchActionSecondary" data-match-review="'+escapeHtml(m.id)+'"'+'> '+(pendingResult.status==='disputed'?'Ver discrepancia':'Esperando confirmación')+'</button>':'')+(canChange&&!pendingResult?'<button type="button" class="matchAction '+(maySubmit?'matchActionSecondary':'matchActionPrimary')+'" data-match-propose="'+escapeHtml(m.id)+'"'+'> '+calendarIcon+' Proponer cambio de fecha</button>':'')+'</div></article>';}).join('')+'</div>':'<div class="empty">No hay enfrentamientos.</div>';const results=sorted.filter(m=>m.result).reverse();$('resultList').innerHTML=results.length?'<div class="tablewrap"><table><thead><tr><th>Partido</th><th>Sets</th><th>Puntos</th></tr></thead><tbody>'+results.map(m=>'<tr><td>'+escapeHtml(userName(m.playerAId))+'<br><small>vs '+escapeHtml(userName(m.playerBId))+'</small></td><td>'+escapeHtml(m.result.sets.map(s=>s.join('-')).join(' / '))+'</td><td>'+m.result.pointsA+' - '+m.result.pointsB+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Sin resultados.</div>';$('userList').innerHTML=isAdmin()&&S.users.length?'<div class="tablewrap"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Jugador</th><th>Acciones</th></tr></thead><tbody>'+S.users.map(u=>'<tr><td>'+escapeHtml(u.name)+'</td><td>'+escapeHtml(u.role==='admin'?'Administrador':'Jugador')+'</td><td>'+escapeHtml(u.playerId?userName(u.playerId):'—')+'</td><td><button type="button" class="ldmDeleteUserBtn" data-ldm-delete-user="'+escapeHtml(u.id)+'"'+(u.id===S.user?.id?' disabled title="No puedes eliminar tu propia cuenta"':'')+'>Eliminar usuario</button></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">No hay cuentas disponibles para mostrar.</div>';const pick=$('divisionFilter'),old=pick.value,divs=[...new Set(S.players.map(p=>p.division||'Sub-18'))].sort((a,b)=>a.localeCompare(b,'es'));pick.innerHTML=divs.map(d=>'<option value="'+escapeHtml(d)+'">'+escapeHtml(d)+'</option>').join('');if(divs.includes(old))pick.value=old;standings();renderProposals();renderLatestTicker();renderMobileHome();}
 function renderParticipants(){
  const search=$('participantSearch'), filter=$('participantDivision');
  if(!search||!filter)return;
@@ -1050,6 +1175,46 @@ start();
 .ldmCounterActions button{width:100%;min-height:48px;border:0;border-radius:11px;font-weight:900;cursor:pointer}
 #ldmCounterSend{background:#83001e;color:#fff}
 #ldmCounterCancel{background:#f0f0f3;color:#343841}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style>
 <div id="ldmCounterOverlay" role="dialog" aria-modal="true" aria-label="Proponer otro resultado">
 <form id="ldmCounterBox">
@@ -1298,6 +1463,46 @@ td{font-weight:500;letter-spacing:-.006em}
 input,select,textarea{font-weight:500;letter-spacing:0}
 /* Mejor ajuste en pantallas pequeñas */
 @media(max-width:420px){.screenTitle{font-size:22px!important}.brand h1{font-size:15px!important}.bottomNav button{letter-spacing:-.02em}}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style><style id="ldm-leagues-v140">
 .ldmLeagueCard,.ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:15px;padding:14px;margin:10px 0 16px;box-shadow:0 4px 16px #240a1010}
 .ldmLeagueCard label,.ldmImportFields label{display:block;color:#25222a;font-weight:750;font-size:12px;margin-bottom:7px}
@@ -1327,6 +1532,46 @@ input,select,textarea{font-weight:500;letter-spacing:0}
 .ldmLeagueLinkRow[hidden]{display:none!important}
 .ldmLeagueLinkRow{grid-template-columns:minmax(90px,1fr) minmax(0,1.5fr) auto}
 @media(max-width:540px){.ldmLeagueLinkRow{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}.ldmLeagueLinkRow button{grid-column:2;justify-self:end;min-width:96px}}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style>
 <script>
 /* LDM v1.4.0 — ligas múltiples y carga segura de partidos desde CSV. */
@@ -1521,6 +1766,46 @@ function mount(){
 
 .ldmRemovePlayerBtn{grid-column:1/-1;display:block;width:calc(100% - 22px);margin:5px 11px 10px;padding:8px;border-radius:9px;border:1px solid #b85b65;background:#fff7f7;color:#861c31;font-size:12px;font-weight:750;cursor:pointer}
 .ldmRemovePlayerBtn:disabled{opacity:.5;cursor:wait}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style>
 <script id="ldm-pin-manager-js-v142">
 (()=>{
@@ -1604,6 +1889,46 @@ window.addEventListener('load',renderPinManager);
 .ldmLegacyAdmin{margin-top:13px;text-align:left;font-size:12px}.ldmLegacyAdmin summary{cursor:pointer;color:#777}.ldmLegacyAdmin input{width:100%;margin:5px 0 9px;padding:10px;border:1px solid #ddd;border-radius:10px}
 #ldmSixMigration{margin:10px 0;padding:13px;border:1px solid #eed5a4;border-radius:12px;background:#fff9eb}
 #ldmSixMigration p{font-size:12px;color:#665133}
+
+/* V1.6.4 — pestaña Más reorganizada y simplificada */
+#tab-more.moreScreen{max-width:620px;margin:0 auto;padding:0 0 14px}
+#tab-more .moreHeader{padding:3px 3px 14px}
+#tab-more .moreHeader h2{font-size:24px;font-weight:900;letter-spacing:-.045em;color:#540a22;margin:0 0 4px;line-height:1.15}
+#tab-more .moreHeader p{font-size:12px;color:#817a81;margin:0}
+#tab-more .ldmSectionTitle{display:flex;align-items:center;gap:10px;margin:18px 4px 10px;color:#6c1932;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+#tab-more .ldmSectionTitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#e2d3d9,transparent)}
+#tab-more .ldmLeagueCard,#tab-more .ldmImportPanel{background:#fff;border:1px solid #e7e3e5;border-radius:18px;padding:14px;margin:0 0 14px;box-shadow:0 4px 16px #240a1010}
+#tab-more .ldmLeagueCard strong{display:block;font-size:15px;color:#281e24;margin-bottom:8px}
+#tab-more .ldmMoreDataGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmDataCard{border-radius:18px;padding:14px 14px 12px;color:#20181d;min-height:92px;box-shadow:0 6px 18px #0000000a;border:1px solid transparent}
+#tab-more .ldmDataCard b{display:block;font-size:27px;line-height:1;color:#2b2026;margin-bottom:8px}
+#tab-more .ldmDataCard span{display:block;font-size:11px;font-weight:800;letter-spacing:.03em}
+#tab-more .ldmDataCard small{display:block;font-size:11px;color:#544850;opacity:.9;margin-top:4px}
+#tab-more .tone-wine{background:linear-gradient(180deg,#f8e9ee,#ffffff);border-color:#ead3db}
+#tab-more .tone-gold{background:linear-gradient(180deg,#fff4da,#ffffff);border-color:#f0dfb5}
+#tab-more .tone-green{background:linear-gradient(180deg,#edf8f0,#ffffff);border-color:#d3e8db}
+#tab-more .tone-soft{background:linear-gradient(180deg,#f4eff2,#ffffff);border-color:#e6dfe3}
+#tab-more .ldmQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+#tab-more .ldmQuickCard{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:12px 11px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;box-shadow:0 4px 16px #0000000a;cursor:pointer}
+#tab-more .ldmQuickCard:hover,#tab-more .ldmQuickCard:focus-visible{background:#fcf4f7;border-color:#d6b9c5;outline:none}
+#tab-more .ldmQuickCard .iconWrap{width:38px;height:38px;border-radius:12px;background:#f6f3f4;border:1px solid #ebe5e8;display:grid;place-items:center;color:#241f24}
+#tab-more .ldmQuickCard svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmQuickCard strong{font-size:13px;line-height:1.15;color:#271f24;letter-spacing:-.02em}
+#tab-more .ldmQuickCard small{font-size:10px;color:#7a727a;font-weight:700;line-height:1.25;margin-top:6px}
+#tab-more .ldmQuickCard .count{font-size:10px;color:#8f7882;font-weight:800;margin-top:4px;min-height:12px}
+#tab-more .ldmAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#tab-more .ldmActionList{background:#fff;border:1px solid #ebe5e8;border-radius:18px;padding:8px 8px 4px;box-shadow:0 4px 16px #0000000a}
+#tab-more .ldmActionRow{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;background:transparent;border:0;border-radius:13px;padding:10px 12px;color:#272228;text-align:left;font-size:13px;font-weight:800}
+#tab-more .ldmActionRow:hover,#tab-more .ldmActionRow:focus-visible{background:#fbebf0;color:#790c30;outline:none}
+#tab-more .ldmActionRow .iconWrap{width:36px;height:36px;border-radius:11px;background:#f5f1f3;border:1px solid #ebe5e8;display:grid;place-items:center;color:inherit;flex:none}
+#tab-more .ldmActionRow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tab-more .ldmActionRow small{display:block;font-size:10px;color:#807982;font-weight:700;line-height:1.25;margin-top:3px}
+#tab-more .ldmActionRow .moreChevron{margin-left:auto;font-size:22px;color:#bdb7bc;line-height:1}
+#tab-more .ldmLogoutAction{color:#9d213e}
+#tab-more .moreFooter{text-align:center;color:#a39ba2;font-size:10px;letter-spacing:.09em;margin-top:15px}
+@media(max-width:700px){#tab-more.moreScreen{padding:0 0 5px}#tab-more .ldmQuickGrid{gap:8px}#tab-more .ldmQuickCard{min-height:100px;padding:11px 10px}#tab-more .ldmAdminGrid{gap:8px}#tab-more .ldmDataCard{min-height:88px;padding:13px 13px 11px}#tab-more .ldmQuickCard strong{font-size:12px}}
+@media(max-width:390px){#tab-more .ldmQuickCard{min-height:96px;padding:10px 8px}#tab-more .ldmQuickCard .iconWrap{width:34px;height:34px;border-radius:10px}#tab-more .ldmQuickCard svg{width:20px;height:20px}#tab-more .ldmQuickCard small{font-size:9px}}
+
 </style>
 <script>
 (()=>{
