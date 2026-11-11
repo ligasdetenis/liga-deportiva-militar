@@ -969,7 +969,7 @@ navigator.serviceWorker?.addEventListener('message',e=>{
  if(e.data?.type!=='LDM_PUSH_NAVIGATE'||!e.data.url)return;
  try{const u=new URL(e.data.url,location.href);if(u.origin!==location.origin)return;history.replaceState(null,'',u.pathname+u.search+u.hash);ldmDeepLinkHandled='';ldmApplyPushDeepLink();}catch{}
 });
-async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4','1.4.8','1.5.0','1.5.1','1.5.2','1.6.0','1.6.7','1.8.3'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
+async function start(){try{const health=await request('/health');if(!['1.2.0','1.2.3','1.3.0','1.3.2','1.3.5','1.3.6','1.3.13','1.3.14','1.4.0','1.4.1','1.4.2','1.4.3','1.4.4','1.4.8','1.5.0','1.5.1','1.5.2','1.6.0','1.6.7','1.8.3','1.8.4'].includes(health.version))throw Error('La API no es una versión compatible. Se recibió: '+String(health.version||'desconocida'));if(S.token){try{S.user=(await request('/api/me')).user;keepSession(S.token);view(true);await refresh();return;}catch(e){if(e.status===401||e.status===403){clearSession();}else{if(S.user)view(true);msg('No se pudo actualizar la sesión. Comprueba la conexión y vuelve a abrir la app. No se ha borrado tu acceso.','error');return;}}}view(false);const setup=await request('/api/setup-status');$('setupCard').classList.toggle('hidden',!!setup.initialized);msg(setup.initialized?'API conectada. Inicia sesión con tu cuenta.':'API conectada. Debes crear el primer administrador.','ok');}catch(e){msg(e.message,'error');}}
 async function refresh(){await ldmLoadLeagueOptions();if(!S.leagueId){S.players=[];S.matches=[];S.proposals=[];S.messages=[];S.photos={};render();msg('Tu usuario todavía no está vinculado a ninguna liga. Pide al administrador que lo inscriba.','error');return;}S.user=(await request('/api/me')).user;const [p,m]=await Promise.all([request('/api/players'),request('/api/matches')]);S.players=p.players||[];S.matches=m.matches||[];S.users=isAdmin()?(await request('/api/users')).users||[]:[];S.proposals=(await request('/api/proposals')).proposals||[];try{S.photos=(await request('/api/photos')).photos||{};}catch(e){console.warn('Fotos remotas:',e.message);S.photos={};}try{S.messages=(await request('/api/messages')).messages||[];}catch(e){S.messages=[];console.warn('Mensajes:',e.message);}render();ldmApplyPushDeepLink();ldmPushState().catch(()=>{});msg('', 'ok');}
 
 const calendarIcon='<svg class="v09Icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/></svg>';
@@ -1930,6 +1930,28 @@ function mount(){
   #tab-matches .matchAction svg{width:16px!important;height:16px!important}
 }
 </style>
+<style>
+/* V1.8.4 · estado Push por usuario; compacto y dentro de PIN y WhatsApp */
+#ldmAdminPushPanel{background:#fff;border:1px solid #DDEDEF;border-radius:16px;padding:14px;margin:12px 0 16px;box-shadow:0 4px 15px #003e4a0b}
+#ldmAdminPushPanel .ldmPushHead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#ldmAdminPushPanel h3{color:#003E4A;margin:0;font-size:16px}
+#ldmAdminPushPanel .ldmPushRefresh{border:1px solid #c5d9d7;background:#f2fafa;color:#003E4A;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800}
+#ldmAdminPushPanel .ldmPushIntro{font-size:11px;line-height:1.5;color:#718087;margin:9px 0}
+#ldmAdminPushPanel .ldmPushSummary{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+#ldmAdminPushPanel .ldmPushSummary span{padding:6px 10px;border-radius:9px;background:#edf7f6;font-size:11px;font-weight:800;color:#003e4a}
+#ldmAdminPushPanel .ldmPushUser{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;border-top:1px solid #e7eff0;padding:12px 2px}
+#ldmAdminPushPanel .ldmPushUserName{font-size:13px;font-weight:850;line-height:1.3;overflow-wrap:break-word;color:#14242D}
+#ldmAdminPushPanel .ldmPushUserInfo{font-size:10px;line-height:1.5;color:#718087;margin-top:3px}
+#ldmAdminPushPanel .ldmPushBadge{display:inline-block;border-radius:99px;padding:6px 9px;font-size:10px;font-weight:850;text-align:center;white-space:nowrap}
+#ldmAdminPushPanel .ldmPushBadge.registered{background:#fff4d9;color:#855600}
+#ldmAdminPushPanel .ldmPushBadge.none{background:#f0f2f3;color:#5e6870}
+#ldmAdminPushPanel .ldmPushBadge.accepted{background:#e6f5e8;color:#156b45}
+#ldmAdminPushPanel .ldmPushBadge.issue{background:#fff0e9;color:#a44924}
+#ldmAdminPushPanel .ldmPushRemind{grid-column:1/-1;justify-self:start;border:1px solid #ccdadd;border-radius:10px;background:#fff;color:#003e4a;font-size:11px;padding:8px 11px;font-weight:850}
+#ldmAdminPushPanel .ldmPushRemind:disabled{opacity:.45}
+#ldmAdminPushPanel .ldmPushEmpty{font-size:12px;color:#718087;padding:12px 0}
+@media(max-width:390px){#ldmAdminPushPanel .ldmPushUser{grid-template-columns:minmax(0,1fr)}#ldmAdminPushPanel .ldmPushBadge{justify-self:start}}
+</style>
 <script id="ldm-pin-manager-js-v142">
 (()=>{
 const byId=id=>document.getElementById(id);
@@ -1988,6 +2010,58 @@ document.addEventListener('click',async e=>{
 });
 const prev=window.render;if(typeof prev==='function')window.render=function(...args){const r=prev.apply(this,args);renderPinManager();return r;};
 window.addEventListener('load',renderPinManager);
+})();
+</script>
+
+<script id="ldm-push-admin-v184">
+(()=>{
+  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let state=null;
+  let loadedLeague='';
+  let loading=false;
+  const root=()=>document.getElementById('ldmAdminPushPanel');
+  function mount(){
+    const host=document.getElementById('ldmPinManager');
+    if(!host||root())return;
+    const el=document.createElement('section');el.id='ldmAdminPushPanel';
+    el.innerHTML='<div class="ldmPushHead"><h3>🔔 Estado de notificaciones</h3><button class="ldmPushRefresh" type="button" id="ldmAdminPushRefresh">Actualizar</button></div><p class="ldmPushIntro">Dispositivos registrados de esta liga. «Aceptada por el servicio» no garantiza que la notificación se haya mostrado en el móvil.</p><div id="ldmAdminPushContent" class="ldmPushEmpty">Pulsa Actualizar para consultar los avisos.</div>';
+    host.insertBefore(el,host.firstChild);
+  }
+  function date(v){if(!v)return '';const d=new Date(v);return Number.isFinite(d.getTime())?d.toLocaleString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';}
+  function paint(){
+    const content=document.getElementById('ldmAdminPushContent');if(!content)return;
+    if(!state){content.className='ldmPushEmpty';content.textContent='Pulsa Actualizar para consultar los avisos.';return;}
+    const rows=state.users||[];
+    const count=type=>rows.filter(u=>u.state===type).length;
+    content.className='';
+    const labels={none:'Sin activar',registered:'Registrada',accepted:'Servicio aceptó Push',issue:'Incidencia'};
+    content.innerHTML='<div class="ldmPushSummary"><span>'+rows.length+' cuentas</span><span>'+rows.filter(u=>u.devices).length+' con Push</span><span>'+count('none')+' sin activar</span>'+(count('issue')?'<span>'+count('issue')+' con incidencia</span>':'')+'</div>'+
+       (state.truncated?'<p class="ldmPushIntro">Se muestran las primeras 350 cuentas.</p>':'')+
+       (rows.length?rows.map(u=>'<div class="ldmPushUser"><div><div class="ldmPushUserName">'+escape(u.name)+(u.role==='admin'?' · Administración':'')+'</div><div class="ldmPushUserInfo">'+u.devices+' dispositivo'+(u.devices===1?'':'s')+(u.lastAcceptedAt?' · Servicio aceptó envío: '+escape(date(u.lastAcceptedAt)):u.lastRegisteredAt?' · Registrada: '+escape(date(u.lastRegisteredAt)):'')+'</div></div><span class="ldmPushBadge '+escape(u.state)+'">'+escape(labels[u.state]||'Sin verificar')+'</span>'+(u.state!=='accepted'?'<button type="button" class="ldmPushRemind" data-ldm-push-remind="'+escape(u.userId)+'"'+(!u.phone?' disabled title="Falta teléfono de WhatsApp"':'')+'>Recordar por WhatsApp'+(!u.phone?' · sin teléfono':'')+'</button>':'')+'</div>').join(''):'<div class="ldmPushEmpty">No hay cuentas vinculadas a esta liga.</div>');
+  }
+  async function load(){
+    if(loading||!S.user||typeof isAdmin!=='function'||!isAdmin())return;
+    loading=true;const btn=document.getElementById('ldmAdminPushRefresh');if(btn){btn.disabled=true;btn.textContent='Consultando…';}
+    try{state=await request('/api/push/admin-status');loadedLeague=S.leagueId||'original';paint();}
+    catch(e){const el=document.getElementById('ldmAdminPushContent');if(el){el.className='ldmPushEmpty';el.textContent='No se pudo consultar el estado: '+e.message;}}
+    finally{loading=false;if(btn){btn.disabled=false;btn.textContent='Actualizar';}}
+  }
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#ldmAdminPushRefresh')){load();return;}
+    const remind=e.target.closest('[data-ldm-push-remind]');
+    if(remind){
+      const u=state?.users?.find(x=>x.userId===remind.dataset.ldmPushRemind);if(!u||!u.phone)return;
+      const number=String(u.phone).replace(/\D/g,'');if(!number)return;
+      const url=location.origin+location.pathname;
+      const message='Hola, '+u.name+'. Para recibir los avisos de la Liga Deportiva Militar entra en '+url+' y activa las notificaciones desde Más → Notificaciones. En iPhone primero instala la app desde Safari (Compartir → Añadir a pantalla de inicio). ¡Gracias!';
+      window.open('https://wa.me/'+number+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+      return;
+    }
+    const tab=e.target.closest('[data-ldm-user-tab="pins"]');if(tab){mount();if(!state||loadedLeague!==(S.leagueId||'original'))load();}
+  });
+  const prev=window.render;
+  if(typeof prev==='function')window.render=function(...args){const r=prev.apply(this,args);mount();if(loadedLeague!==(S.leagueId||'original')){state=null;paint();}return r;};
+  window.addEventListener('load',()=>{mount();});
 })();
 </script>
 <script id="ldm-user-navigation-v153">
