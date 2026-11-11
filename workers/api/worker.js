@@ -268,8 +268,18 @@ async function pushNotify(env,ctx,userIds,title,body,route='pending'){
  const ids=[...new Set(userIds.filter(Boolean))];
  const run=(async()=>{for(const uid of ids.slice(0,100)){
    const devices=await read(env,'push:'+uid,[]),next=[];
-   for(const s of devices.slice(0,8))try{const r=await pushSendOne(env,s,{title,body,url:'./?view='+encodeURIComponent(String(route).split(':')[0])+(String(route).includes(':')?'&item='+encodeURIComponent(String(route).split(':').slice(1).join(':')):''),tag:'ldm-'+route,icon:'./icons/icon-192.png'});if(r.status!==404&&r.status!==410)next.push(s);if(!r.ok)console.warn('Push entrega',r.status);}catch(e){console.warn('Push fallo',String(e));next.push(s);}
-   if(next.length!==devices.length)await put(env,'push:'+uid,next);
+   for(const s of devices.slice(0,8)){
+     try{
+       const r=await pushSendOne(env,s,{title,body,url:'./?view='+encodeURIComponent(String(route).split(':')[0])+(String(route).includes(':')?'&item='+encodeURIComponent(String(route).split(':').slice(1).join(':')):''),tag:'ldm-'+route,icon:'./icons/icon-192.png'});
+       if(r.status===404||r.status===410)continue; // Suscripción invalidada por el servicio.
+       const current={...s,lastAttemptAt:now()};
+       if(r.ok){current.lastAcceptedAt=current.lastAttemptAt;delete current.lastErrorAt;delete current.lastErrorCode;}
+       else{current.lastErrorAt=current.lastAttemptAt;current.lastErrorCode=r.status;console.warn('Push entrega',r.status);}
+       next.push(current);
+     }catch(e){console.warn('Push fallo',String(e));next.push({...s,lastAttemptAt:now(),lastErrorAt:now(),lastErrorCode:'NETWORK'});}
+   }
+   // Guardar también los metadatos de la entrega, no solo las bajas del servicio.
+   if(devices.length)await put(env,'push:'+uid,next);
  }})();
  if(ctx&&ctx.waitUntil)ctx.waitUntil(run);else await run;
 }
@@ -342,7 +352,7 @@ async function handler(req, env, ctx) {
 
   const url = new URL(req.url), path = url.pathname.replace(/\/$/, "") || "/";
 
-  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.8.3", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
+  if (req.method === "GET" && (path === "/" || path === "/health")) return response({ ok: true, app: "Liga Deportiva Militar", service: "ldm-api", version: "1.8.4", kv: "conectado", phase: "nucleo", sharedWithCTCampeador: false }, 200, origin);
 
   if (!["GET", "POST"].includes(req.method)) return response({ ok: false, error: "M\xE9todo no permitido" }, 405, origin);
 
@@ -1087,13 +1097,30 @@ async function handler(req, env, ctx) {
 
   }
 
+  // Panel privado de estado Push: solo administradores, nunca devuelve endpoints ni claves.
+  if(path==='/api/push/admin-status'&&req.method==='GET'){
+    if(!allowAdmin(user))return response({ok:false,error:'Solo administración'},403,origin);
+    const all=(await read(env,'users',[])).filter(u=>u.active!==false);
+    const scopedUsers=all.filter(u=>u.role==='admin'||(requestedLeague==='original'?!!u.playerId:!!u.leaguePlayers?.[requestedLeague]));
+    const entries=[];
+    // Lecturas acotadas y secuenciales para evitar picos de operaciones KV.
+    for(const u of scopedUsers.slice(0,350)){
+      const subs=await read(env,'push:'+u.id,[]);
+      const accepted=subs.map(x=>x.lastAcceptedAt).filter(Boolean).sort().at(-1)||null;
+      const issue=subs.map(x=>x.lastErrorAt).filter(Boolean).sort().at(-1)||null;
+      const registered=subs.map(x=>x.registeredAt).filter(Boolean).sort().at(-1)||null;
+      const state=!subs.length?'none':issue&&(!accepted||issue>accepted)?'issue':accepted?'accepted':'registered';
+      entries.push({userId:u.id,name:u.name,role:u.role,phone:u.phone||'',devices:subs.length,state,lastRegisteredAt:registered,lastAcceptedAt:accepted,lastErrorAt:issue});
+    }
+    return response({ok:true,leagueId:requestedLeague,total:entries.length,truncated:scopedUsers.length>350,users:entries},200,origin);
+  }
   // Push: claves públicas, registro por usuario y prueba autenticada.
   if(path==='/api/push/config'&&req.method==='GET')return response({ok:true,available:!!(env.VAPID_PUBLIC_KEY&&env.VAPID_PRIVATE_KEY&&env.VAPID_PUBLIC_X&&env.VAPID_PUBLIC_Y&&env.VAPID_CONTACT_EMAIL),publicKey:env.VAPID_PUBLIC_KEY||null},200,origin);
   if(path==='/api/push/subscribe'&&req.method==='POST'){
     const s=body.subscription;
     if(!s||typeof s.endpoint!=='string'||s.endpoint.length>1800||!s.endpoint.startsWith('https://')||!s.keys||!s.keys.auth||!s.keys.p256dh)return response({ok:false,error:'Suscripción no válida'},400,origin);
     const devices=await read(env,'push:'+user.id,[]),idx=devices.findIndex(x=>x.endpoint===s.endpoint);
-    if(idx>=0)devices[idx]=s;else devices.push(s);
+    if(idx>=0)devices[idx]={...devices[idx],...s,registeredAt:now()};else devices.push({...s,registeredAt:now()});
     await put(env,'push:'+user.id,devices.slice(-8));return response({ok:true,devices:Math.min(devices.length,8)},200,origin);
   }
   if(path==='/api/push/unsubscribe'&&req.method==='POST'){
